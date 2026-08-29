@@ -72,7 +72,7 @@ export default function OnboardingPage() {
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center shadow-glow-indigo">
               <Compass className="w-5 h-5 text-white" />
             </div>
-            <span className="font-extrabold text-base tracking-tight text-white">PathPilot 2.0</span>
+            <span className="font-extrabold text-base tracking-tight text-white">PathPilot AI</span>
           </Link>
 
           <div className="flex items-center gap-2 text-xs text-slate-400 font-semibold">

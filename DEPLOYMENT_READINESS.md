@@ -1,4 +1,4 @@
-# 🚢 PathPilot 2.0 — Production Deployment Readiness Guide
+# 🚢 PathPilot AI — Production Deployment Readiness Guide
 
 ---
 

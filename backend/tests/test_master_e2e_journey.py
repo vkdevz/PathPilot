@@ -5,7 +5,7 @@ from httpx import AsyncClient
 async def test_master_learner_end_to_end_journey(client: AsyncClient, auth_headers: dict):
     """
     MASTER E2E USER JOURNEY VERIFICATION (15-Step Hackathon & Production Release Flow)
-    Validates that a real learner can complete the entire PathPilot 2.0 lifecycle:
+    Validates that a real learner can complete the entire PathPilot lifecycle:
     1. Authenticate & fetch initialized learner profile
     2. Onboarding: set target career and study preferences
     3. Career Tracks: browse high-demand career catalog

@@ -1,8 +1,8 @@
-# PathPilot 2.0 — Frontend Architecture & Developer Guide
+# PathPilot AI — Frontend Architecture & Developer Guide
 
 ## 1. Executive Summary
 
-PathPilot 2.0 frontend is built with **Next.js 14 App Router**, **TypeScript**, **Tailwind CSS**, **Lucide Icons**, **Recharts**, and the **Vercel AI SDK**. It interfaces seamlessly with the FastAPI async backend and PostgreSQL 16 relational database authenticated via Supabase JWT sessions.
+PathPilot frontend is built with **Next.js 14 App Router**, **TypeScript**, **Tailwind CSS**, **Lucide Icons**, **Recharts**, and the **Vercel AI SDK**. It interfaces seamlessly with the FastAPI async backend and PostgreSQL 16 relational database authenticated via Supabase JWT sessions.
 
 The frontend is architected around answering the **6 Core Learner Questions**:
 1. **Where am I going?** (`/careers`, `/onboarding`)

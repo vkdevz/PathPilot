@@ -6,7 +6,7 @@ from pydantic import Field
 class Settings(BaseSettings):
     PROJECT_NAME: str = "PathPilot AI"
     API_V1_STR: str = "/api/v1"
-    VERSION: str = "2.0.0"
+    VERSION: str = "1.0.0"
     ENVIRONMENT: str = Field(default="development")
     DEV_MODE: bool = Field(default=False)
     TESTING: bool = Field(default=False)

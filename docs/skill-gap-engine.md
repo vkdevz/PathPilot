@@ -1,9 +1,9 @@
-# PathPilot 2.0 — Intelligent Skill-Gap Engine
+# PathPilot AI — Intelligent Skill-Gap Engine
 
 ## 1. Executive Summary
 
 A skill gap is **not** simply $\text{Target Score} - \text{Current Score}$. 
-PathPilot 2.0's Skill-Gap Engine combines **prerequisite structure**, **career importance**, **learner readiness**, and **downstream unlock impact** to prioritize learning actions that maximize momentum and unblock critical career paths.
+PathPilot's Skill-Gap Engine combines **prerequisite structure**, **career importance**, **learner readiness**, and **downstream unlock impact** to prioritize learning actions that maximize momentum and unblock critical career paths.
 
 ```
                     ┌─────────────────────────┐

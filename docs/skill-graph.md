@@ -1,8 +1,8 @@
-# PathPilot 2.0 — Skill Knowledge Graph Architecture
+# PathPilot AI — Skill Knowledge Graph Architecture
 
-## 1. Overview & Architectural Principles
+## 1. Executive Summary
 
-PathPilot 2.0 uses a normalized, relational knowledge graph embedded directly within PostgreSQL (SQLAlchemy 2.0 async). No dedicated external graph database (e.g., Neo4j) is required. Graph traversal, transitive ancestor resolution, downstream impact calculation, and cycle detection are performed via high-performance in-memory DAG algorithms within the `SkillGraphService`.
+PathPilot uses a normalized, relational knowledge graph embedded directly within PostgreSQL (SQLAlchemy 2.0 async). No dedicated external graph database (e.g., Neo4j) is required. Graph traversal, transitive ancestor resolution, downstream impact calculation, and cycle detection are performed via high-performance in-memory DAG algorithms within the `SkillGraphService`.
 
 ```
                     ┌─────────────────────────┐

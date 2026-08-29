@@ -1,4 +1,4 @@
-# 🛡️ PathPilot 2.0 — Security & Compliance Audit
+# 🛡️ PathPilot AI — Security & Compliance Audit
 
 ---
 

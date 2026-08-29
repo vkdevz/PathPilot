@@ -1,8 +1,8 @@
-# PathPilot AI 2.0 — Authentication Specification
+# PathPilot AI — Authentication Specification
 
-## 1. Authentication Architecture
+## 1. Overview
 
-PathPilot AI 2.0 utilizes **Supabase Auth** for identity management and JWT-based session security.
+PathPilot AI utilizes **Supabase Auth** for identity management and JWT-based session security.
 
 ```
 +------------------+         1. Login / Sign Up        +-------------------+

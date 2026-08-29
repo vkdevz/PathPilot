@@ -101,7 +101,7 @@ export const AppShell: React.FC<AppShellProps> = ({
                 <Compass className="w-5 h-5 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="font-extrabold text-base tracking-tight text-white">PathPilot 2.0</span>
+                <span className="font-extrabold text-base tracking-tight text-white">PathPilot AI</span>
                 <span className="text-[10px] font-semibold text-indigo-400 tracking-wider uppercase hidden sm:inline">Learning Navigator</span>
               </div>
             </Link>

@@ -1,4 +1,4 @@
-# PathPilot AI 2.0 — PostgreSQL Relational Schema
+# PathPilot AI — PostgreSQL Relational Schema
 
 ## 1. Overview
 The database layer is built on PostgreSQL 16 with the `pgvector` extension enabled for semantic similarity embeddings.

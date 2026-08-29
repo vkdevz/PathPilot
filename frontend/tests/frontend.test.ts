@@ -1,5 +1,5 @@
 /**
- * PathPilot 2.0 Frontend Unit & Integration Test Suite
+ * PathPilot Frontend Unit & Integration Test Suite
  * Tests API client contracts, Auth session handling, Assessment flow,
  * Roadmap progression, Recommendation explanations, AI Assistant, and Feedback adaptation.
  */
@@ -51,7 +51,7 @@ function test(name: string, fn: () => void | Promise<void>) {
 }
 
 async function runTests() {
-  console.log('\n=== Running PathPilot 2.0 Frontend Test Suite ===\n');
+  console.log('\n=== Running PathPilot Frontend Test Suite ===\n');
 
   // 1. Auth & Profile Schema Validation
   await test('Auth: user profile schema matches authenticated learner attributes', () => {
@@ -659,7 +659,7 @@ async function runTests() {
   // 19. Phase 8: Offline Adaptation Benchmark Schema
   await test('Adaptive Benchmark: validates 15-scenario evaluation report and accuracy metrics', () => {
     const mockBenchmark = {
-      benchmark_name: 'PathPilot 2.0 Adaptive Learning Benchmark',
+      benchmark_name: 'PathPilot Adaptive Learning Benchmark',
       algorithm_version: 'adaptive-v1.0',
       total_scenarios: 15,
       passed_scenarios: 15,

@@ -1,8 +1,8 @@
-# PathPilot AI 2.0 — Architecture Specification
+# PathPilot AI — Architecture Specification
+**Document Version:** 1.0.0  
 
-## 1. Executive Architecture Overview
-
-PathPilot AI 2.0 is an enterprise-grade personalized learning and career navigation platform. The architecture enforces strict separation of concerns, transactional consistency, relational normalization, vector search capabilities, and JWT-authenticated user isolation.
+## Executive Summary
+PathPilot AI is an enterprise-grade personalized learning and career navigation platform. The architecture enforces strict separation of concerns, transactional consistency, relational normalization, vector search capabilities, and JWT-authenticated user isolation.
 
 ```
 +-----------------------------------------------------------------------+

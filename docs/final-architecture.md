@@ -1,4 +1,4 @@
-# PathPilot 2.0 — Final Architecture
+# PathPilot AI — Final Architecture
 
 ## System Overview
 

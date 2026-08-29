@@ -1,4 +1,4 @@
-# PathPilot 2.0 — Adaptive Learning Engine Documentation
+# PathPilot AI — Adaptive Learning Engine Documentation
 
 ## 1. Overview & Pedagogical Mission
 The **Adaptive Learning Engine** transforms PathPilot from a static personalized recommender into a continuously learning closed-loop educational intelligence platform. Rather than offering one-time static diagnostic roadmaps, PathPilot continuously ingests atomic multimodal evidence (diagnostic assessments, modular quizzes, hands-on coding projects, resource completions, and qualitative learner feedback) to maintain an accurate, calibrated Bayesian proficiency model for each learner.

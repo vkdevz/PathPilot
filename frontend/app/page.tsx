@@ -36,7 +36,7 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-base tracking-tight text-white">
-                PathPilot 2.0
+                PathPilot AI
               </span>
               <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-400">
                 Personal Learning Navigator
@@ -173,7 +173,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-slate-900/40 py-8 text-center text-xs text-slate-500 space-y-2">
-        <p className="font-semibold text-slate-400">PathPilot 2.0 — Enterprise Career & Learning Navigator</p>
+        <p className="font-semibold text-slate-400">PathPilot AI — Enterprise Career & Learning Navigator</p>
         <p>© 2026 PathPilot AI Inc. Locked Stack: Next.js + FastAPI + PostgreSQL 16 + Supabase Auth.</p>
       </footer>
     </div>
