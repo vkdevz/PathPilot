@@ -36,7 +36,20 @@ import type {
 } from '../types';
 
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+function getNormalizedApiBaseUrl(): string {
+  let rawUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+  rawUrl = rawUrl.trim().replace(/\/+$/, '');
+  if (!rawUrl.endsWith('/api/v1')) {
+    if (rawUrl.endsWith('/api')) {
+      rawUrl = `${rawUrl}/v1`;
+    } else {
+      rawUrl = `${rawUrl}/api/v1`;
+    }
+  }
+  return rawUrl;
+}
+
+const API_BASE_URL = getNormalizedApiBaseUrl();
 
 class ApiClient {
   private async getAuthHeader(): Promise<HeadersInit> {
@@ -64,7 +77,8 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const headers = await this.getAuthHeader();
-    const url = `${API_BASE_URL}${endpoint}`;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${API_BASE_URL}${cleanEndpoint}`;
 
     const response = await fetch(url, {
       ...options,
@@ -76,7 +90,8 @@ class ApiClient {
 
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
-      throw new Error(errorBody.detail || `API Error: ${response.status} ${response.statusText}`);
+      const detailMsg = typeof errorBody.detail === 'string' ? errorBody.detail : JSON.stringify(errorBody.detail || response.statusText);
+      throw new Error(detailMsg || `API Error: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
@@ -86,10 +101,8 @@ class ApiClient {
   // Auth & Profile
   // ---------------------------------------------------------------------------
   async register(payload: { email: string; password: string; displayName?: string; targetCareerId?: string }): Promise<{ access_token: string; token_type: string; user: User }> {
-    const url = `${API_BASE_URL}/auth/register`;
-    const response = await fetch(url, {
+    return this.request<{ access_token: string; token_type: string; user: User }>('/auth/register', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: payload.email,
         password: payload.password,
@@ -97,28 +110,16 @@ class ApiClient {
         target_career_id: payload.targetCareerId,
       }),
     });
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
-      throw new Error(errorBody.detail || `Registration failed: ${response.statusText}`);
-    }
-    return response.json();
   }
 
   async login(payload: { email: string; password: string }): Promise<{ access_token: string; token_type: string; user: User }> {
-    const url = `${API_BASE_URL}/auth/login`;
-    const response = await fetch(url, {
+    return this.request<{ access_token: string; token_type: string; user: User }>('/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: payload.email,
         password: payload.password,
       }),
     });
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
-      throw new Error(errorBody.detail || `Login failed: ${response.statusText}`);
-    }
-    return response.json();
   }
 
   async getMe(): Promise<User> {

@@ -74,11 +74,10 @@ async def health_check():
         "database": "PostgreSQL 16 (Supabase) + pgvector ready"
     }
 
-# Mount API v1 Router
+# Mount API v1 Router at /api/v1, /api, and root /
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
-
-# Legacy alias mounts for backward-compatible frontend requests
 app.include_router(api_v1_router, prefix="/api")
+app.include_router(api_v1_router, prefix="")
 
 if __name__ == "__main__":
     import uvicorn
