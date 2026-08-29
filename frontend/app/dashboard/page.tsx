@@ -8,19 +8,26 @@ import {
   Flame,
   Play,
   ArrowRight,
-  TrendingUp,
-  Award,
   Sparkles,
-  Layers,
   Milestone,
   RefreshCw,
   Target,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  TrendingUp,
+  Layers,
+  ChevronRight,
+  BrainCircuit,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../lib/api-client';
-import type { LearningPath, MilestoneItem, Career, LearnerSkill, LearnerAdaptiveState } from '../../types';
+import type {
+  LearningPath,
+  Career,
+  LearnerSkill,
+  LearnerAdaptiveState,
+  CareerReadinessSummary,
+} from '../../types';
 import { AppShell } from '../../components/layout/AppShell';
 import { NextBestAction } from '../../components/dashboard/NextBestAction';
 import { ProgressSummary } from '../../components/dashboard/ProgressSummary';
@@ -36,18 +43,19 @@ export default function DashboardPage() {
   const [skills, setSkills] = useState<LearnerSkill[]>([]);
   const [careers, setCareers] = useState<Career[]>([]);
   const [adaptiveState, setAdaptiveState] = useState<LearnerAdaptiveState | null>(null);
+  const [readiness, setReadiness] = useState<CareerReadinessSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [completingId, setCompletingId] = useState<string | null>(null);
-  const [feedbackSent, setFeedbackSent] = useState<Record<string, string>>({});
 
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [careersRes, roadmapRes, skillsRes, adaptiveRes] = await Promise.allSettled([
+      const [careersRes, roadmapRes, skillsRes, adaptiveRes, readinessRes] = await Promise.allSettled([
         apiClient.getCareers(),
         apiClient.getRoadmap(),
         apiClient.getMySkills(),
         apiClient.getAdaptiveState(),
+        apiClient.getMySkillGaps(),
       ]);
 
       if (careersRes.status === 'fulfilled') setCareers(careersRes.value);
@@ -55,6 +63,7 @@ export default function DashboardPage() {
       else setRoadmap(null);
       if (skillsRes.status === 'fulfilled') setSkills(skillsRes.value);
       if (adaptiveRes.status === 'fulfilled') setAdaptiveState(adaptiveRes.value);
+      if (readinessRes.status === 'fulfilled') setReadiness(readinessRes.value);
     } catch (e) {
       console.error('Error fetching dashboard data:', e);
     } finally {
@@ -78,19 +87,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleFeedback = async (milestoneId: string, type: 'too_easy' | 'too_hard') => {
-    try {
-      await apiClient.submitFeedback({
-        feedback_type: type,
-        learning_path_item_id: milestoneId,
-      });
-      setFeedbackSent((prev) => ({ ...prev, [milestoneId]: type }));
-      await loadDashboardData();
-    } catch (err) {
-      console.error('Failed to submit feedback:', err);
-    }
-  };
-
   const activeMilestone =
     roadmap?.milestones?.find((m) => m.status === 'available') ||
     roadmap?.milestones?.find((m) => m.status === 'in_progress') ||
@@ -100,30 +96,60 @@ export default function DashboardPage() {
   const totalCount = roadmap?.milestones?.length || 1;
   const progressPct = Math.round((completedCount / totalCount) * 100);
 
-  // Derive skill gaps (skills with score < 75%)
-  const weakSkills = skills.filter((s) => s.score < 75);
-  const strongSkills = skills.filter((s) => s.score >= 75);
+  // Derive skill gaps from readiness summary or local skills
+  const skillGaps = readiness?.skill_gaps || [];
+  const weakSkills = skillGaps.length > 0
+    ? skillGaps.filter((g) => g.raw_gap > 0.15).map((g) => ({
+        skill_slug: g.skill_slug,
+        skill_name: g.skill_name,
+        category: g.domain || g.category,
+        current_proficiency: g.current_proficiency,
+        target_proficiency: g.target_proficiency,
+        gap_magnitude: g.raw_gap,
+        career_importance: g.career_importance,
+        career_weight: g.career_weight,
+        is_prerequisite_bottleneck: g.is_bottleneck,
+        prerequisite_chain: g.unsatisfied_prerequisites,
+        suggested_priority: g.is_bottleneck || g.raw_gap > 0.4 ? ('high' as const) : ('medium' as const),
+      }))
+    : skills.filter((s) => s.score < 75).map((s) => ({
+        skill_slug: s.skill_slug,
+        skill_name: s.skill_name,
+        category: s.category,
+        current_proficiency: s.score / 100,
+        target_proficiency: 0.85,
+        gap_magnitude: Math.max(0, 0.85 - s.score / 100),
+        career_importance: 'high',
+        career_weight: 1.0,
+        is_prerequisite_bottleneck: false,
+        prerequisite_chain: [],
+        suggested_priority: s.score < 50 ? ('high' as const) : ('medium' as const),
+      }));
+
+  const readinessScore = readiness?.career_readiness_score !== undefined
+    ? Math.round(readiness.career_readiness_score)
+    : Math.min(100, Math.round(progressPct * 0.6 + (skills.length > 0 ? (skills.reduce((a, b) => a + b.score, 0) / skills.length) * 0.4 : 20)));
 
   return (
     <AppShell
-      pageTitle={`Welcome back, ${user?.display_name || 'Learner'}!`}
-      pageSubtitle="Your personalized path is calibrated based on real diagnostic scores and industry benchmarks."
+      pageTitle={`Welcome back, ${user?.display_name || 'Learner'}`}
+      pageSubtitle="Your continuous learning path is calibrated from live diagnostic evidence and industry requirements."
       actions={
         <div className="flex items-center gap-2">
           <button
             onClick={loadDashboardData}
-            className="p-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg bg-slate-900 hover:bg-slate-850 border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
             title="Refresh Progression"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3.5 h-3.5" />
           </button>
           <Link href="/careers">
-            <Button variant="outline" size="sm">
+            <Button variant="secondary" size="sm">
               Change Track
             </Button>
           </Link>
           <Link href={`/assessment/${roadmap?.career_id || 'data-scientist'}`}>
-            <Button variant="glow" size="sm" icon={<Sparkles className="w-3.5 h-3.5" />}>
+            <Button variant="primary" size="sm" icon={<Sparkles className="w-3.5 h-3.5" />}>
               Diagnostic Quiz
             </Button>
           </Link>
@@ -141,8 +167,50 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
-          {/* Phase 8: Adaptive Learning Banner & XAI Modal */}
+        <div className="space-y-6">
+          {/* Top Anchor: Career Goal & Readiness Score Banner */}
+          <div className="surface-card rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className="space-y-1">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">
+                Target Role
+              </div>
+              <h2 className="text-xl font-bold text-white tracking-tight">
+                {readiness?.career_name || roadmap?.career_name || 'Data Scientist'}
+              </h2>
+              <p className="text-xs text-slate-400 max-w-md">
+                Industry validated roadmap • Multi-factor diagnostic calibration
+              </p>
+            </div>
+
+            <div className="flex items-center gap-6 sm:pl-6 sm:border-l sm:border-white/[0.08]">
+              <div className="space-y-1">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  Career Readiness
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    {readinessScore}%
+                  </span>
+                  <span className="text-xs font-semibold text-emerald-400">
+                    {readinessScore >= 70 ? 'On Track' : 'Calibrating'}
+                  </span>
+                </div>
+              </div>
+
+              {readiness?.confidence_score !== undefined && (
+                <div className="space-y-1 pl-4 border-l border-white/[0.06] hidden md:block">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Evidence Confidence
+                  </div>
+                  <div className="text-base font-bold text-slate-300">
+                    {Math.round(readiness.confidence_score * 100)}%
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Phase 8: Adaptive Evolution Banner */}
           {adaptiveState?.recent_adaptations && adaptiveState.recent_adaptations.length > 0 && (
             <AdaptationBanner
               recentEvents={adaptiveState.recent_adaptations}
@@ -151,38 +219,38 @@ export default function DashboardPage() {
             />
           )}
 
-          {/* Hero: Next Best Action (Answers: "What should I do next and why?") */}
+          {/* Core Decision Anchor: Next Best Action */}
           <NextBestAction
             milestone={activeMilestone}
-            careerName={roadmap?.career_name || 'Target Engineering Track'}
+            careerName={readiness?.career_name || roadmap?.career_name || 'Target Track'}
             onComplete={handleCompleteMilestone}
             loading={completingId === activeMilestone?.id}
           />
 
-          {/* 2-Column Progression Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column: Milestones & Skill Gaps */}
+          {/* 2-Column Progression Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left 2 Cols: Active Roadmap & Gaps */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Active Career Track Milestone Roadmap Snippet */}
-              <div className="glass-panel rounded-3xl p-6 space-y-5">
+              {/* Active Roadmap Stages Snippet */}
+              <div className="surface-card rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Milestone className="w-5 h-5 text-indigo-400" />
-                    <h3 className="text-lg font-bold text-white tracking-tight">
-                      Active Staircase Milestones
+                    <Milestone className="w-4 h-4 text-indigo-400" />
+                    <h3 className="text-sm font-semibold text-white tracking-tight">
+                      Active Roadmap Progression
                     </h3>
                   </div>
                   <Link
                     href="/roadmap"
-                    className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                    className="text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
                   >
-                    <span>View Full Roadmap</span>
+                    <span>View Roadmap</span>
                     <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
 
                 {roadmap?.milestones && roadmap.milestones.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {roadmap.milestones.slice(0, 4).map((m) => {
                       const isCompleted = m.status === 'completed';
                       const isAvailable = m.status === 'available';
@@ -190,31 +258,31 @@ export default function DashboardPage() {
                       return (
                         <div
                           key={m.id}
-                          className={`p-4 rounded-2xl border flex items-center justify-between gap-4 transition-all ${
+                          className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all ${
                             isAvailable
-                              ? 'bg-indigo-950/30 border-indigo-500/50 shadow-md shadow-indigo-950/40'
+                              ? 'bg-slate-900/90 border-indigo-500/30'
                               : isCompleted
-                              ? 'glass-panel opacity-80'
-                              : 'bg-slate-950/30 border-slate-900 opacity-50'
+                              ? 'bg-slate-950/40 border-white/[0.04] opacity-75'
+                              : 'bg-slate-950/20 border-white/[0.03] opacity-50'
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div
-                              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
                                 isCompleted
                                   ? 'bg-emerald-500/20 text-emerald-400'
                                   : isAvailable
-                                  ? 'bg-indigo-600 text-white animate-pulse-subtle'
-                                  : 'bg-slate-900 text-slate-600'
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-slate-900 text-slate-500'
                               }`}
                             >
-                              {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : m.step_order}
+                              {isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : m.step_order}
                             </div>
                             <div className="min-w-0">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
                                 {m.category}
                               </span>
-                              <h4 className="text-xs font-bold text-white truncate">{m.skill_name}</h4>
+                              <h4 className="text-xs font-medium text-white truncate">{m.skill_name}</h4>
                             </div>
                           </div>
 
@@ -223,18 +291,18 @@ export default function DashboardPage() {
                               <button
                                 onClick={() => handleCompleteMilestone(m.id)}
                                 disabled={completingId === m.id}
-                                className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-colors"
+                                className="px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition-colors"
                               >
-                                {completingId === m.id ? 'Unlocking...' : 'Mark Done'}
+                                {completingId === m.id ? 'Saving...' : 'Mark Done'}
                               </button>
                             )}
                             <span
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                              className={`text-[10px] font-medium px-2 py-0.5 rounded uppercase ${
                                 isCompleted
-                                  ? 'bg-emerald-500/15 text-emerald-300'
+                                  ? 'bg-emerald-500/10 text-emerald-400'
                                   : isAvailable
-                                  ? 'bg-indigo-500/15 text-indigo-300'
-                                  : 'bg-slate-800 text-slate-500'
+                                  ? 'bg-indigo-500/10 text-indigo-300'
+                                  : 'bg-slate-850 text-slate-500'
                               }`}
                             >
                               {m.status}
@@ -245,8 +313,8 @@ export default function DashboardPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-xs text-slate-400 mb-3">No active learning roadmap calibrated.</p>
+                  <div className="text-center py-6">
+                    <p className="text-xs text-slate-400 mb-2">No active learning path calibrated.</p>
                     <Link href="/careers">
                       <Button variant="primary" size="sm">
                         Select Career Track
@@ -256,90 +324,75 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* Identified Top Skill Gaps */}
-              <div className="space-y-4">
+              {/* Identified High-Impact Skill Gaps */}
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-rose-400" />
-                    <h3 className="text-sm font-bold text-white">Top Identified Skill Gaps</h3>
+                    <AlertCircle className="w-4 h-4 text-amber-400" />
+                    <h3 className="text-sm font-semibold text-white">High-Impact Skill Gaps</h3>
                   </div>
                   <Link
                     href="/skills"
-                    className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                    className="text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
                   >
-                    <span>Inspect Skill Map</span>
+                    <span>Inspect Skill Graph</span>
                     <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
 
                 {weakSkills.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {weakSkills.slice(0, 4).map((sk) => (
                       <SkillGapCard
-                        key={sk.id}
+                        key={sk.skill_slug}
                         skillName={sk.skill_name}
                         category={sk.category}
-                        currentScore={sk.score}
-                        targetScore={85}
-                        gapDelta={85 - sk.score}
-                        priority={sk.score < 50 ? 'High' : 'Medium'}
+                        currentScore={Math.round(sk.current_proficiency * 100)}
+                        targetScore={Math.round(sk.target_proficiency * 100)}
+                        gapDelta={Math.round(sk.gap_magnitude * 100)}
+                        priority={sk.suggested_priority === 'high' ? 'High' : 'Medium'}
                       />
                     ))}
                   </div>
                 ) : (
-                  <div className="glass-panel rounded-2xl p-6 text-center text-xs text-slate-400">
-                    <p>
-                      {skills.length > 0
-                        ? '🎉 Great job! All assessed skills meet or exceed standard industry proficiency.'
-                        : 'No diagnostic skills recorded. Take a diagnostic assessment to identify your gaps.'}
-                    </p>
+                  <div className="surface-card rounded-xl p-5 text-center text-xs text-slate-400">
+                    {skills.length > 0
+                      ? 'All evaluated competencies meet target industry benchmarks.'
+                      : 'Take a diagnostic assessment to identify your prioritized skill gaps.'}
                   </div>
                 )}
               </div>
 
-              {/* Phase 8: Adaptive Progression Timeline */}
+              {/* Adaptive Mutation History */}
               <AdaptationTimeline events={adaptiveState?.recent_adaptations || []} />
             </div>
 
-            {/* Right Column: Progress Summary & Quick Actions */}
+            {/* Right Column: Progress Metrics & Navigation Shortcuts */}
             <div className="space-y-6">
               <ProgressSummary
                 progressPct={progressPct}
                 completedMilestones={completedCount}
                 totalMilestones={totalCount}
-                xp={user?.profile?.xp || 150}
-                streakDays={user?.profile?.streak_days || 3}
-                estimatedHoursLeft={totalCount * 2 - completedCount * 2}
+                xp={user?.profile?.xp || 0}
+                streakDays={user?.profile?.streak_days || 1}
+                estimatedHoursLeft={Math.max(1, totalCount * 3 - completedCount * 3)}
               />
 
-              {/* Career Goal Card Widget */}
-              <div className="glass-panel rounded-3xl p-6 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
-                    Target Track
-                  </span>
-                  <Link
-                    href="/careers"
-                    className="text-[11px] font-semibold text-slate-400 hover:text-white"
-                  >
-                    Switch
-                  </Link>
+              {/* AI Navigator Shortcut Card */}
+              <div className="surface-card rounded-2xl p-5 space-y-3">
+                <div className="flex items-center gap-2 text-indigo-400 text-xs font-semibold">
+                  <BrainCircuit className="w-4 h-4" />
+                  <span>AI Learning Assistant</span>
                 </div>
-                <h4 className="text-base font-extrabold text-white">
-                  {roadmap?.career_name || 'Data Scientist'}
-                </h4>
-                <p className="text-xs text-slate-400">
-                  Target timeline: 6 Months • 10h/week pacing
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Have questions about your prerequisite sequence or why a particular skill was recommended?
                 </p>
-                <div className="pt-2">
-                  <Link
-                    href="/recommendations"
-                    className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1.5 transition-colors"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>View Recommended Resources</span>
-                  </Link>
-                </div>
+                <Link href="/assistant" className="block pt-1">
+                  <Button variant="outline" size="sm" className="w-full justify-between">
+                    <span>Ask AI Navigator</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

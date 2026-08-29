@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Milestone, Compass, Sparkles, RefreshCw, CheckCircle2, ArrowRight, Layers, ShieldCheck, History } from 'lucide-react';
+import { Milestone, Compass, Sparkles, RefreshCw, History, ArrowRight } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import type { LearningPath, MilestoneItem, RoadmapVersion } from '../../types';
 import { AppShell } from '../../components/layout/AppShell';
@@ -61,7 +61,6 @@ export default function RoadmapPage() {
     }
   };
 
-  // Group milestones into Phased Stages (Foundations, Core, Applied, Capstone)
   const items = roadmap?.milestones || [];
   const phase1 = items.filter((m) => m.step_order <= 2);
   const phase2 = items.filter((m) => m.step_order >= 3 && m.step_order <= 5);
@@ -73,19 +72,19 @@ export default function RoadmapPage() {
 
   return (
     <AppShell
-      pageTitle="Personalized Learning Roadmap"
+      pageTitle="Learning Roadmap"
       pageSubtitle={`Sequential staircase milestone journey calibrated for ${roadmap?.career_name || 'Target Track'}`}
       actions={
         <div className="flex items-center gap-2">
           <button
             onClick={fetchRoadmap}
-            className="p-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg bg-slate-900 hover:bg-slate-850 border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
             title="Refresh Roadmap"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3.5 h-3.5" />
           </button>
           <Link href="/feedback">
-            <Button variant="outline" size="sm">
+            <Button variant="secondary" size="sm">
               Adjust Pacing
             </Button>
           </Link>
@@ -93,53 +92,52 @@ export default function RoadmapPage() {
       }
     >
       {loading ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <SkeletonCard />
           <SkeletonCard />
         </div>
       ) : roadmap && items.length > 0 ? (
-        <div className="space-y-10">
+        <div className="space-y-8">
           {/* Top Progress Overview */}
-          <div className="glass-card-glow rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div className="space-y-2">
+          <div className="surface-card rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold">
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Active Track: {roadmap.career_name}</span>
-                </div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/15 px-2 py-0.5 rounded border border-indigo-500/25">
+                  {roadmap.career_name}
+                </span>
                 {versions.length > 0 && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30">
-                    <History className="w-3.5 h-3.5" />
-                    <span>Roadmap Version {versions[0].version_number}</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-900 text-slate-300 border border-white/[0.08]">
+                    <History className="w-3 h-3 text-indigo-400" />
+                    <span>v{versions[0].version_number}</span>
                   </span>
                 )}
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
                 Roadmap Mastery: {progressPct}% Complete
               </h2>
-              <p className="text-xs text-slate-300">
-                {completedCount} of {totalCount} sequential milestones completed.
+              <p className="text-xs text-slate-400">
+                {completedCount} of {totalCount} sequential milestones completed
               </p>
             </div>
 
-            <div className="w-full sm:w-64 space-y-2">
-              <div className="w-full h-3 rounded-full bg-slate-800 overflow-hidden p-0.5 border border-slate-700">
+            <div className="w-full sm:w-56 space-y-1.5">
+              <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-white/[0.06]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-brand-500 to-cyan-400 transition-all duration-700"
-                  style={{ width: `${Math.max(progressPct, 5)}%` }}
+                  className="h-full rounded-full bg-indigo-600 transition-all duration-700"
+                  style={{ width: `${Math.max(progressPct, 4)}%` }}
                 />
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 block text-right">
+              <span className="text-[11px] text-slate-400 block text-right font-medium">
                 {totalCount - completedCount} milestones remaining
               </span>
             </div>
           </div>
 
           {/* Phased Milestones Breakdown */}
-          <div className="space-y-12">
+          <div className="space-y-8">
             {phase1.length > 0 && (
               <RoadmapPhase
-                phaseTitle="Phase 1: Foundations & Core Tooling"
+                phaseTitle="Phase 1 • Foundations & Core Tooling"
                 phaseDescription="Master primary programming syntax, essential relational querying, and environment setup."
                 milestones={phase1}
                 onComplete={handleCompleteMilestone}
@@ -151,7 +149,7 @@ export default function RoadmapPage() {
 
             {phase2.length > 0 && (
               <RoadmapPhase
-                phaseTitle="Phase 2: Core Engineering & Algorithmic Foundations"
+                phaseTitle="Phase 2 • Algorithmic & Statistical Core"
                 phaseDescription="Applied mathematics, data manipulation pipelines, and core model architectures."
                 milestones={phase2}
                 onComplete={handleCompleteMilestone}
@@ -163,7 +161,7 @@ export default function RoadmapPage() {
 
             {phase3.length > 0 && (
               <RoadmapPhase
-                phaseTitle="Phase 3: Applied Systems, Projects & Industry MLOps"
+                phaseTitle="Phase 3 • Applied Systems & Production Deployment"
                 phaseDescription="End-to-end production deployments, distributed architectures, and portfolio projects."
                 milestones={phase3}
                 onComplete={handleCompleteMilestone}
@@ -175,15 +173,15 @@ export default function RoadmapPage() {
           </div>
         </div>
       ) : (
-        <div className="glass-panel rounded-3xl p-12 text-center space-y-4">
-          <Compass className="w-12 h-12 text-slate-600 mx-auto" />
-          <h3 className="text-lg font-bold text-white">No Roadmap Generated</h3>
+        <div className="surface-card rounded-2xl p-10 text-center space-y-3">
+          <Compass className="w-10 h-10 text-slate-600 mx-auto" />
+          <h3 className="text-sm font-semibold text-white">No Roadmap Generated</h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            Take a diagnostic quiz for your selected career track to generate your personalized staircase path.
+            Select a target career track to generate your personalized learning path.
           </p>
-          <Link href="/careers">
-            <Button variant="glow" size="md">
-              Browse Careers & Take Assessment
+          <Link href="/careers" className="inline-block pt-1">
+            <Button variant="primary" size="sm">
+              Select Career Track
             </Button>
           </Link>
         </div>

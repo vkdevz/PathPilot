@@ -22,73 +22,72 @@ export const CareerGoalCard: React.FC<CareerGoalCardProps> = ({
 }) => {
   return (
     <div
-      className={`glass-panel-interactive rounded-3xl p-6 sm:p-7 flex flex-col justify-between space-y-6 ${
-        isCurrent ? 'border-indigo-500/80 bg-indigo-950/20 shadow-glow-indigo' : ''
+      className={`surface-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between space-y-4 ${
+        isCurrent ? 'border-indigo-500/50 bg-slate-900/90' : ''
       }`}
     >
-      <div className="space-y-4">
-        {/* Top Badges */}
+      <div className="space-y-3">
+        {/* Top Header */}
         <div className="flex items-center justify-between">
-          <span className="text-2xl p-2.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-inner">
-            {career.icon || '🚀'}
+          <span className="text-xl p-2 rounded-xl bg-slate-950 border border-white/[0.08]">
+            {career.icon || '🎯'}
           </span>
 
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-              <TrendingUp className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
               {career.market_demand_score}% Demand
             </span>
-            {isCurrent && <Badge variant="indigo">Active Target</Badge>}
+            {isCurrent && <Badge variant="indigo" size="sm">Active Goal</Badge>}
           </div>
         </div>
 
-        {/* Title & Description */}
+        {/* Title & Category */}
         <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
             {career.category}
           </span>
-          <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight mt-0.5">
+          <h3 className="text-base font-bold text-white tracking-tight mt-0.5">
             {career.name}
           </h3>
-          <p className="text-xs text-slate-300 mt-2 leading-relaxed line-clamp-3">
+          <p className="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">
             {career.description}
           </p>
         </div>
 
-        {/* Salary & Skills count */}
-        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
-          <div className="flex items-center gap-1 font-semibold text-white">
+        {/* Salary & Competencies */}
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300 pt-2 border-t border-white/[0.04]">
+          <div className="flex items-center gap-1 font-medium text-white">
             <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
             <span>{career.salary_range}</span>
           </div>
 
-          <div className="flex items-center gap-1 text-slate-400">
+          <div className="flex items-center gap-1 text-slate-400 text-[11px]">
             <Layers className="w-3.5 h-3.5 text-indigo-400" />
-            <span>{career.total_skills || 6}+ Essential Skills</span>
+            <span>{career.total_skills || 6} Key Skills</span>
           </div>
         </div>
       </div>
 
-      {/* Footer Actions */}
-      <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+      {/* Action Controls */}
+      <div className="pt-3 border-t border-white/[0.04] flex flex-wrap items-center justify-between gap-2">
         <Link
           href={`/assessment/${career.slug}`}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition-all"
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all"
         >
-          <Sparkles className="w-3.5 h-3.5" />
+          <Sparkles className="w-3 h-3" />
           <span>Diagnostic Quiz</span>
-          <ArrowRight className="w-3 h-3 ml-1" />
+          <ArrowRight className="w-3 h-3 ml-0.5" />
         </Link>
 
         {onSelectTrack && !isCurrent && (
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             loading={loading}
             onClick={() => onSelectTrack(career.slug)}
             icon={<Check className="w-3.5 h-3.5 text-indigo-400" />}
           >
-            Set as Goal
+            Set Target
           </Button>
         )}
       </div>

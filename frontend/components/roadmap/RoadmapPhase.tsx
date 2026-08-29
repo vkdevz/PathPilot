@@ -25,11 +25,11 @@ export const RoadmapPhase: React.FC<RoadmapPhaseProps> = ({
   const isPhaseComplete = completedInPhase === milestones.length && milestones.length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Phase Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-white/[0.06]">
         <div>
-          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+          <h3 className="text-sm sm:text-base font-semibold text-white tracking-tight">
             {phaseTitle}
           </h3>
           {phaseDescription && (
@@ -38,18 +38,18 @@ export const RoadmapPhase: React.FC<RoadmapPhaseProps> = ({
         </div>
 
         <span
-          className={`text-xs font-semibold px-3 py-1 rounded-full border self-start sm:self-center ${
+          className={`text-xs font-medium px-2.5 py-0.5 rounded border self-start sm:self-center ${
             isPhaseComplete
-              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-              : 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30'
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+              : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
           }`}
         >
-          {completedInPhase}/{milestones.length} Completed
+          {completedInPhase} / {milestones.length} Completed
         </span>
       </div>
 
       {/* Sequential Milestone Nodes */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {milestones.map((m, idx) => (
           <RoadmapNode
             key={m.id}

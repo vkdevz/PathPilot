@@ -12,7 +12,9 @@ import {
   Trophy,
   RotateCcw,
   BookOpen,
-  Milestone
+  Milestone,
+  Target,
+  ShieldAlert,
 } from 'lucide-react';
 import { apiClient } from '../../../lib/api-client';
 import type { AssessmentDetail, AssessmentResult, Question } from '../../../types';
@@ -85,102 +87,97 @@ export default function AssessmentPage() {
 
   return (
     <AppShell
-      pageTitle={result ? 'Assessment Diagnostic Results' : `Diagnostic Assessment: ${assessment?.career_name || careerSlug}`}
+      pageTitle={result ? 'Diagnostic Position Report' : `Diagnostic Assessment: ${assessment?.career_name || careerSlug}`}
       pageSubtitle={
         result
-          ? 'Authoritative skill evaluations saved. Personalized staircase roadmap calibrated.'
+          ? 'Calibrated competency baseline stored in database. Learning roadmap generated.'
           : 'Answer domain questions to detect skill gaps and calibrate your learning milestones.'
       }
     >
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         {loading ? (
           <SkeletonCard />
         ) : result ? (
-          /* Results Evaluation Report */
-          <div className="glass-card-glow rounded-3xl p-8 sm:p-10 text-center space-y-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 via-brand-500 to-cyan-400 flex items-center justify-center mx-auto shadow-glow-indigo">
-              <Trophy className="w-8 h-8 text-white" />
-            </div>
-
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
-                Diagnostic Benchmark Calibrated
+          /* Structured Assessment Results */
+          <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-6">
+            <div className="text-center space-y-2 pb-4 border-b border-white/[0.06]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+                Diagnostic Complete
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
-                Evaluation Complete
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                Your Current Position
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-md mx-auto">
-                Your competency scores have been calculated by the backend and saved to your learner profile.
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                Verified skill scores have been recorded to your learner profile.
               </p>
-            </div>
 
-            {/* Score Pill */}
-            <div className="inline-block p-6 rounded-3xl bg-slate-950/80 border border-slate-800">
-              <span className="text-5xl font-black bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-300 bg-clip-text text-transparent">
-                {result.overall_score}%
-              </span>
-              <span className="block text-xs uppercase tracking-wider font-bold text-slate-400 mt-1">
-                Overall Competency Score
-              </span>
-            </div>
-
-            {/* Topic Breakdown Grid: Strong / Moderate / Weak */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
-                <span className="text-xs font-bold text-emerald-400 uppercase flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Strong ({(result.strong_topics || []).length})</span>
+              <div className="pt-3">
+                <span className="text-4xl font-extrabold text-white tracking-tight">
+                  {result.overall_score}%
                 </span>
+                <span className="block text-[10px] uppercase font-semibold text-slate-500 mt-0.5">
+                  Overall Assessed Proficiency
+                </span>
+              </div>
+            </div>
+
+            {/* 3-Part Position Breakdown: Strongest / Biggest Gaps / Critical Bottlenecks */}
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-slate-950/60 border border-emerald-500/20 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Strongest Areas</span>
+                </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  {(result.strong_topics || []).map((t) => t.name).join(', ') || 'Ready for mastery!'}
+                  {(result.strong_topics || []).map((t) => t.name).join(', ') || 'Ready to build foundation!'}
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-1">
-                <span className="text-xs font-bold text-amber-400 uppercase flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4" />
-                  <span>Moderate ({(result.moderate_topics || []).length})</span>
-                </span>
+              <div className="p-3.5 rounded-xl bg-slate-950/60 border border-amber-500/20 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-400">
+                  <Target className="w-3.5 h-3.5" />
+                  <span>Developing Competencies</span>
+                </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {(result.moderate_topics || []).map((t) => t.name).join(', ') || 'None identified'}
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 space-y-1">
-                <span className="text-xs font-bold text-rose-400 uppercase flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>Needs Focus ({(result.weak_topics || []).length})</span>
-                </span>
+              <div className="p-3.5 rounded-xl bg-slate-950/60 border border-rose-500/20 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-400">
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Highest-Priority Skill Gaps</span>
+                </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {(result.weak_topics || []).map((t) => t.name).join(', ') || 'No critical gaps detected'}
                 </p>
               </div>
             </div>
 
-            {/* Next Actions */}
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* Next Recommended Action CTA */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
-                variant="outline"
-                size="md"
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setResult(null);
                   setCurrentIndex(0);
                   setSelectedAnswers({});
                 }}
-                icon={<RotateCcw className="w-4 h-4" />}
+                icon={<RotateCcw className="w-3.5 h-3.5" />}
               >
                 Retake Diagnostic
               </Button>
               <Link href="/roadmap">
-                <Button variant="glow" size="lg" icon={<Milestone className="w-4 h-4 text-white" />}>
+                <Button variant="primary" size="md" icon={<Milestone className="w-4 h-4 text-white" />}>
                   Explore Personalized Roadmap
                 </Button>
               </Link>
             </div>
           </div>
         ) : currentQ ? (
-          /* Question View */
-          <div className="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+          /* Focused Question View */
+          <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-6">
             <AssessmentProgress
               currentQuestion={currentIndex + 1}
               totalQuestions={totalQ}
@@ -188,35 +185,35 @@ export default function AssessmentPage() {
 
             <div className="pt-2">
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant="indigo">{currentQ.difficulty}</Badge>
-                <span className="text-[11px] font-bold text-slate-400 uppercase">
-                  {currentQ.skill_name || 'Core Skill'}
+                <Badge variant="indigo" size="sm">{currentQ.difficulty}</Badge>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                  {currentQ.skill_name || 'Competency'}
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl font-bold text-white leading-snug">
+              <h2 className="text-base sm:text-lg font-semibold text-white leading-snug">
                 {currentQ.question_text}
               </h2>
             </div>
 
             {/* Options List */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5 pt-1">
               {currentQ.options.map((opt, optIdx) => {
                 const isSelected = selectedAnswers[currentQ.id] === optIdx;
                 return (
                   <button
                     key={optIdx}
                     onClick={() => handleSelectOption(currentQ.id, optIdx)}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all flex items-center gap-3.5 ${
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center gap-3 ${
                       isSelected
-                        ? 'bg-indigo-600/25 border-indigo-500 text-white shadow-glow-indigo font-semibold'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-850 hover:border-slate-700'
+                        ? 'bg-indigo-600/15 border-indigo-500 text-white font-medium'
+                        : 'bg-slate-950/60 border-white/[0.06] text-slate-300 hover:bg-slate-900 hover:border-white/[0.12]'
                     }`}
                   >
                     <div
-                      className={`w-7 h-7 rounded-xl border flex items-center justify-center shrink-0 text-xs font-bold ${
+                      className={`w-6 h-6 rounded-md border flex items-center justify-center shrink-0 text-xs font-semibold ${
                         isSelected
-                          ? 'bg-indigo-600 border-indigo-400 text-white'
-                          : 'border-slate-700 bg-slate-900 text-slate-500'
+                          ? 'bg-indigo-600 border-indigo-500 text-white'
+                          : 'border-white/[0.08] bg-slate-900 text-slate-400'
                       }`}
                     >
                       {String.fromCharCode(65 + optIdx)}
@@ -227,10 +224,10 @@ export default function AssessmentPage() {
               })}
             </div>
 
-            {/* Nav Controls */}
-            <div className="pt-4 flex items-center justify-between border-t border-slate-800">
+            {/* Navigation Controls */}
+            <div className="pt-4 flex items-center justify-between border-t border-white/[0.06]">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
@@ -246,25 +243,25 @@ export default function AssessmentPage() {
                   onClick={handleNext}
                   icon={<ArrowRight className="w-3.5 h-3.5" />}
                 >
-                  Next Question
+                  Next
                 </Button>
               ) : (
                 <Button
-                  variant="glow"
+                  variant="primary"
                   size="md"
                   loading={submitting}
                   onClick={handleSubmit}
-                  icon={<CheckCircle2 className="w-4 h-4 text-emerald-300" />}
+                  icon={<CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
                 >
-                  Submit & Generate Roadmap
+                  Submit Assessment
                 </Button>
               )}
             </div>
           </div>
         ) : (
-          <div className="glass-panel rounded-3xl p-12 text-center text-xs text-slate-400">
+          <div className="surface-card rounded-2xl p-10 text-center text-xs text-slate-400 space-y-3">
             <p>No questions found for this track. Please select another career.</p>
-            <Link href="/careers" className="mt-4 inline-block">
+            <Link href="/careers" className="inline-block">
               <Button variant="primary" size="sm">
                 Browse Careers
               </Button>

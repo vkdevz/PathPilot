@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Layers, ArrowRight, CheckCircle2, Lock, Play, Sparkles, ShieldAlert, Zap, BookOpen } from 'lucide-react';
+import { Layers, ArrowRight, CheckCircle2, Lock, Play, ShieldAlert, Zap, BookOpen } from 'lucide-react';
 import type { Skill, LearnerSkill, IntelligentSkillGap } from '../../types';
 import { Badge } from '../ui/Badge';
 
@@ -17,7 +17,7 @@ export const SkillPrerequisiteMap: React.FC<SkillPrerequisiteMapProps> = ({
   skills,
   learnerSkills = [],
   skillGaps = [],
-  activeCareerName = 'Career Track',
+  activeCareerName = 'Target Track',
   onInspectSkill,
 }) => {
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(skills[0] || null);
@@ -37,54 +37,54 @@ export const SkillPrerequisiteMap: React.FC<SkillPrerequisiteMapProps> = ({
   const tier4 = skills.filter((s) => s.level >= 7);
 
   const tiers = [
-    { name: 'Tier 1: Foundations', skills: tier1, color: 'border-indigo-500/40 text-indigo-300 bg-indigo-500/10' },
-    { name: 'Tier 2: Core Engineering', skills: tier2, color: 'border-cyan-500/40 text-cyan-300 bg-cyan-500/10' },
-    { name: 'Tier 3: Applied Systems', skills: tier3, color: 'border-brand-500/40 text-brand-300 bg-brand-500/10' },
-    { name: 'Tier 4: Advanced Mastery', skills: tier4, color: 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' },
+    { name: 'Tier 1 • Foundations', skills: tier1 },
+    { name: 'Tier 2 • Core Principles', skills: tier2 },
+    { name: 'Tier 3 • Applied Engineering', skills: tier3 },
+    { name: 'Tier 4 • Advanced Systems', skills: tier4 },
   ].filter((t) => t.skills.length > 0);
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-8 space-y-6 border border-slate-800">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-6">
+      {/* Header & Status Legend */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.06]">
         <div>
           <div className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-indigo-400" />
-            <h3 className="text-lg font-bold text-white tracking-tight">
-              Interactive Prerequisite Skill Graph
+            <Layers className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-sm font-semibold text-white tracking-tight">
+              Topological Prerequisite Skill Graph
             </h3>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Topological prerequisite DAG showing unlock paths and bottlenecks for {activeCareerName}
+          <p className="text-xs text-slate-400 mt-0.5">
+            DAG nodes representing prerequisite dependencies and mastery unlock sequence
           </p>
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center gap-3 text-xs">
-          <span className="flex items-center gap-1 text-emerald-400 font-medium">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Mastered (80%+)
+        <div className="flex flex-wrap items-center gap-3 text-[11px]">
+          <span className="flex items-center gap-1 text-emerald-400">
+            <CheckCircle2 className="w-3 h-3" /> Mastered (80%+)
           </span>
-          <span className="flex items-center gap-1 text-rose-400 font-medium">
-            <ShieldAlert className="w-3.5 h-3.5" /> Key Bottleneck
+          <span className="flex items-center gap-1 text-indigo-400">
+            <Play className="w-3 h-3" /> In Progress
           </span>
-          <span className="flex items-center gap-1 text-indigo-400 font-medium">
-            <Play className="w-3.5 h-3.5" /> In Progress
+          <span className="flex items-center gap-1 text-rose-400">
+            <ShieldAlert className="w-3 h-3" /> Bottleneck
           </span>
-          <span className="flex items-center gap-1 text-slate-500 font-medium">
-            <Lock className="w-3.5 h-3.5" /> Blocked
+          <span className="flex items-center gap-1 text-slate-500">
+            <Lock className="w-3 h-3" /> Prereq Required
           </span>
         </div>
       </div>
 
       {/* Progressive Tier Columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {tiers.map((tier) => (
-          <div key={tier.name} className="space-y-4">
-            <div className={`px-3 py-1.5 rounded-xl border text-xs font-bold text-center ${tier.color}`}>
+          <div key={tier.name} className="space-y-3">
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1">
               {tier.name}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {tier.skills.map((s) => {
                 const ls = learnerSkillMap.get(s.id);
                 const gap = gapMap.get(s.id);
@@ -101,52 +101,40 @@ export const SkillPrerequisiteMap: React.FC<SkillPrerequisiteMapProps> = ({
                       setSelectedSkill(s);
                       if (onInspectSkill) onInspectSkill(s.slug);
                     }}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
                       isSelected
-                        ? 'bg-indigo-600/20 border-indigo-500 shadow-glow-indigo'
+                        ? 'bg-slate-900 border-indigo-500 ring-1 ring-indigo-500/50'
                         : isBottleneck
-                        ? 'bg-rose-950/20 border-rose-500/50 hover:border-rose-500/80'
+                        ? 'bg-rose-950/15 border-rose-500/40 hover:border-rose-400'
                         : isMastered
-                        ? 'bg-emerald-950/20 border-emerald-500/40 hover:border-emerald-500/60'
+                        ? 'bg-slate-950/60 border-emerald-500/30 hover:border-emerald-400'
                         : isPrereqMet
-                        ? 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
-                        : 'bg-slate-950/40 border-slate-900 opacity-60'
+                        ? 'bg-slate-950/60 border-white/[0.08] hover:border-indigo-500/40'
+                        : 'bg-slate-950/30 border-white/[0.04] opacity-50'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">
-                        Level {s.level}
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wide truncate">
+                        {s.category}
                       </span>
-                      {isBottleneck ? (
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-rose-400 uppercase bg-rose-500/10 px-1.5 py-0.5 rounded">
-                          <ShieldAlert className="w-3 h-3" /> Bottleneck
-                        </span>
-                      ) : isMastered ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ) : isPrereqMet ? (
-                        <Play className="w-3.5 h-3.5 text-indigo-400" />
-                      ) : (
-                        <Lock className="w-3.5 h-3.5 text-slate-600" />
-                      )}
+                      {isMastered ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      ) : isBottleneck ? (
+                        <ShieldAlert className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                      ) : !isPrereqMet ? (
+                        <Lock className="w-3 h-3 text-slate-500 shrink-0" />
+                      ) : null}
                     </div>
 
-                    <h4 className="text-xs font-bold text-white mb-2 leading-tight">
+                    <h4 className="text-xs font-semibold text-white tracking-tight truncate">
                       {s.name}
                     </h4>
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-400">
-                      <span>Proficiency:</span>
-                      <span className={`font-bold ${isMastered ? 'text-emerald-400' : isBottleneck ? 'text-rose-400' : 'text-slate-200'}`}>
-                        {score}%
-                      </span>
-                    </div>
-
-                    {/* Mini progress bar */}
-                    <div className="w-full bg-slate-800/80 h-1 rounded-full overflow-hidden mt-1.5">
-                      <div
-                        className={`h-full ${isBottleneck ? 'bg-rose-500' : isMastered ? 'bg-emerald-400' : 'bg-indigo-500'}`}
-                        style={{ width: `${Math.min(100, Math.max(5, score))}%` }}
-                      />
+                    <div className="mt-2 flex items-center justify-between text-[10px] text-slate-400">
+                      <span>Proficiency: {score}%</span>
+                      {s.prerequisites.length > 0 && (
+                        <span>{s.prerequisites.length} prereq{s.prerequisites.length > 1 ? 's' : ''}</span>
+                      )}
                     </div>
                   </div>
                 );
@@ -155,33 +143,6 @@ export const SkillPrerequisiteMap: React.FC<SkillPrerequisiteMapProps> = ({
           </div>
         ))}
       </div>
-
-      {/* Selected Skill Quick Inspector Banner */}
-      {selectedSkill && (
-        <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-white text-sm">{selectedSkill.name}</span>
-              <Badge variant="indigo" size="sm">Level {selectedSkill.level}</Badge>
-              <span className="text-xs text-slate-400">{selectedSkill.domain || selectedSkill.category}</span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed max-w-2xl">
-              {selectedSkill.description}
-            </p>
-          </div>
-
-          {onInspectSkill && (
-            <button
-              onClick={() => onInspectSkill(selectedSkill.slug)}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shrink-0 transition-colors flex items-center gap-1.5"
-            >
-              <Zap className="w-3.5 h-3.5" />
-              <span>Full Graph View</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 };

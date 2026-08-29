@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import type { Career } from '../../types';
 import { AppShell } from '../../components/layout/AppShell';
@@ -66,29 +66,29 @@ export default function CareersPage() {
 
   return (
     <AppShell
-      pageTitle="Target Career Tracks"
+      pageTitle="Engineering Career Tracks"
       pageSubtitle="Select a specialized engineering role to calibrate your diagnostic assessment and roadmap."
       actions={
         <button
           onClick={fetchCareers}
-          className="p-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-400 hover:text-white transition-colors"
+          className="p-2 rounded-lg bg-slate-900 hover:bg-slate-850 border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
           title="Refresh Careers"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-3.5 h-3.5" />
         </button>
       }
     >
       <div className="space-y-6">
         {/* Category Filters */}
-        <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 w-fit">
+        <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-950 border border-white/[0.06] w-fit">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 selectedCategory === cat
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 font-bold'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-indigo-600 text-white font-semibold shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               {cat}
@@ -98,13 +98,13 @@ export default function CareersPage() {
 
         {/* Careers Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCareers.map((career) => (
               <CareerGoalCard
                 key={career.id}
