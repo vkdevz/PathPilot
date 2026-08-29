@@ -1,227 +1,232 @@
-# 🚀 PathPilot — AI-Powered Career Path & Skill Navigation Platform
+# 🧭 PathPilot AI
 
-PathPilot is an intelligent, multi-agent career navigation and upskilling platform. It assesses a learner's current capabilities against dynamic industry role requirements, calculates skill gaps, generates adaptive learning roadmaps, and provides interactive AI mentoring.
+**Adaptive AI-Powered Career Learning Platform**
 
----
-
-## 🌟 Key Features
-
-- **🎯 Dynamic Career Tracks**: Explore structured industry career tracks (Data Scientist, AI/ML Engineer, Full Stack Developer, DevOps, Cybersecurity, Cloud Architect, Product Manager, etc.) with required skill trees and difficulty weights.
-- **📝 Adaptive Skill Assessments**: Targeted multiple-choice assessments evaluating foundational and advanced competencies with real-time scoring.
-- **📊 Comprehensive Skill Gap Analysis**: Visual radar charts, strength vs. growth area breakdowns, and personalized skill readiness scores.
-- **🗺️ Personalized Learning Paths**: Dynamic step-by-step milestone roadmaps tailored to the learner's specific strengths and identified gaps.
-- **💬 AI Career Copilot**: Context-aware AI assistant providing personalized career advice, curriculum clarification, and study strategies.
-- **🔄 Learner Feedback Loop**: Interactive feedback triggers real-time dynamic adjustments to learning path milestones and pacing.
-- **🏆 Gamification & Leaderboard**: XP, streak counters, milestone badges, and community leaderboard tracking.
-- **🔐 Secure Firebase Authentication**: Persistent user identity keyed to Firebase UID with zero custom JWT risks.
-- **💾 Production-Ready MongoDB Persistence**: Complete session state, assessment submissions, user skill profiles, and learning paths survive server restarts.
+PathPilot transforms career development from static course catalogs into a continuously adaptive, AI-driven learning experience. It combines diagnostic skill assessments, intelligent prerequisite graph analysis, hybrid recommendation engines, and a closed-loop adaptive learning system to deliver truly personalized education pathways.
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## Problem
 
-```
-                                  ┌────────────────────────┐
-                                  │      React + Vite      │
-                                  │   (Tailwind, Lucide)   │
-                                  └───────────┬────────────┘
-                                              │ HTTP / JSON
-                                              ▼
-                                  ┌────────────────────────┐
-                                  │    FastAPI Backend     │
-                                  │ (Python 3.10+ / Async) │
-                                  └─────┬────────────┬─────┘
-                                        │            │
-                   ┌────────────────────▼──┐      ┌──▼────────────────────┐
-                   │  Firebase Admin SDK   │      │   MongoDB Persistence │
-                   │ (verify_id_token/UID) │      │ (Motor / PyMongo / DB)│
-                   └───────────────────────┘      └───────────────────────┘
-```
+Online learning platforms offer thousands of courses but provide no intelligent guidance. Learners waste time on content that is too easy, too advanced, or irrelevant to their career goals. There is no diagnostic feedback, no prerequisite awareness, and no adaptation when a learner struggles or excels.
 
-### **Backend**
-- **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Asynchronous Python Web Framework)
-- **Database**: [MongoDB](https://www.mongodb.com/) via [Motor](https://motor.readthedocs.io/) & [PyMongo](https://pymongo.readthedocs.io/)
-- **Authentication**: [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup) (Token verification & stable UID identity)
-- **AI / Logic**: Multi-agent simulation (Profile Agent, Assessment Agent, Recommendation Agent, Feedback Agent)
-- **Testing**: `pytest` & `anyio`
+## Solution
 
-### **Frontend**
-- **Framework**: [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) + [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Icons & UI**: [Lucide React](https://lucide.dev/), Canvas Radar Charts, Interactive Drawers & Heatmaps
-- **Routing**: React State / Page Router
+PathPilot solves this through an integrated AI pipeline:
+
+1. **Diagnostic Assessment** — Calibrates each learner's actual skill proficiency across career-relevant competencies
+2. **Skill Graph Intelligence** — Maps prerequisite dependencies as a directed acyclic graph (DAG) to identify bottleneck skills and optimal learning sequences
+3. **Hybrid Recommendation Engine** — Ranks resources using 8 weighted features (skill gap, career alignment, semantic similarity, difficulty fit, pacing, prerequisites, format preference, feedback history)
+4. **Adaptive Learning Engine** — Continuously updates proficiency models from evidence (assessments, projects, feedback), detects mastery and struggle states, and dynamically adjusts roadmaps
+5. **AI Mentor** — Grounded LLM assistant with tool-calling access to real learner data, providing explainable answers about progress, recommendations, and skill gaps
 
 ---
 
-## 📂 Project Structure
+## Key Features
+
+| Feature | Description |
+| :--- | :--- |
+| **Career Tracks** | 4 industry-aligned career paths (Data Scientist, ML Engineer, Full Stack Developer, AI Engineer) with weighted skill requirements |
+| **Diagnostic Quizzes** | Timed multi-choice assessments per career track that calibrate initial skill proficiency |
+| **Prerequisite DAG** | In-memory directed acyclic graph with cycle detection, transitive traversal, and downstream impact scoring |
+| **Intelligent Skill Gaps** | Multi-factor gap analysis combining raw proficiency gaps with career importance, prerequisite depth, and downstream impact |
+| **Career Readiness Score** | Weighted readiness percentage with confidence intervals based on assessment evidence |
+| **Hybrid Recommendations** | 8-feature composite scoring with prerequisite constraint filtering and MMR diversity re-ranking |
+| **Semantic Retrieval** | pgvector-powered cosine similarity search across resources, skills, and careers |
+| **Adaptive Proficiency** | Bayesian-inspired evidence-weighted updates with recency decay (30-day half-life) |
+| **Mastery Detection** | 5-state mastery classifier (Not Started → Developing → Practicing → Near Mastery → Mastered) |
+| **Struggle Detection** | Consecutive failure detection with automatic reinforcement milestone insertion |
+| **Roadmap Versioning** | Non-destructive roadmap snapshots preserving complete adaptation history |
+| **AI Mentor** | LLM-powered assistant with tool-calling for real-time learner data inspection |
+| **Explainable AI** | Every recommendation and adaptation includes verifiable pedagogical rationale |
+
+---
+
+## Architecture
 
 ```
-HCL-Project/
-├── backend/
-│   ├── database/
-│   │   ├── mongodb.py           # Motor async client connection & lifecycle management
-│   │   ├── indexes.py           # Index creation for all collections
-│   │   └── seed.py              # Idempotent career & course catalog seeder
-│   ├── repositories/
-│   │   ├── user_repository.py          # Users collection management (Firebase UID)
-│   │   ├── session_repository.py       # Sessions persistence & lookup
-│   │   ├── assessment_repository.py    # Assessments & submitted answers
-│   │   ├── skill_repository.py         # Skill evaluations & user profiles
-│   │   ├── learning_path_repository.py # Milestone learning paths
-│   │   ├── feedback_repository.py      # Milestone feedback records
-│   │   ├── career_repository.py        # Career tracks & skill metadata
-│   │   ├── course_repository.py        # Course catalogue
-│   │   └── agent_trace_repository.py   # AI agent audit trail
-│   ├── services/
-│   │   ├── scoring.py           # Assessment grading & topic strength classification
-│   │   ├── recommendation.py    # Gap-based milestone recommendation engine
-│   │   └── chatbot.py           # Contextual AI chatbot response engine
-│   ├── tests/
-│   │   └── test_mongodb.py      # 14-step persistence & auth test suite
-│   ├── auth.py                  # Firebase token verification & dependency injection
-│   ├── database.py              # Central database export wrapper
-│   ├── main.py                  # FastAPI application routes & lifespan handler
-│   ├── seed_data.py             # Pre-configured careers, skills & question bank
-│   ├── requirements.txt         # Python dependencies
-│   └── .env.example             # Backend environment template
-├── frontend/
-│   ├── src/
-│   │   ├── components/          # Navbar, Sidebar, RadarChart, Heatmap, Modals
-│   │   ├── context/             # AuthContext (Firebase auth provider)
-│   │   ├── pages/               # Landing, Career Selection, Assessment, Skill Report, Dashboard
-│   │   ├── services/            # Axios API clients & Market Intelligence
-│   │   ├── types/               # TypeScript interfaces
-│   │   ├── App.tsx              # Application shell
-│   │   └── main.tsx             # React DOM entry point
-│   ├── package.json             # Frontend dependencies & scripts
-│   ├── tailwind.config.js       # Custom design system & color tokens
-│   └── vite.config.ts           # Vite configuration
-├── .gitignore                   # Ignored artifacts, credentials & data dirs
-└── README.md                    # Project documentation
+┌─────────────────────────────────────────────────┐
+│              Next.js 14 Frontend                │
+│     (TypeScript, Tailwind CSS, App Router)      │
+└──────────────────────┬──────────────────────────┘
+                       │ REST API
+                       ▼
+┌─────────────────────────────────────────────────┐
+│             FastAPI Backend (Python)             │
+│  ┌────────────┐ ┌────────────┐ ┌─────────────┐ │
+│  │ Assessment  │ │Skill Graph │ │  Adaptive   │ │
+│  │  Service    │ │  Service   │ │   Engine    │ │
+│  └────────────┘ └────────────┘ └─────────────┘ │
+│  ┌────────────┐ ┌────────────┐ ┌─────────────┐ │
+│  │   Hybrid   │ │  Semantic  │ │     AI      │ │
+│  │ Recommender│ │ Retrieval  │ │  Assistant  │ │
+│  └────────────┘ └────────────┘ └─────────────┘ │
+└──────────────────────┬──────────────────────────┘
+                       │ SQLAlchemy 2.0 (Async)
+                       ▼
+┌─────────────────────────────────────────────────┐
+│        PostgreSQL 16 + pgvector (Supabase)      │
+│                                                  │
+│  Skills │ Careers │ Resources │ Assessments      │
+│  Users  │ Paths   │ Evidence  │ Embeddings       │
+│  Adaptations │ Roadmap Versions │ Feedback       │
+└─────────────────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────┐
+│              External AI Services                │
+│      LLM Provider (OpenAI / Gemini)              │
+│      Embedding Provider (or Deterministic)       │
+└─────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ⚙️ Getting Started
+## Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | Next.js 14, TypeScript, Tailwind CSS, Lucide React, Recharts |
+| **Backend** | Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async) |
+| **Database** | PostgreSQL 16 with pgvector extension (Supabase) |
+| **Auth** | Supabase Auth (JWT verification in FastAPI) |
+| **AI/ML** | LLM API (OpenAI/Gemini), Deterministic Semantic Embeddings, NumPy |
+| **Migrations** | Alembic |
+
+---
+
+## AI/ML Components
+
+### Recommendation Engine
+- **8-Feature Hybrid Scoring**: skill_gap × career_alignment × roadmap_affinity × semantic_similarity × difficulty_fit × format_preference × pacing_fit × feedback_prior
+- **Prerequisite Constraint Filter**: Hard filter preventing prerequisite-violating recommendations (0% violation rate)
+- **MMR Diversity Re-Ranking**: Maximal Marginal Relevance ensures topic diversity in final recommendation lists
+
+### Adaptive Learning Engine
+- **Bayesian-Inspired Updates**: α = min(Wₑ · Cₑ · 2^(-Δt/30), 0.65) with evidence reliability weighting
+- **Mastery State Machine**: 5-tier classification with confidence thresholds
+- **Struggle Detection**: Consecutive failure analysis with automatic reinforcement insertion
+- **SHA-256 Deduplication**: Prevents duplicate evidence from corrupting proficiency models
+
+### Semantic Retrieval
+- **pgvector Cosine Similarity**: 1536-dimensional embeddings indexed with IVFFlat
+- **Unified Search**: Cross-entity semantic search across resources, skills, and careers
+
+### AI Mentor
+- **Tool-Calling Architecture**: LLM accesses learner data through controlled tool functions (roadmap, skills, recommendations, adaptive state)
+- **Grounded Responses**: All learner-specific facts sourced from database, not hallucinated
+- **Safety Rails**: System prompt injection protection, no direct database/filesystem access
+
+---
+
+## Setup
 
 ### Prerequisites
-- **Node.js** (v18+)
-- **Python** (v3.10+)
-- **MongoDB** (Local instance running at `mongodb://localhost:27017` or MongoDB Atlas URI)
+- Python 3.12+
+- Node.js 18+
+- PostgreSQL 16 with pgvector extension (or Supabase account)
 
----
-
-### 1. Backend Setup
-
-1. Open a terminal in `backend/`:
-   ```bash
-   cd backend
-   ```
-
-2. Create and activate a virtual environment (optional but recommended):
-   ```bash
-   python -m venv venv
-   # Windows PowerShell:
-   .\venv\Scripts\Activate.ps1
-   # macOS/Linux:
-   source venv/bin/activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Configure environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-   *(Update `MONGODB_URI`, `MONGODB_DATABASE`, or Firebase credentials if running with live Firebase service account)*
-
-5. Start MongoDB service:
-   ```powershell
-   # Windows PowerShell (as Admin):
-   Start-Service -Name MongoDB
-   ```
-
-6. Start FastAPI server:
-   ```bash
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   - Interactive Swagger API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-   - Alternative Redoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
-
----
-
-### 2. Frontend Setup
-
-1. Open a new terminal in `frontend/`:
-   ```bash
-   cd frontend
-   ```
-
-2. Install npm dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Open your browser and navigate to:
-   ```
-   http://localhost:5173
-   ```
-
----
-
-## 🧪 Testing & Verification
-
-Run the full automated test suite verifying MongoDB persistence, idempotent seeding, session survival across server restarts, and Firebase identity validation:
+### Backend Setup
 
 ```bash
-# From the project root
-python -m pytest backend/tests/test_mongodb.py -s
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your database URL, Supabase keys, and LLM API key
+
+# Start the server (auto-creates tables and seeds data)
+uvicorn app.main:app --reload --port 8000
 ```
 
-Or run directly:
+### Frontend Setup
+
 ```bash
-python backend/tests/test_mongodb.py
+cd frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your Supabase URL and anon key
+
+# Start development server
+npm run dev
+```
+
+### Database Setup
+
+The application automatically:
+1. Creates all tables on startup via SQLAlchemy `create_all`
+2. Runs the idempotent seeder (4 careers, 11 skills, 20 resources, prerequisite relationships, assessment questions)
+3. Generates semantic embeddings for all entities
+
+For manual migration management:
+```bash
+cd backend
+alembic upgrade head
 ```
 
 ---
 
-## 📡 API Reference Overview
+## Testing
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/health` | Server & MongoDB connection health check |
-| `GET` | `/careers` | List all available career tracks & skills |
-| `GET` | `/careers/{career_id}` | Retrieve details for a specific career track |
-| `POST` | `/session/start` | Initialize or resume active learner session |
-| `POST` | `/session/{session_id}/career` | Select target career track for the session |
-| `POST` | `/assessment/start` | Generate tailored assessment question bank |
-| `POST` | `/assessment/{assessment_id}/submit` | Submit answers, calculate score & generate path |
-| `GET` | `/session/{session_id}/assessment/result` | Fetch assessment evaluation & scores |
-| `GET` | `/session/{session_id}/skills` | Retrieve session skill breakdown |
-| `GET` | `/session/{session_id}/path` | Fetch personalized milestone learning roadmap |
-| `POST` | `/session/{session_id}/feedback` | Submit milestone feedback to adjust difficulty |
-| `POST` | `/chat` | Chat with AI Career Copilot |
-| `GET` | `/session/{session_id}/trace` | Audit log of AI agent actions |
+### Backend Tests (84 tests)
+```bash
+cd backend
+./venv/bin/pytest tests -v
+```
 
----
+### Frontend Tests (19 tests)
+```bash
+cd frontend
+npm test
+```
 
-## 🛡️ Authentication Model
-
-- Authenticated users authenticate via **Firebase Authentication** on the frontend.
-- Backend validates tokens with `firebase_admin.auth.verify_id_token()` extracting `uid`.
-- Data is partitioned by `firebase_uid`.
-- Includes built-in `DEV_MODE=true` offline fallback for seamless local testing without mandatory cloud credentials.
+### Production Build
+```bash
+cd frontend
+npm run build
+```
 
 ---
 
-## 📄 License
+## Demo Flow
 
-This project is licensed under the MIT License.
+1. **Sign up / Login** → Supabase Auth creates authenticated session
+2. **Onboarding** → Select career track and learning preferences
+3. **Diagnostic Assessment** → Timed quiz calibrates skill proficiency per career
+4. **Dashboard** → View skill gaps, adaptive banner, career readiness, next best action
+5. **Skills Page** → Prerequisite DAG visualization, intelligent gap analysis, bottleneck detection
+6. **Roadmap** → Sequential milestone staircase with versioned adaptive progression
+7. **Recommendations** → Hybrid-ranked resources with explainable feature breakdowns
+8. **AI Mentor** → Ask "What should I learn next?" or "Why did my roadmap change?"
+9. **Complete Activity** → Evidence ingested, proficiency recalibrated, roadmap adapts
+10. **Repeat** → Continuous closed-loop learning
+
+---
+
+## Limitations
+
+- Embedding provider falls back to deterministic hashing when no API key is configured (functional but lower semantic quality)
+- Assessment question bank is seeded with a curated set per career track (not dynamically generated)
+- Deployment requires manual Supabase project setup and pgvector extension enablement
+- LLM responses depend on external API availability
+
+---
+
+## Future Work
+
+- Real-time collaborative learning features
+- Spaced repetition integration for long-term retention
+- Portfolio project auto-grading
+- Mobile-native experience
+- Multi-language support

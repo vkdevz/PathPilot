@@ -45,21 +45,28 @@ async def get_career_details(slug: str, db: AsyncSession = Depends(get_db)):
 
     skills_list = []
     weights_map = {}
+    importance_map = {}
+    target_prof_map = {}
     for cs in sorted(career.career_skills, key=lambda x: x.recommended_order):
         sk = cs.skill
-        prereqs = [p.prerequisite_skill_id for p in sk.prerequisites]
-        skills_list.append(SkillResponse(
-            id=sk.id,
-            slug=sk.slug,
-            name=sk.name,
-            category=sk.category,
-            difficulty=sk.difficulty,
-            level=sk.level,
-            description=sk.description,
-            estimated_minutes=sk.estimated_minutes,
-            prerequisites=prereqs
-        ))
-        weights_map[sk.slug] = cs.weight
+        if sk:
+            prereqs = [p.prerequisite_skill_id for p in sk.prerequisites]
+            skills_list.append(SkillResponse(
+                id=sk.id,
+                slug=sk.slug,
+                name=sk.name,
+                category=sk.category,
+                domain=sk.domain or "General",
+                difficulty=sk.difficulty or "Beginner",
+                level=sk.level,
+                description=sk.description,
+                estimated_minutes=sk.estimated_minutes,
+                is_active=sk.is_active,
+                prerequisites=prereqs
+            ))
+            weights_map[sk.slug] = cs.weight
+            importance_map[sk.slug] = cs.importance or "high"
+            target_prof_map[sk.slug] = cs.target_proficiency or 0.85
 
     return CareerDetailResponse(
         id=career.id,
@@ -71,5 +78,8 @@ async def get_career_details(slug: str, db: AsyncSession = Depends(get_db)):
         market_demand_score=career.market_demand_score,
         salary_range=career.salary_range,
         skills=skills_list,
-        skill_weights=weights_map
+        skill_weights=weights_map,
+        skill_importance=importance_map,
+        target_proficiencies=target_prof_map
     )
+

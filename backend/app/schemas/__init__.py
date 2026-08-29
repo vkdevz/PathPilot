@@ -1,6 +1,17 @@
 from app.schemas.user import UserBase, UserSyncRequest, UserResponse, LearnerProfileBase, LearnerProfileUpdate, LearnerProfileResponse
 from app.schemas.career import CareerBase, CareerResponse, CareerDetailResponse, SelectCareerRequest
-from app.schemas.skill import SkillBase, SkillResponse, LearnerSkillResponse
+from app.schemas.skill import (
+    SkillBase,
+    SkillResponse,
+    SkillDetailResponse,
+    SkillPrerequisiteNode,
+    PrerequisiteGraphResponse,
+    LearnerSkillResponse,
+    IntelligentSkillGapResponse,
+    NextBestSkillResponse,
+    CareerReadinessSummaryResponse,
+    GraphValidationResponse,
+)
 from app.schemas.resource import ResourceBase, ResourceResponse
 from app.schemas.assessment import (
     QuestionResponse,
@@ -14,7 +25,36 @@ from app.schemas.assessment import (
 from app.schemas.learning_path import LearningPathItemResponse, LearningPathResponse
 from app.schemas.progress import ProgressLogRequest, ProgressResponse, HeatmapDay, LeaderboardUserResponse
 from app.schemas.feedback import FeedbackCreateRequest, FeedbackResponse
-from app.schemas.chat import MessageCreateRequest, MessageResponse, ConversationResponse
+from app.schemas.chat import MessageCreateRequest, MessageResponse, ConversationResponse, ConversationSummary, ConversationCreateRequest
+from app.schemas.ai import AIChatRequest, AIChatResponse, ToolCallRecord, AITelemetry, StreamChunk
+from app.schemas.retrieval import (
+    ResourceSearchRequest,
+    ResourceSearchFilter,
+    SkillSearchRequest,
+    SkillSearchFilter,
+    CareerSearchRequest,
+    CareerSearchFilter,
+    UnifiedSearchRequest,
+    UnifiedSearchResponse,
+    RetrievedResourceItem,
+    RetrievedSkillItem,
+    RetrievedCareerItem,
+    ReindexRequest,
+    ReindexResponse,
+    IndexStatsResponse,
+    RetrievalEvaluationResponse,
+)
+from app.schemas.recommendation import (
+    FeatureScoreBreakdown,
+    RecommendationExplanationDetail,
+    PersonalizedRecommendationItem,
+    NextBestActionResponse,
+    RecommendationFeedbackCreate,
+    RecommendationFeedbackResponse,
+    RecommendationObservabilityResponse,
+    BaselineComparisonMetric,
+    RecommendationEvaluationReport,
+)
 
 __all__ = [
     "UserBase",
@@ -29,7 +69,14 @@ __all__ = [
     "SelectCareerRequest",
     "SkillBase",
     "SkillResponse",
+    "SkillDetailResponse",
+    "SkillPrerequisiteNode",
+    "PrerequisiteGraphResponse",
     "LearnerSkillResponse",
+    "IntelligentSkillGapResponse",
+    "NextBestSkillResponse",
+    "CareerReadinessSummaryResponse",
+    "GraphValidationResponse",
     "ResourceBase",
     "ResourceResponse",
     "QuestionResponse",
@@ -50,4 +97,36 @@ __all__ = [
     "MessageCreateRequest",
     "MessageResponse",
     "ConversationResponse",
+    "ConversationSummary",
+    "ConversationCreateRequest",
+    "AIChatRequest",
+    "AIChatResponse",
+    "ToolCallRecord",
+    "AITelemetry",
+    "StreamChunk",
+    "ResourceSearchRequest",
+    "ResourceSearchFilter",
+    "SkillSearchRequest",
+    "SkillSearchFilter",
+    "CareerSearchRequest",
+    "CareerSearchFilter",
+    "UnifiedSearchRequest",
+    "UnifiedSearchResponse",
+    "RetrievedResourceItem",
+    "RetrievedSkillItem",
+    "RetrievedCareerItem",
+    "ReindexRequest",
+    "ReindexResponse",
+    "IndexStatsResponse",
+    "RetrievalEvaluationResponse",
+    "FeatureScoreBreakdown",
+    "RecommendationExplanationDetail",
+    "PersonalizedRecommendationItem",
+    "NextBestActionResponse",
+    "RecommendationFeedbackCreate",
+    "RecommendationFeedbackResponse",
+    "RecommendationObservabilityResponse",
+    "BaselineComparisonMetric",
+    "RecommendationEvaluationReport",
 ]
+

@@ -2,139 +2,236 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Compass, Calendar, Zap, Clock, Activity, Award } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  CartesianGrid
+} from 'recharts';
+import { BarChart3, Trophy, Medal, Sparkles, RefreshCw, Flame, Users, Activity } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import type { HeatmapDay } from '../../types';
+import type { LearnerSkill, LeaderboardUser, HeatmapDay } from '../../types';
+import { AppShell } from '../../components/layout/AppShell';
+import { SkeletonCard } from '../../components/ui/Skeleton';
 
 export default function AnalyticsPage() {
+  const [skills, setSkills] = useState<LearnerSkill[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [heatmap, setHeatmap] = useState<HeatmapDay[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchAnalytics = async () => {
+    setLoading(true);
+    try {
+      const [skillsData, leaderData, heatData] = await Promise.allSettled([
+        apiClient.getMySkills(),
+        apiClient.getLeaderboard(),
+        apiClient.getHeatmap(28),
+      ]);
+
+      if (skillsData.status === 'fulfilled') setSkills(skillsData.value);
+      if (leaderData.status === 'fulfilled') setLeaderboard(leaderData.value);
+      if (heatData.status === 'fulfilled') setHeatmap(heatData.value);
+    } catch (e) {
+      console.error('Failed to load analytics:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    apiClient
-      .getHeatmap(28)
-      .then((data) => setHeatmap(data))
-      .catch((err) => console.error('Failed to load heatmap:', err))
-      .finally(() => setLoading(false));
+    fetchAnalytics();
   }, []);
 
-  const totalMinutes = heatmap.reduce((acc, curr) => acc + curr.minutes, 0);
-  const activeDays = heatmap.filter((d) => d.minutes > 0).length;
+  const chartData = skills.map((s) => ({
+    name: s.skill_name.length > 15 ? `${s.skill_name.slice(0, 14)}…` : s.skill_name,
+    fullName: s.skill_name,
+    score: s.score,
+    target: 85,
+    category: s.category,
+  }));
+
+  const totalStudyMinutes = heatmap.reduce((acc, curr) => acc + (curr.minutes || 0), 0);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-500">
-      {/* Navigation */}
-      <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-              <Compass className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-white">PathPilot AI</span>
-          </Link>
-
-          <nav className="flex items-center gap-2">
-            <Link
-              href="/dashboard"
-              className="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/careers"
-              className="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
-            >
-              Careers
-            </Link>
-            <Link
-              href="/analytics"
-              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600/20 text-indigo-300 border border-indigo-500/30"
-            >
-              Analytics
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Page */}
-      <main className="max-w-4xl mx-auto px-6 py-10 flex-1 w-full space-y-8">
-        <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Study Analytics & Activity</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Real-time activity logs and streak consistency recorded directly in PostgreSQL.
-          </p>
-        </div>
-
-        {/* Top Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-3">
-              <Clock className="w-5 h-5" />
-            </div>
-            <span className="text-2xl font-bold text-white">{totalMinutes} mins</span>
-            <span className="block text-xs text-slate-400 mt-0.5">Total Study Time (28d)</span>
+    <AppShell
+      pageTitle="Analytics & Guild Leaderboard"
+      pageSubtitle="Comprehensive competency benchmarks and live community leaderboard calculated from PostgreSQL learner XP."
+      actions={
+        <button
+          onClick={fetchAnalytics}
+          className="p-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-400 hover:text-white transition-colors"
+          title="Refresh Analytics"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      }
+    >
+      <div className="space-y-8">
+        {/* Top Metric Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="glass-panel rounded-3xl p-6 space-y-1">
+            <span className="text-xs font-bold uppercase text-slate-400">Assessed Competencies</span>
+            <h3 className="text-2xl font-black text-white">{skills.length} Skills</h3>
+            <p className="text-[11px] text-slate-400">Calculated across diagnostic quizzes</p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <span className="text-2xl font-bold text-white">{activeDays} / 28</span>
-            <span className="block text-xs text-slate-400 mt-0.5">Active Study Days</span>
+          <div className="glass-panel rounded-3xl p-6 space-y-1">
+            <span className="text-xs font-bold uppercase text-slate-400">Average Proficiency</span>
+            <h3 className="text-2xl font-black text-indigo-300">
+              {skills.length > 0
+                ? Math.round(skills.reduce((acc, s) => acc + s.score, 0) / skills.length)
+                : 0}
+              %
+            </h3>
+            <p className="text-[11px] text-slate-400">Target Benchmark: 85%</p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-3">
-              <Activity className="w-5 h-5" />
-            </div>
-            <span className="text-2xl font-bold text-white">
-              {activeDays > 0 ? Math.round(totalMinutes / activeDays) : 0} mins
-            </span>
-            <span className="block text-xs text-slate-400 mt-0.5">Avg Session Duration</span>
+          <div className="glass-panel rounded-3xl p-6 space-y-1">
+            <span className="text-xs font-bold uppercase text-slate-400">Community Rank</span>
+            <h3 className="text-2xl font-black text-amber-300">
+              #{leaderboard.find((u) => u.is_current)?.rank || 1}
+            </h3>
+            <p className="text-[11px] text-slate-400">Based on verified completed milestones</p>
           </div>
         </div>
 
-        {/* 28-Day Heatmap Card */}
-        <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Activity className="w-4 h-4 text-indigo-400" />
-              <span>28-Day Consistency Heatmap</span>
-            </h2>
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-              <span>Less</span>
-              <span className="w-2.5 h-2.5 rounded bg-slate-800" />
-              <span className="w-2.5 h-2.5 rounded bg-indigo-900" />
-              <span className="w-2.5 h-2.5 rounded bg-indigo-600" />
-              <span className="w-2.5 h-2.5 rounded bg-indigo-400" />
-              <span>More</span>
+        {/* 2-Column Analytics Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recharts Skill Progression Chart (2 Cols) */}
+          <div className="lg:col-span-2 glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-indigo-400" />
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  Competency Score vs Industry Benchmark (85%)
+                </h3>
+              </div>
             </div>
+
+            {loading ? (
+              <SkeletonCard />
+            ) : chartData.length > 0 ? (
+              <div className="h-72 w-full pt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                    <XAxis
+                      dataKey="name"
+                      stroke="#64748b"
+                      fontSize={11}
+                      interval={0}
+                      angle={-15}
+                      textAnchor="end"
+                    />
+                    <YAxis stroke="#64748b" fontSize={11} domain={[0, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#090d16',
+                        borderColor: '#334155',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        color: '#f8fafc',
+                      }}
+                      formatter={(val: number) => [`${val}% Score`, 'Proficiency']}
+                      labelFormatter={(label) => `Topic: ${label}`}
+                    />
+                    <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                      {chartData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={
+                            entry.score >= 85
+                              ? '#10b981'
+                              : entry.score >= 70
+                              ? '#6366f1'
+                              : '#f59e0b'
+                          }
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-xs text-slate-400">
+                <p>No skill assessment scores available to graph.</p>
+                <Link href="/careers" className="mt-3 inline-block font-semibold text-indigo-400">
+                  Take Diagnostic Assessment →
+                </Link>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-7 sm:grid-cols-14 gap-2 pt-2">
-            {heatmap.map((day) => {
-              const bgClass =
-                day.intensity === 3
-                  ? 'bg-indigo-400 text-slate-950 font-bold'
-                  : day.intensity === 2
-                  ? 'bg-indigo-600 text-white'
-                  : day.intensity === 1
-                  ? 'bg-indigo-900/80 text-indigo-200'
-                  : 'bg-slate-800/60 text-slate-500';
+          {/* Guild Community Leaderboard */}
+          <div className="glass-panel rounded-3xl p-6 sm:p-8 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-400" />
+                <h3 className="text-base font-bold text-white tracking-tight">Guild Leaderboard</h3>
+              </div>
+              <Users className="w-4 h-4 text-slate-400" />
+            </div>
 
-              return (
-                <div
-                  key={day.date}
-                  title={`${day.date}: ${day.minutes} minutes`}
-                  className={`aspect-square rounded-xl flex flex-col items-center justify-center text-[10px] transition-transform hover:scale-110 cursor-pointer ${bgClass}`}
-                >
-                  <span>{day.date.slice(-2)}</span>
-                </div>
-              );
-            })}
+            {loading ? (
+              <SkeletonCard />
+            ) : (
+              <div className="space-y-2.5">
+                {leaderboard.map((u) => {
+                  const isTop3 = u.rank <= 3;
+                  return (
+                    <div
+                      key={u.user_id}
+                      className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                        u.is_current
+                          ? 'bg-indigo-600/20 border-indigo-500 shadow-glow-indigo'
+                          : 'bg-slate-950/60 border-slate-800/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${
+                            u.rank === 1
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                              : u.rank === 2
+                              ? 'bg-slate-300/20 text-slate-200 border border-slate-400/30'
+                              : u.rank === 3
+                              ? 'bg-amber-700/20 text-amber-400 border border-amber-600/30'
+                              : 'bg-slate-900 text-slate-500'
+                          }`}
+                        >
+                          {u.rank}
+                        </div>
+
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-white truncate flex items-center gap-1.5">
+                            <span>{u.name}</span>
+                            {u.is_current && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-indigo-600 text-white font-extrabold">
+                                YOU
+                              </span>
+                            )}
+                          </h4>
+                          <span className="text-[10px] text-slate-400 block truncate">{u.career}</span>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span className="text-xs font-bold text-amber-400 block">{u.xp} XP</span>
+                        <span className="text-[10px] text-rose-400 font-semibold">{u.streak}d streak</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

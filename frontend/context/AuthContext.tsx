@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase/client';
+import { supabase, isDevMode } from '../lib/supabase/client';
 import { apiClient } from '../lib/api-client';
 import type { User } from '../types';
 
@@ -25,6 +25,12 @@ const AuthContext = createContext<AuthContextType>({
   refreshUser: async () => {},
 });
 
+// Generate a deterministic dev user ID from email
+function devUserIdFromEmail(email: string): string {
+  const base = email.split('@')[0].replace(/[^a-z0-9]/gi, '-').toLowerCase();
+  return `dev-${base || 'learner'}`;
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [supabaseUser, setSupabaseUser] = useState<any | null>(null);
@@ -35,12 +41,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const backendUser = await apiClient.getMe();
       setUser(backendUser);
     } catch (err) {
-      console.warn('Backend user profile not yet initialized or offline:', err);
+      console.warn('Backend user profile synchronization note:', err);
     }
   };
 
+  // ── Dev Mode Auth (Local / Self-Contained Testing) ───────────
+  const devSignIn = async (email: string, _password?: string, displayName?: string) => {
+    const userId = devUserIdFromEmail(email);
+    const devToken = `dev-token-${userId}`;
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pathpilot_token', devToken);
+      localStorage.setItem('pathpilot_email', email);
+    }
+
+    const syntheticUser = {
+      id: userId,
+      email,
+      user_metadata: { full_name: displayName || email.split('@')[0] },
+    };
+    setSupabaseUser(syntheticUser);
+    await fetchBackendUser();
+  };
+
+  const devSignOut = async () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('pathpilot_token');
+      localStorage.removeItem('pathpilot_email');
+    }
+    setSupabaseUser(null);
+    setUser(null);
+  };
+
+  // ── Session Initialization & Lifecycle ────────────────────────
   useEffect(() => {
-    // Initial session check
+    if (isDevMode) {
+      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
+      const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
+
+      if (storedToken && storedToken.startsWith('dev-token-')) {
+        const userId = storedToken.replace('dev-token-', '');
+        const email = storedEmail || `${userId}@pathpilot.ai`;
+        setSupabaseUser({
+          id: userId,
+          email,
+          user_metadata: { full_name: `Learner (${userId})` },
+        });
+        fetchBackendUser().finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Production: Supabase JWT session management
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setSupabaseUser(session.user);
@@ -50,7 +104,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // Subscribe to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setSupabaseUser(session.user);
@@ -67,23 +120,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  // ── Sign In ────────────────────────────────────────────────────
   const signInWithEmail = async (email: string, password: string = 'Password123!') => {
     setLoading(true);
     try {
+      const cleanEmail = email.trim();
+      if (!cleanEmail || !cleanEmail.includes('@')) {
+        throw new Error('Please enter a valid email address.');
+      }
+      if (!password || password.length < 6) {
+        throw new Error('Password must be at least 6 characters.');
+      }
+
+      if (isDevMode) {
+        await devSignIn(cleanEmail, password);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
 
-      if (error) {
-        // If user does not exist in mock/dev environment, auto sign-up
-        if (error.message.includes('Invalid login credentials')) {
-          await signUpWithEmail(email, password, email.split('@')[0]);
-          return;
-        }
-        throw error;
-      }
-
+      if (error) throw error;
       setSupabaseUser(data.user);
       await fetchBackendUser();
     } finally {
@@ -91,11 +150,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string = 'Password123!', displayName: string = 'Learner') => {
+  // ── Sign Up ────────────────────────────────────────────────────
+  const signUpWithEmail = async (
+    email: string,
+    password: string = 'Password123!',
+    displayName: string = 'Learner'
+  ) => {
     setLoading(true);
     try {
+      const cleanEmail = email.trim();
+      if (!cleanEmail || !cleanEmail.includes('@')) {
+        throw new Error('Please enter a valid email address.');
+      }
+      if (!password || password.length < 6) {
+        throw new Error('Password must be at least 6 characters.');
+      }
+
+      if (isDevMode) {
+        await devSignIn(cleanEmail, password, displayName);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: cleanEmail,
         password,
         options: {
           data: {
@@ -114,13 +191,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // ── Sign Out ───────────────────────────────────────────────────
   const signOut = async () => {
     setLoading(true);
     try {
-      await supabase.auth.signOut();
       if (typeof window !== 'undefined') {
         localStorage.removeItem('pathpilot_token');
+        localStorage.removeItem('pathpilot_email');
       }
+
+      if (isDevMode) {
+        await devSignOut();
+        return;
+      }
+
+      await supabase.auth.signOut();
       setSupabaseUser(null);
       setUser(null);
     } finally {

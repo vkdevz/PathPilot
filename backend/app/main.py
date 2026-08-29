@@ -48,6 +48,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Rate Limiting Middleware
+from app.core.rate_limit import RateLimitMiddleware
+app.add_middleware(RateLimitMiddleware)
+
 # Global Exception Handlers
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):

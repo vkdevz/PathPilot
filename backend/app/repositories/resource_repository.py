@@ -8,10 +8,12 @@ class ResourceRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_all(self, resource_type: Optional[str] = None) -> List[Resource]:
+    async def get_all(self, resource_type: Optional[str] = None, limit: Optional[int] = None) -> List[Resource]:
         stmt = select(Resource).options(selectinload(Resource.resource_skills).selectinload(ResourceSkill.skill))
         if resource_type:
             stmt = stmt.where(Resource.resource_type == resource_type)
+        if limit:
+            stmt = stmt.limit(limit)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 

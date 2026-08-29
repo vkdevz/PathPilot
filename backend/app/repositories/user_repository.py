@@ -9,12 +9,24 @@ class UserRepository:
         self.db = db
 
     async def get_by_id(self, user_id: str) -> Optional[User]:
-        stmt = select(User).options(selectinload(User.profile)).where(User.id == user_id)
+        stmt = (
+            select(User)
+            .options(
+                selectinload(User.profile).selectinload(LearnerProfile.target_career)
+            )
+            .where(User.id == user_id)
+        )
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_by_email(self, email: str) -> Optional[User]:
-        stmt = select(User).options(selectinload(User.profile)).where(User.email == email)
+        stmt = (
+            select(User)
+            .options(
+                selectinload(User.profile).selectinload(LearnerProfile.target_career)
+            )
+            .where(User.email == email)
+        )
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 

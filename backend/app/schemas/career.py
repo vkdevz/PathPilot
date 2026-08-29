@@ -21,8 +21,11 @@ class CareerDetailResponse(CareerBase):
     id: str
     skills: List[SkillResponse] = []
     skill_weights: Dict[str, float] = {}
+    skill_importance: Dict[str, str] = {}
+    target_proficiencies: Dict[str, float] = {}
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class SelectCareerRequest(BaseModel):
     career_slug: str

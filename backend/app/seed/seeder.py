@@ -8,13 +8,14 @@ from app.models.skill import Skill, SkillPrerequisite
 from app.models.resource import Resource, ResourceSkill
 from app.models.assessment import Assessment, Question
 from app.seed.seed_data import CAREERS_SEED, SKILLS_SEED, RESOURCES_SEED, QUESTIONS_SEED
+from app.services.embedding.embedding_pipeline import EmbeddingPipelineService
 
 logger = logging.getLogger("pathpilot.seeder")
 
 async def seed_database(session: AsyncSession) -> None:
     """
     Idempotent seeder that populates PostgreSQL with careers, skills, prerequisites,
-    multi-type resources, and diagnostic question banks.
+    multi-type resources, diagnostic question banks, and generates semantic vector embeddings.
     """
     logger.info("Starting PostgreSQL database seeding...")
 
@@ -29,13 +30,19 @@ async def seed_database(session: AsyncSession) -> None:
                 slug=sk_data["slug"],
                 name=sk_data["name"],
                 category=sk_data["category"],
+                domain=sk_data.get("domain", "General"),
                 difficulty=sk_data["difficulty"],
                 level=sk_data["level"],
                 description=sk_data["description"],
-                estimated_minutes=sk_data["estimated_minutes"]
+                estimated_minutes=sk_data["estimated_minutes"],
+                is_active=True,
+                metadata_json=sk_data.get("metadata_json", {})
             )
             session.add(skill)
             await session.flush()
+        else:
+            skill.domain = sk_data.get("domain", skill.domain or "General")
+            skill.is_active = True
         skill_map[sk_data["slug"]] = skill
 
     # 2. Seed Skill Prerequisites
@@ -52,7 +59,10 @@ async def seed_database(session: AsyncSession) -> None:
                 if not res.scalar_one_or_none():
                     prereq_entry = SkillPrerequisite(
                         skill_id=target_skill.id,
-                        prerequisite_skill_id=prereq_skill.id
+                        prerequisite_skill_id=prereq_skill.id,
+                        relationship_type="prerequisite",
+                        strength=1.0,
+                        is_mandatory=True
                     )
                     session.add(prereq_entry)
     await session.flush()
@@ -87,15 +97,24 @@ async def seed_database(session: AsyncSession) -> None:
                     CareerSkill.skill_id == sk.id
                 )
                 res = await session.execute(stmt)
-                if not res.scalar_one_or_none():
+                cs = res.scalar_one_or_none()
+                # Determine importance tier: first 2-3 are critical/high
+                importance = "critical" if order <= 2 else ("high" if order <= 5 else "medium")
+                target_prof = 0.85 if importance in ("critical", "high") else 0.75
+                if not cs:
                     cs = CareerSkill(
                         career_id=career.id,
                         skill_id=sk.id,
                         weight=round(1.0 / num_skills, 3),
+                        importance=importance,
+                        target_proficiency=target_prof,
                         is_mandatory=True,
                         recommended_order=order
                     )
                     session.add(cs)
+                else:
+                    cs.importance = importance
+                    cs.target_proficiency = target_prof
     await session.flush()
 
     # 4. Seed Resources & ResourceSkills
@@ -117,7 +136,7 @@ async def seed_database(session: AsyncSession) -> None:
             session.add(resource)
             await session.flush()
 
-        for sk_slug in r_data.get("skills", []):
+        for idx, sk_slug in enumerate(r_data.get("skills", [])):
             if sk_slug in skill_map:
                 sk = skill_map[sk_slug]
                 stmt = select(ResourceSkill).where(
@@ -129,7 +148,9 @@ async def seed_database(session: AsyncSession) -> None:
                     rs = ResourceSkill(
                         resource_id=resource.id,
                         skill_id=sk.id,
-                        relevance_score=1.0
+                        relevance_score=1.0 if idx == 0 else 0.8,
+                        relation_type="teaches",
+                        is_primary=(idx == 0)
                     )
                     session.add(rs)
     await session.flush()
@@ -179,6 +200,14 @@ async def seed_database(session: AsyncSession) -> None:
 
     await session.commit()
     logger.info("PostgreSQL database seeding successfully completed.")
+
+    # 6. Generate Vector Embeddings
+    try:
+        pipeline = EmbeddingPipelineService(session)
+        emb_stats = await pipeline.generate_all(force=False)
+        logger.info(f"Vector embeddings generated/verified: {emb_stats['total_upserted']} upserted, {emb_stats['total_skipped']} cached.")
+    except Exception as e:
+        logger.warning(f"Vector embedding generation during seeding encountered note: {e}")
 
 async def run_seeder():
     async with AsyncSessionLocal() as session:

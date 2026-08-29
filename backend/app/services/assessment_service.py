@@ -10,6 +10,7 @@ from app.repositories.learning_path_repository import LearningPathRepository
 from app.repositories.resource_repository import ResourceRepository
 from app.models.assessment import Assessment, Question, AssessmentAttempt
 from app.models.learning_path import LearningPath, LearningPathItem
+from app.models.adaptive import RoadmapVersion, LearnerStateHistory
 from app.schemas.assessment import SingleAnswerSubmission
 
 STRONG_THRESHOLD = 80.0
@@ -120,13 +121,51 @@ class AssessmentService:
                 "total_count": total
             })
 
-            # Update LearnerSkill record in DB
+            # Ingest evidence into Adaptive Learning Engine
+            from app.services.adaptive.evidence_service import EvidenceService
+            from app.services.adaptive.proficiency_engine import ProficiencyEngine
+            from app.services.adaptive.mastery_struggle_detector import MasteryStruggleDetector
+            from app.models.adaptive import LearnerStateHistory, AdaptationEvent
+            from app.services.adaptive.config import ALGORITHM_VERSION
+
+            evidence_svc = EvidenceService(self.db)
+            ev, is_new = await evidence_svc.record_evidence(
+                user_id=user_id,
+                skill_id=skill_id,
+                evidence_type="ASSESSMENT",
+                score=score_pct / 100.0,
+                raw_score=score_pct,
+                source_id=f"assessment_{career.id}",
+                metadata={"correct": correct, "total": total}
+            )
+
+            # Update LearnerSkill record with normalized proficiency & confidence
+            prof_norm = score_pct / 100.0
+            conf_norm = 0.90
             await self.skill_repo.upsert_learner_skill(
                 user_id=user_id,
                 skill_id=skill_id,
                 score=score_pct,
-                status=status
+                status=status,
+                proficiency=prof_norm,
+                confidence=conf_norm,
+                evidence_source="assessment"
             )
+
+            # Persist state history snapshot
+            state_hist = LearnerStateHistory(
+                user_id=user_id,
+                skill_id=skill_id,
+                proficiency=prof_norm,
+                confidence=conf_norm,
+                mastery_state=MasteryStruggleDetector.classify_mastery(prof_norm, conf_norm),
+                struggle_state="NORMAL",
+                learning_pace="NORMAL",
+                algorithm_version=ALGORITHM_VERSION,
+                trigger_event=f"AssessmentSubmission:{career.slug}",
+                metadata_json={"score_pct": score_pct}
+            )
+            self.db.add(state_hist)
 
         now = datetime.now(timezone.utc)
 
@@ -191,6 +230,26 @@ class AssessmentService:
                 estimated_hours=max(1, round(sk.estimated_minutes / 60))
             )
             self.db.add(item)
+
+        # Record initial RoadmapVersion snapshot (v1)
+        items_snapshot = [
+            {
+                "step_order": idx,
+                "skill_slug": cs.skill.slug if cs.skill else "skill",
+                "skill_name": cs.skill.name if cs.skill else "Skill",
+                "category": cs.skill.category if cs.skill else "Core",
+                "status": "available" if idx == 1 else "locked"
+            }
+            for idx, cs in enumerate(career_skills, start=1)
+        ]
+        init_version = RoadmapVersion(
+            user_id=user_id,
+            learning_path_id=active_path.id,
+            version_number=1,
+            reason=f"Initial calibration for {career.name} via Diagnostic Assessment ({overall_score}% score)",
+            milestones_snapshot=items_snapshot
+        )
+        self.db.add(init_version)
 
         # Award 100 XP & set target career in profile
         await self.user_repo.add_xp(user_id, 100)

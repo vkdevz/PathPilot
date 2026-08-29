@@ -13,8 +13,21 @@ class ProgressRepository:
         await self.db.flush()
         return progress
 
+    async def create_progress(self, progress: Progress) -> Progress:
+        return await self.log_progress(progress)
+
     async def get_user_activity_days(self, user_id: str, days: int = 28) -> List[Progress]:
         since = datetime.now(timezone.utc) - timedelta(days=days)
         stmt = select(Progress).where(Progress.user_id == user_id, Progress.created_at >= since)
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_user_progress(self, user_id: str, limit: int = 14) -> List[Progress]:
+        stmt = (
+            select(Progress)
+            .where(Progress.user_id == user_id)
+            .order_by(Progress.created_at.desc())
+            .limit(limit)
+        )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())

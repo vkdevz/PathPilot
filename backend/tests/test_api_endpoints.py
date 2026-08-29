@@ -122,3 +122,25 @@ async def test_leaderboard(client: AsyncClient, auth_headers_user1: dict):
     assert res_leader.status_code == 200
     leaderboard = res_leader.json()
     assert len(leaderboard) > 0
+
+@pytest.mark.asyncio
+async def test_recommendations_and_resources(client: AsyncClient, auth_headers_user1: dict):
+    """
+    Verifies resources catalog and personalized explainable recommendations endpoints.
+    """
+    # 1. Test resources listing
+    res_resources = await client.get("/api/v1/resources")
+    assert res_resources.status_code == 200
+    resources = res_resources.json()
+    assert len(resources) > 0
+
+    # 2. Test personalized recommendations
+    res_recs = await client.get("/api/v1/recommendations", headers=auth_headers_user1)
+    assert res_recs.status_code == 200
+    recs = res_recs.json()
+    assert len(recs) > 0
+    first_rec = recs[0]
+    assert "explanation_reasons" in first_rec
+    assert "relevance_score" in first_rec
+    assert len(first_rec["explanation_reasons"]) > 0
+

@@ -9,6 +9,13 @@ from app.models.progress import Progress
 from app.models.feedback import Feedback
 from app.models.chat import Conversation, Message
 from app.models.embedding import Embedding
+from app.models.recommendation import RecommendationLog, RecommendationFeedback
+from app.models.adaptive import (
+    LearnerEvidence,
+    LearnerStateHistory,
+    AdaptationEvent,
+    RoadmapVersion,
+)
 
 __all__ = [
     "Base",
@@ -32,4 +39,10 @@ __all__ = [
     "Conversation",
     "Message",
     "Embedding",
+    "RecommendationLog",
+    "RecommendationFeedback",
+    "LearnerEvidence",
+    "LearnerStateHistory",
+    "AdaptationEvent",
+    "RoadmapVersion",
 ]

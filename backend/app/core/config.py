@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     VERSION: str = "2.0.0"
     ENVIRONMENT: str = Field(default="development")
     DEV_MODE: bool = Field(default=False)
+    TESTING: bool = Field(default=False)
     
     # PostgreSQL / Supabase Database URL
     DATABASE_URL: str = Field(

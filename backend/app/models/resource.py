@@ -28,7 +28,10 @@ class ResourceSkill(Base, TimestampMixin):
     resource_id = Column(String(36), ForeignKey("resources.id", ondelete="CASCADE"), primary_key=True)
     skill_id = Column(String(36), ForeignKey("skills.id", ondelete="CASCADE"), primary_key=True)
     relevance_score = Column(Float, default=1.0, nullable=False)
+    relation_type = Column(String(50), default="teaches", nullable=False) # teaches, requires
+    is_primary = Column(Boolean, default=True, nullable=False)
 
     # Relationships
     resource = relationship("Resource", back_populates="resource_skills")
     skill = relationship("Skill", back_populates="resource_associations")
+

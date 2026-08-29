@@ -8,13 +8,20 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function AuthPage() {
   const router = useRouter();
-  const { signInWithEmail, signUpWithEmail, user } = useAuth();
+  const { signInWithEmail, signUpWithEmail, user, supabaseUser, loading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Auto-redirect to dashboard if already authenticated
+  React.useEffect(() => {
+    if (!loading && (user || supabaseUser)) {
+      router.push('/dashboard');
+    }
+  }, [loading, user, supabaseUser, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,15 +43,16 @@ export default function AuthPage() {
   };
 
   const handleQuickDemoLogin = async (demoRole: string) => {
-    setEmail(`${demoRole.toLowerCase()}@pathpilot.ai`);
+    setErrorMsg(null);
+    const demoEmail = `${demoRole.toLowerCase()}@pathpilot.ai`;
+    setEmail(demoEmail);
     setPassword('DemoPassword123!');
     setSubmitting(true);
     try {
-      await signInWithEmail(`${demoRole.toLowerCase()}@pathpilot.ai`, 'DemoPassword123!');
+      await signInWithEmail(demoEmail, 'DemoPassword123!');
       router.push('/dashboard');
     } catch (err: any) {
-      // Fallback
-      router.push('/dashboard');
+      setErrorMsg(err.message || 'Demo authentication failed.');
     } finally {
       setSubmitting(false);
     }
@@ -156,16 +164,32 @@ export default function AuthPage() {
           </p>
           <div className="grid grid-cols-2 gap-2">
             <button
+              type="button"
               onClick={() => handleQuickDemoLogin('data_scientist')}
-              className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg text-xs font-medium text-slate-300 transition-colors"
+              className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg text-xs font-medium text-slate-300 transition-colors text-left"
             >
-              🧙 Data Science
+              🧙 Data Scientist
             </button>
             <button
+              type="button"
               onClick={() => handleQuickDemoLogin('ai_engineer')}
-              className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg text-xs font-medium text-slate-300 transition-colors"
+              className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg text-xs font-medium text-slate-300 transition-colors text-left"
             >
               ⚡ AI Engineer
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickDemoLogin('fullstack_dev')}
+              className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg text-xs font-medium text-slate-300 transition-colors text-left"
+            >
+              ⚔️ Full Stack
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickDemoLogin('cloud_architect')}
+              className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg text-xs font-medium text-slate-300 transition-colors text-left"
+            >
+              ☁️ Cloud DevOps
             </button>
           </div>
         </div>

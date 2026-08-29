@@ -27,9 +27,12 @@ class CareerSkill(Base, TimestampMixin):
     career_id = Column(String(36), ForeignKey("careers.id", ondelete="CASCADE"), primary_key=True)
     skill_id = Column(String(36), ForeignKey("skills.id", ondelete="CASCADE"), primary_key=True)
     weight = Column(Float, default=1.0, nullable=False)
+    importance = Column(String(50), default="high", nullable=False)     # critical, high, medium, low
+    target_proficiency = Column(Float, default=0.85, nullable=False)    # 0.0 - 1.0 target benchmark
     is_mandatory = Column(Boolean, default=True, nullable=False)
     recommended_order = Column(Integer, default=1, nullable=False)
 
     # Relationships
     career = relationship("Career", back_populates="career_skills")
     skill = relationship("Skill", back_populates="career_associations")
+
