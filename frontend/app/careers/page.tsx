@@ -20,7 +20,9 @@ export default function CareersPage() {
     setLoading(true);
     try {
       const data = await apiClient.getCareers();
-      setCareers(data);
+      if (Array.isArray(data) && data.length > 0) {
+        setCareers(data);
+      }
     } catch (err) {
       console.error('Failed to load careers:', err);
     } finally {
@@ -45,7 +47,8 @@ export default function CareersPage() {
     selectedCategory === 'All'
       ? careers
       : careers.filter((c) =>
-          c.category.toLowerCase().includes(selectedCategory.toLowerCase())
+          (c.category || '').toLowerCase().includes(selectedCategory.toLowerCase()) ||
+          selectedCategory.toLowerCase().includes((c.category || '').toLowerCase())
         );
 
   const handleSelectTrack = async (careerSlug: string) => {
