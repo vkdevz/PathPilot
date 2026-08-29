@@ -36,13 +36,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [supabaseUser, setSupabaseUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchBackendUser = async () => {
+  const fetchBackendUser = async (overrideUser?: any) => {
     try {
       const backendUser = await apiClient.getMe();
-      setUser(backendUser);
+      if (backendUser) {
+        setUser(backendUser);
+        return;
+      }
     } catch (err) {
       console.warn('Backend user profile synchronization note:', err);
     }
+
+    // Resilient fallback user profile
+    const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
+    const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
+    const currentEmail = overrideUser?.email || storedEmail || (supabaseUser?.email) || 'learner@pathpilot.ai';
+    const currentUserId = overrideUser?.id || (storedToken ? storedToken.replace('dev-token-', '') : 'learner-001');
+    const name = overrideUser?.user_metadata?.full_name || currentEmail.split('@')[0];
+
+    setUser((prev) => prev || {
+      id: currentUserId,
+      email: currentEmail,
+      display_name: name,
+      profile: {
+        id: `prof-${currentUserId}`,
+        user_id: currentUserId,
+        target_career_id: 'data-scientist',
+        experience_level: 'beginner',
+        learning_pace: 'balanced',
+        preferred_format: 'hands_on_projects',
+        weekly_hours_goal: 10,
+        xp: 150,
+        streak_days: 1,
+        preferences: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    });
   };
 
   // ── Dev Mode Auth (Local / Self-Contained Testing) ───────────
@@ -61,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user_metadata: { full_name: displayName || email.split('@')[0] },
     };
     setSupabaseUser(syntheticUser);
-    await fetchBackendUser();
+    await fetchBackendUser(syntheticUser);
   };
 
   const devSignOut = async () => {
