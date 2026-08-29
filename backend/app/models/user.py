@@ -6,9 +6,9 @@ from app.models.base import TimestampMixin, generate_uuid
 class User(Base, TimestampMixin):
     __tablename__ = "users"
 
-    # id matches Supabase auth.users.id
     id = Column(String(36), primary_key=True, default=generate_uuid)
     email = Column(String(255), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=True)
     display_name = Column(String(255), nullable=True, default="Learner")
     avatar_url = Column(String(512), nullable=True)
 

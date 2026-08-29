@@ -85,6 +85,42 @@ class ApiClient {
   // ---------------------------------------------------------------------------
   // Auth & Profile
   // ---------------------------------------------------------------------------
+  async register(payload: { email: string; password: string; displayName?: string; targetCareerId?: string }): Promise<{ access_token: string; token_type: string; user: User }> {
+    const url = `${API_BASE_URL}/auth/register`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: payload.email,
+        password: payload.password,
+        display_name: payload.displayName,
+        target_career_id: payload.targetCareerId,
+      }),
+    });
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
+      throw new Error(errorBody.detail || `Registration failed: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  async login(payload: { email: string; password: string }): Promise<{ access_token: string; token_type: string; user: User }> {
+    const url = `${API_BASE_URL}/auth/login`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: payload.email,
+        password: payload.password,
+      }),
+    });
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({ detail: response.statusText }));
+      throw new Error(errorBody.detail || `Login failed: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
   async getMe(): Promise<User> {
     return this.request<User>('/auth/me');
   }

@@ -33,6 +33,16 @@ class UserBase(BaseModel):
     display_name: Optional[str] = "Learner"
     avatar_url: Optional[str] = None
 
+class UserRegisterRequest(BaseModel):
+    email: str
+    password: str
+    display_name: Optional[str] = "Learner"
+    target_career_id: Optional[str] = None
+
+class UserLoginRequest(BaseModel):
+    email: str
+    password: str
+
 class UserSyncRequest(BaseModel):
     email: Optional[str] = None
     display_name: Optional[str] = None
@@ -45,3 +55,8 @@ class UserResponse(UserBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "Bearer"
+    user: UserResponse

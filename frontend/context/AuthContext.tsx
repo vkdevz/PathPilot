@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, isDevMode } from '../lib/supabase/client';
+import { isDevMode } from '../lib/supabase/client';
 import { apiClient } from '../lib/api-client';
 import type { User } from '../types';
 
@@ -25,164 +25,68 @@ const AuthContext = createContext<AuthContextType>({
   refreshUser: async () => {},
 });
 
-// Generate a deterministic dev user ID from email
-function devUserIdFromEmail(email: string): string {
-  const base = email.split('@')[0].replace(/[^a-z0-9]/gi, '-').toLowerCase();
-  return `dev-${base || 'learner'}`;
-}
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [supabaseUser, setSupabaseUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchBackendUser = async (overrideUser?: any) => {
-    try {
-      const backendUser = await apiClient.getMe();
-      if (backendUser) {
-        setUser(backendUser);
-        return;
-      }
-    } catch (err) {
-      console.warn('Backend user profile synchronization note:', err);
+  const syncUserState = (userData: User, token?: string) => {
+    if (token && typeof window !== 'undefined') {
+      localStorage.setItem('pathpilot_token', token);
+      localStorage.setItem('pathpilot_email', userData.email);
     }
-
-    // Resilient fallback user profile
-    const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
-    const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
-    const currentEmail = overrideUser?.email || storedEmail || (supabaseUser?.email) || 'learner@pathpilot.ai';
-    const currentUserId = overrideUser?.id || (storedToken ? storedToken.replace('dev-token-', '') : 'learner-001');
-    const name = overrideUser?.user_metadata?.full_name || currentEmail.split('@')[0];
-
-    setUser((prev) => prev || {
-      id: currentUserId,
-      email: currentEmail,
-      display_name: name,
-      profile: {
-        id: `prof-${currentUserId}`,
-        user_id: currentUserId,
-        target_career_id: 'data-scientist',
-        experience_level: 'beginner',
-        learning_pace: 'balanced',
-        preferred_format: 'hands_on_projects',
-        weekly_hours_goal: 10,
-        xp: 150,
-        streak_days: 1,
-        preferences: {},
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
+    setUser(userData);
+    setSupabaseUser({
+      id: userData.id,
+      email: userData.email,
+      user_metadata: { full_name: userData.display_name || userData.email.split('@')[0] },
     });
   };
 
-  // ── Dev Mode Auth (Local / Self-Contained Testing) ───────────
-  const devSignIn = async (email: string, _password?: string, displayName?: string) => {
-    const userId = devUserIdFromEmail(email);
-    const devToken = `dev-token-${userId}`;
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('pathpilot_token', devToken);
-      localStorage.setItem('pathpilot_email', email);
+  const fetchBackendUser = async () => {
+    try {
+      const backendUser = await apiClient.getMe();
+      if (backendUser) {
+        syncUserState(backendUser);
+        return;
+      }
+    } catch (err) {
+      console.warn('Backend session restoration note:', err);
     }
-
-    const syntheticUser = {
-      id: userId,
-      email,
-      user_metadata: { full_name: displayName || email.split('@')[0] },
-    };
-    setSupabaseUser(syntheticUser);
-    await fetchBackendUser(syntheticUser);
-  };
-
-  const devSignOut = async () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('pathpilot_token');
-      localStorage.removeItem('pathpilot_email');
-    }
-    setSupabaseUser(null);
-    setUser(null);
   };
 
   // ── Session Initialization & Lifecycle ────────────────────────
   useEffect(() => {
-    if (isDevMode) {
+    const initializeSession = async () => {
       const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
-      const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
 
-      if (storedToken && storedToken.startsWith('dev-token-')) {
-        const userId = storedToken.replace('dev-token-', '');
-        const email = storedEmail || `${userId}@pathpilot.ai`;
-        setSupabaseUser({
-          id: userId,
-          email,
-          user_metadata: { full_name: `Learner (${userId})` },
-        });
-        fetchBackendUser().finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-      return;
-    }
-
-    // Production: Supabase JWT session management with resilient fallback
-    try {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          setSupabaseUser(session.user);
-          fetchBackendUser().finally(() => setLoading(false));
-        } else {
-          // Check localStorage dev token fallback
-          const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
-          const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
-          if (storedToken && storedToken.startsWith('dev-token-')) {
-            const userId = storedToken.replace('dev-token-', '');
-            const email = storedEmail || `${userId}@pathpilot.ai`;
-            setSupabaseUser({ id: userId, email, user_metadata: { full_name: `Learner (${userId})` } });
-            fetchBackendUser().finally(() => setLoading(false));
-          } else {
+      if (storedToken) {
+        try {
+          const backendUser = await apiClient.getMe();
+          if (backendUser) {
+            syncUserState(backendUser);
             setLoading(false);
+            return;
+          }
+        } catch {
+          // Token expired or invalid
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('pathpilot_token');
+            localStorage.removeItem('pathpilot_email');
           }
         }
-      }).catch(() => {
-        const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
-        const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
-        if (storedToken && storedToken.startsWith('dev-token-')) {
-          const userId = storedToken.replace('dev-token-', '');
-          const email = storedEmail || `${userId}@pathpilot.ai`;
-          setSupabaseUser({ id: userId, email, user_metadata: { full_name: `Learner (${userId})` } });
-          fetchBackendUser().finally(() => setLoading(false));
-        } else {
-          setLoading(false);
-        }
-      });
-    } catch {
-      setLoading(false);
-    }
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        setSupabaseUser(session.user);
-        await fetchBackendUser();
-      } else {
-        const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
-        if (!storedToken) {
-          setSupabaseUser(null);
-          setUser(null);
-        }
       }
       setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
     };
+
+    initializeSession();
   }, []);
 
-  // ── Sign In ────────────────────────────────────────────────────
+  // ── Real Sign In (FastAPI Backend + JWT Verification) ─────────
   const signInWithEmail = async (email: string, password: string = 'Password123!') => {
     setLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
     try {
-      const cleanEmail = email.trim();
       if (!cleanEmail || !cleanEmail.includes('@')) {
         throw new Error('Please enter a valid email address.');
       }
@@ -190,51 +94,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Password must be at least 6 characters.');
       }
 
-      if (isDevMode) {
-        await devSignIn(cleanEmail, password);
+      // Real Authentication via backend JWT endpoint
+      const { access_token, user: authenticatedUser } = await apiClient.login({
+        email: cleanEmail,
+        password,
+      });
+
+      syncUserState(authenticatedUser, access_token);
+    } catch (err: any) {
+      // If network fails in standalone offline mode, provide seamless local fallback
+      if (isDevMode && (err?.message?.includes('failed') || err?.message?.includes('fetch') || err?.message?.includes('network'))) {
+        const userId = `dev-${cleanEmail.split('@')[0].replace(/[^a-z0-9]/gi, '-')}`;
+        const devToken = `dev-token-${userId}`;
+        const syntheticUser: User = {
+          id: userId,
+          email: cleanEmail,
+          display_name: cleanEmail.split('@')[0],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          profile: {
+            id: `prof-${userId}`,
+            user_id: userId,
+            target_career_id: 'data-scientist',
+            experience_level: 'beginner',
+            learning_pace: 'moderate',
+            preferred_format: 'interactive',
+            weekly_hours_goal: 5,
+            xp: 0,
+            streak_days: 1,
+            preferences: {},
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        };
+        syncUserState(syntheticUser, devToken);
         return;
       }
-
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password,
-        });
-
-        if (error) {
-          const msg = error.message?.toLowerCase() || '';
-          if (msg.includes('fetch') || msg.includes('network') || msg.includes('load failed') || msg.includes('failed to fetch')) {
-            console.warn('Supabase auth network unreachable, logging in locally:', error);
-            await devSignIn(cleanEmail, password);
-            return;
-          }
-          throw error;
-        }
-        setSupabaseUser(data.user);
-        await fetchBackendUser();
-      } catch (err: any) {
-        const errMsg = err?.message?.toLowerCase() || '';
-        if (errMsg.includes('fetch') || errMsg.includes('load failed') || errMsg.includes('network') || errMsg.includes('failed to fetch')) {
-          console.warn('Supabase auth network unreachable, logging in locally:', err);
-          await devSignIn(cleanEmail, password);
-          return;
-        }
-        throw err;
-      }
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Sign Up ────────────────────────────────────────────────────
+  // ── Real Sign Up / Registration (FastAPI Backend + Password Hashing) ──
   const signUpWithEmail = async (
     email: string,
     password: string = 'Password123!',
     displayName: string = 'Learner'
   ) => {
     setLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
     try {
-      const cleanEmail = email.trim();
       if (!cleanEmail || !cleanEmail.includes('@')) {
         throw new Error('Please enter a valid email address.');
       }
@@ -242,44 +152,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Password must be at least 6 characters.');
       }
 
-      if (isDevMode) {
-        await devSignIn(cleanEmail, password, displayName);
+      // Real Account Registration via backend endpoint
+      const { access_token, user: registeredUser } = await apiClient.register({
+        email: cleanEmail,
+        password,
+        displayName: displayName || cleanEmail.split('@')[0],
+      });
+
+      syncUserState(registeredUser, access_token);
+    } catch (err: any) {
+      // If offline dev mode
+      if (isDevMode && (err?.message?.includes('failed') || err?.message?.includes('fetch') || err?.message?.includes('network'))) {
+        const userId = `dev-${cleanEmail.split('@')[0].replace(/[^a-z0-9]/gi, '-')}`;
+        const devToken = `dev-token-${userId}`;
+        const syntheticUser: User = {
+          id: userId,
+          email: cleanEmail,
+          display_name: displayName || cleanEmail.split('@')[0],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          profile: {
+            id: `prof-${userId}`,
+            user_id: userId,
+            target_career_id: 'data-scientist',
+            experience_level: 'beginner',
+            learning_pace: 'moderate',
+            preferred_format: 'interactive',
+            weekly_hours_goal: 5,
+            xp: 0,
+            streak_days: 1,
+            preferences: {},
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        };
+        syncUserState(syntheticUser, devToken);
         return;
       }
-
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password,
-          options: {
-            data: {
-              full_name: displayName,
-            },
-          },
-        });
-
-        if (error) {
-          const msg = error.message?.toLowerCase() || '';
-          if (msg.includes('fetch') || msg.includes('network') || msg.includes('load failed') || msg.includes('failed to fetch')) {
-            console.warn('Supabase auth network unreachable, registering locally:', error);
-            await devSignIn(cleanEmail, password, displayName);
-            return;
-          }
-          throw error;
-        }
-        setSupabaseUser(data.user);
-        if (data.session) {
-          await fetchBackendUser();
-        }
-      } catch (err: any) {
-        const errMsg = err?.message?.toLowerCase() || '';
-        if (errMsg.includes('fetch') || errMsg.includes('load failed') || errMsg.includes('network') || errMsg.includes('failed to fetch')) {
-          console.warn('Supabase auth network unreachable, registering locally:', err);
-          await devSignIn(cleanEmail, password, displayName);
-          return;
-        }
-        throw err;
-      }
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -293,13 +203,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('pathpilot_token');
         localStorage.removeItem('pathpilot_email');
       }
-
-      if (isDevMode) {
-        await devSignOut();
-        return;
-      }
-
-      await supabase.auth.signOut();
       setSupabaseUser(null);
       setUser(null);
     } finally {
