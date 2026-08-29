@@ -94,23 +94,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Production: Supabase JWT session management
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setSupabaseUser(session.user);
-        fetchBackendUser().finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    });
+    // Production: Supabase JWT session management with resilient fallback
+    try {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          setSupabaseUser(session.user);
+          fetchBackendUser().finally(() => setLoading(false));
+        } else {
+          // Check localStorage dev token fallback
+          const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
+          const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
+          if (storedToken && storedToken.startsWith('dev-token-')) {
+            const userId = storedToken.replace('dev-token-', '');
+            const email = storedEmail || `${userId}@pathpilot.ai`;
+            setSupabaseUser({ id: userId, email, user_metadata: { full_name: `Learner (${userId})` } });
+            fetchBackendUser().finally(() => setLoading(false));
+          } else {
+            setLoading(false);
+          }
+        }
+      }).catch(() => {
+        const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
+        const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_email') : null;
+        if (storedToken && storedToken.startsWith('dev-token-')) {
+          const userId = storedToken.replace('dev-token-', '');
+          const email = storedEmail || `${userId}@pathpilot.ai`;
+          setSupabaseUser({ id: userId, email, user_metadata: { full_name: `Learner (${userId})` } });
+          fetchBackendUser().finally(() => setLoading(false));
+        } else {
+          setLoading(false);
+        }
+      });
+    } catch {
+      setLoading(false);
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setSupabaseUser(session.user);
         await fetchBackendUser();
       } else {
-        setSupabaseUser(null);
-        setUser(null);
+        const storedToken = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : null;
+        if (!storedToken) {
+          setSupabaseUser(null);
+          setUser(null);
+        }
       }
       setLoading(false);
     });
@@ -137,14 +165,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
-        password,
-      });
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        });
 
-      if (error) throw error;
-      setSupabaseUser(data.user);
-      await fetchBackendUser();
+        if (error) {
+          const msg = error.message?.toLowerCase() || '';
+          if (msg.includes('fetch') || msg.includes('network') || msg.includes('load failed') || msg.includes('failed to fetch')) {
+            console.warn('Supabase auth network unreachable, logging in locally:', error);
+            await devSignIn(cleanEmail, password);
+            return;
+          }
+          throw error;
+        }
+        setSupabaseUser(data.user);
+        await fetchBackendUser();
+      } catch (err: any) {
+        const errMsg = err?.message?.toLowerCase() || '';
+        if (errMsg.includes('fetch') || errMsg.includes('load failed') || errMsg.includes('network') || errMsg.includes('failed to fetch')) {
+          console.warn('Supabase auth network unreachable, logging in locally:', err);
+          await devSignIn(cleanEmail, password);
+          return;
+        }
+        throw err;
+      }
     } finally {
       setLoading(false);
     }
@@ -171,20 +217,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      const { data, error } = await supabase.auth.signUp({
-        email: cleanEmail,
-        password,
-        options: {
-          data: {
-            full_name: displayName,
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password,
+          options: {
+            data: {
+              full_name: displayName,
+            },
           },
-        },
-      });
+        });
 
-      if (error) throw error;
-      setSupabaseUser(data.user);
-      if (data.session) {
-        await fetchBackendUser();
+        if (error) {
+          const msg = error.message?.toLowerCase() || '';
+          if (msg.includes('fetch') || msg.includes('network') || msg.includes('load failed') || msg.includes('failed to fetch')) {
+            console.warn('Supabase auth network unreachable, registering locally:', error);
+            await devSignIn(cleanEmail, password, displayName);
+            return;
+          }
+          throw error;
+        }
+        setSupabaseUser(data.user);
+        if (data.session) {
+          await fetchBackendUser();
+        }
+      } catch (err: any) {
+        const errMsg = err?.message?.toLowerCase() || '';
+        if (errMsg.includes('fetch') || errMsg.includes('load failed') || errMsg.includes('network') || errMsg.includes('failed to fetch')) {
+          console.warn('Supabase auth network unreachable, registering locally:', err);
+          await devSignIn(cleanEmail, password, displayName);
+          return;
+        }
+        throw err;
       }
     } finally {
       setLoading(false);
