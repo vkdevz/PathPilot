@@ -94,6 +94,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     append,
   } = useChat({
     api: '/api/chat',
+    streamProtocol: 'text',
     body: {
       conversation_id: conversationId,
       active_skill: activeSkill,
@@ -106,6 +107,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       },
     ],
   });
+
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
