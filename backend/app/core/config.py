@@ -26,7 +26,10 @@ class Settings(BaseSettings):
     # LLM & Embedding Settings
     OPENAI_API_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
+    GROQ_API_KEY: Optional[str] = None
+    ANTHROPIC_API_KEY: Optional[str] = None
     EMBEDDING_MODEL: str = "text-embedding-3-small"
+
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
