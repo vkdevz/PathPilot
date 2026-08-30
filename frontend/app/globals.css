@@ -4,10 +4,11 @@
 
 @layer base {
   :root {
-    /* ── Light Theme Foundation ── */
+    /* ── Apple-Inspired Premium Light Theme Foundation ── */
     --background: #F5F5F7;
     --surface: #FFFFFF;
     --surface-subtle: #FBFBFD;
+    --surface-elevated: #FFFFFF;
 
     --text-primary: #1D1D1F;
     --text-secondary: #6E6E73;
@@ -34,14 +35,15 @@
   }
 
   .dark {
-    /* ── Dark Theme Adapted Tokens ── */
+    /* ── Apple-Inspired Sleek Dark Theme Foundation ── */
     --background: #0A0A0C;
     --surface: #1C1C1E;
     --surface-subtle: #2C2C2E;
+    --surface-elevated: #242426;
 
     --text-primary: #F5F5F7;
     --text-secondary: #AEAEB2;
-    --text-tertiary: #636366;
+    --text-tertiary: #86868B;
 
     --border: #38383A;
     --border-subtle: #2C2C2E;
@@ -70,6 +72,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
@@ -93,12 +96,12 @@
 
 .surface-card-hover:hover {
   border-color: var(--border);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
 
 .surface-elevated {
-  background-color: var(--surface);
+  background-color: var(--surface-elevated);
   border: 1px solid var(--border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }

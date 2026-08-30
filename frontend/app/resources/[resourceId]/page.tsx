@@ -232,13 +232,12 @@ export default function ResourcePage() {
     setLogging(true);
     try {
       const minutes = resource?.estimated_minutes || 30;
-      const progressRes = await apiClient.logProgress(
+      const progressRes = await apiClient.completeResource(
         resource?.id || resourceId,
-        minutes,
-        'completed'
+        minutes
       );
       
-      const xp = Math.max(20, Math.floor(minutes / 5) * 10);
+      const xp = progressRes.xp_earned || 50;
       setEarnedXp(xp);
       setLogged(true);
       
@@ -389,7 +388,7 @@ export default function ResourcePage() {
             <div>
               <h4 className="text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">Finished studying this topic?</h4>
               <p className="text-[11px] text-[#6E6E73] dark:text-[#AEAEB2] mt-0.5">
-                Log completion to earn XP (+{Math.max(20, Math.floor((resource.estimated_minutes || 30) / 5) * 10)} XP), record evidence, and unlock subsequent milestones.
+                Log verified completion to earn +50 XP, record empirical evidence, and advance your roadmap milestones.
               </p>
             </div>
             
@@ -400,7 +399,7 @@ export default function ResourcePage() {
               onClick={handleLogActivity}
               icon={logged ? <CheckCircle2 className="w-4 h-4 text-[#34C759]" /> : <Check className="w-4 h-4" />}
             >
-              {logged ? `Completed (+${earnedXp || 50} XP)` : 'Log Completion'}
+              {logged ? `Completed (+${earnedXp || 50} XP)` : 'Mark as Completed (+50 XP)'}
             </Button>
           </div>
         </div>

@@ -5,16 +5,17 @@ import { useChat } from 'ai/react';
 import {
   Bot,
   Send,
-  User,
   RefreshCw,
   AlertCircle,
   Check,
   Copy,
-  PlusCircle,
   ShieldCheck,
   Sparkles,
+  Compass,
+  Layers,
+  HelpCircle,
+  Zap,
 } from 'lucide-react';
-
 
 interface AIChatProps {
   careerTrack?: string;
@@ -103,11 +104,10 @@ export const AIChat: React.FC<AIChatProps> = ({
       {
         id: 'welcome-msg',
         role: 'assistant',
-        content: `👋 Hello! I am your **PathPilot AI Navigator**.\n\nI am calibrated directly to your **${careerTrack}** roadmap and active skill (**${activeSkill}**).\n\nAsk me about your prerequisite gaps, roadmap evolution reasons, or targeted study actions.`,
+        content: `👋 Hello! I am your **PathPilot Learning Navigator**.\n\nI am calibrated directly to your **${careerTrack}** roadmap and active focus area (**${activeSkill}**).\n\nSelect a quick action below or ask about your skill gaps, recommendations, and study steps.`,
       },
     ],
   });
-
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -149,12 +149,15 @@ export const AIChat: React.FC<AIChatProps> = ({
     });
   };
 
-  const contextualPrompts = [
-    'Why is this my biggest gap?',
-    'What should I learn next?',
-    'Why did my roadmap change?',
-    'How am I progressing?',
-    'What should I focus on today?',
+  const quickActionChips = [
+    { label: 'What should I learn next?', icon: Compass },
+    { label: 'Why is this my biggest skill gap?', icon: Layers },
+    { label: 'Why did my roadmap change?', icon: Sparkles },
+    { label: 'How am I progressing?', icon: Zap },
+    { label: 'Why was this resource recommended?', icon: HelpCircle },
+    { label: 'What should I focus on today?', icon: Bot },
+    { label: 'Explain my current roadmap', icon: Compass },
+    { label: 'What skill should I improve first?', icon: Layers },
   ];
 
   return (
@@ -174,7 +177,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-[#6E6E73] dark:text-[#AEAEB2]">
-              Active Context: <span className="text-[#007AFF] font-medium">{careerTrack}</span>
+              Calibrated Goal: <span className="text-[#007AFF] font-medium">{careerTrack}</span>
             </p>
           </div>
         </div>
@@ -238,7 +241,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             </div>
             <button
               onClick={() => reload()}
-              className="text-xs font-semibold underline text-[#FF3B30] hover:opacity-80"
+              className="text-xs font-semibold underline text-[#FF3B30] hover:opacity-80 cursor-pointer"
             >
               Retry
             </button>
@@ -248,17 +251,27 @@ export const AIChat: React.FC<AIChatProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Contextual Quick Prompts */}
-      <div className="pt-2 pb-2 border-t border-[#E5E5EA] dark:border-[#38383A] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
-        {contextualPrompts.map((prompt) => (
-          <button
-            key={prompt}
-            onClick={() => handlePromptClick(prompt)}
-            className="shrink-0 px-2.5 py-1 rounded-md bg-[#F5F5F7] dark:bg-[#2C2C2E] hover:bg-white dark:hover:bg-[#38383A] border border-[#E5E5EA] dark:border-[#38383A] text-[11px] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors cursor-pointer"
-          >
-            {prompt}
-          </button>
-        ))}
+      {/* Controlled Quick Action Chips */}
+      <div className="pt-2.5 pb-2 border-t border-[#E5E5EA] dark:border-[#38383A] space-y-1.5 shrink-0">
+        <div className="flex items-center justify-between text-[10px] uppercase font-semibold text-[#86868B]">
+          <span>Quick Actions</span>
+          <span>Controlled Learning Navigator</span>
+        </div>
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          {quickActionChips.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                onClick={() => handlePromptClick(item.label)}
+                className="shrink-0 px-2.5 py-1 rounded-md bg-[#F5F5F7] dark:bg-[#2C2C2E] hover:bg-[#EAF3FF] dark:hover:bg-[#0A84FF]/20 hover:text-[#007AFF] border border-[#E5E5EA] dark:border-[#38383A] text-[11px] text-[#1D1D1F] dark:text-[#F5F5F7] transition-all flex items-center gap-1.5 cursor-pointer font-medium"
+              >
+                <Icon className="w-3 h-3 text-[#007AFF] shrink-0" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Input Form */}

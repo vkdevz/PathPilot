@@ -5,7 +5,7 @@ from app.models.skill import Skill, SkillPrerequisite, LearnerSkill
 from app.models.resource import Resource, ResourceSkill
 from app.models.assessment import Assessment, Question, AssessmentAttempt
 from app.models.learning_path import LearningPath, LearningPathItem
-from app.models.progress import Progress
+from app.models.progress import Progress, StudySession
 from app.models.feedback import Feedback
 from app.models.chat import Conversation, Message
 from app.models.embedding import Embedding
@@ -35,6 +35,7 @@ __all__ = [
     "LearningPath",
     "LearningPathItem",
     "Progress",
+    "StudySession",
     "Feedback",
     "Conversation",
     "Message",

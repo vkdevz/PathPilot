@@ -325,21 +325,70 @@ export interface AssessmentDetail {
 }
 
 export interface TopicScore {
+  skill_id?: string;
   name: string;
   score: number;
 }
 
 export interface AssessmentResult {
+  attempt_id?: string;
+  career_id?: string;
+  career_slug?: string;
+  career_name?: string;
   overall_score: number;
-  passed: boolean;
-  topic_breakdown: Record<string, number>;
-  correct_count: number;
-  total_questions: number;
-  unlocked_skills: string[];
+  position_rank?: string;
+  percentile_rank?: number;
+  passed?: boolean;
+  topic_breakdown?: Record<string, number>;
+  correct_count?: number;
+  total_questions?: number;
+  unlocked_skills?: string[];
   strong_topics?: TopicScore[];
   moderate_topics?: TopicScore[];
   weak_topics?: TopicScore[];
-  recommendation_note?: string;
+  recommendations?: Array<{
+    skill_name: string;
+    resource_title: string;
+    resource_slug: string;
+    estimated_minutes: number;
+    priority: string;
+  }>;
+  completed_at?: string;
+}
+
+export interface StudySession {
+  id: string;
+  user_id: string;
+  topic: string;
+  duration_minutes: number;
+  session_date: string;
+  notes?: string | null;
+  xp_earned: number;
+  resource_id?: string | null;
+  created_at?: string;
+}
+
+export interface StudyTimeSummary {
+  today_minutes: number;
+  this_week_minutes: number;
+  this_week_sessions: number;
+  this_month_minutes: number;
+  total_minutes: number;
+  total_sessions: number;
+  total_xp: number;
+  streak_days: number;
+}
+
+export interface CompleteResourceResult {
+  id: string;
+  user_id: string;
+  resource_id: string;
+  resource_title: string;
+  resource_type: string;
+  status: string;
+  xp_earned: number;
+  already_completed: boolean;
+  completed_at: string;
 }
 
 export interface LearningPathItem {

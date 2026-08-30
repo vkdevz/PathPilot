@@ -20,8 +20,12 @@ import {
   Zap,
   Flame,
   ChevronRight,
+  Sun,
+  Moon,
+  Laptop,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -39,6 +43,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   const pathname = usePathname();
   const router = useRouter();
   const { user, supabaseUser, loading, signOut } = useAuth();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Authentication Route Guard
@@ -51,6 +56,12 @@ export const AppShell: React.FC<AppShellProps> = ({
   const handleSignOut = async () => {
     await signOut();
     router.replace('/auth');
+  };
+
+  const toggleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('system');
+    else setTheme('light');
   };
 
   const primaryNav = [
@@ -108,10 +119,10 @@ export const AppShell: React.FC<AppShellProps> = ({
           </div>
 
           {/* Quick Metrics & User Session */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2">
               <div
-                title="Earned XP"
+                title="Verified Experience Points"
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FFF4E0] dark:bg-[#FF9F0A]/15 border border-[#FF9F0A]/20 text-[#FF9F0A] text-xs font-semibold"
               >
                 <Zap className="w-3.5 h-3.5 fill-[#FF9F0A]" />
@@ -127,8 +138,24 @@ export const AppShell: React.FC<AppShellProps> = ({
               </div>
             </div>
 
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              title={`Current theme: ${theme} (click to toggle)`}
+              className="p-1.5 rounded-lg border border-[#E5E5EA] dark:border-[#38383A] bg-white dark:bg-[#2C2C2E] hover:bg-[#F5F5F7] dark:hover:bg-[#38383A] text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-all cursor-pointer"
+              aria-label="Toggle Color Theme"
+            >
+              {theme === 'light' ? (
+                <Sun className="w-4 h-4 text-[#FF9F0A]" />
+              ) : theme === 'dark' ? (
+                <Moon className="w-4 h-4 text-[#0A84FF]" />
+              ) : (
+                <Laptop className="w-4 h-4 text-[#86868B]" />
+              )}
+            </button>
+
             {/* Profile Avatar / Logout */}
-            <div className="flex items-center gap-2 pl-3 border-l border-[#E5E5EA] dark:border-[#2C2C2E]">
+            <div className="flex items-center gap-2 pl-2 sm:pl-3 border-l border-[#E5E5EA] dark:border-[#2C2C2E]">
               <Link
                 href="/settings"
                 className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors"
@@ -136,12 +163,12 @@ export const AppShell: React.FC<AppShellProps> = ({
                 <div className="w-5 h-5 rounded-full bg-[#EAF3FF] text-[#007AFF] flex items-center justify-center font-bold text-[10px] border border-[#007AFF]/20">
                   {user?.display_name ? user.display_name.charAt(0).toUpperCase() : 'L'}
                 </div>
-                <span className="max-w-[110px] truncate font-medium">{user?.display_name || 'Learner'}</span>
+                <span className="max-w-[100px] truncate font-medium">{user?.display_name || 'Learner'}</span>
               </Link>
 
               <button
                 onClick={handleSignOut}
-                className="p-1.5 rounded-md text-[#86868B] hover:text-[#FF3B30] hover:bg-[#FFF0EF] dark:hover:bg-[#FF453A]/15 transition-colors"
+                className="p-1.5 rounded-md text-[#86868B] hover:text-[#FF3B30] hover:bg-[#FFF0EF] dark:hover:bg-[#FF453A]/15 transition-colors cursor-pointer"
                 title="Sign out of PathPilot"
               >
                 <LogOut className="w-4 h-4" />
@@ -165,7 +192,6 @@ export const AppShell: React.FC<AppShellProps> = ({
               <span className="truncate">{user?.profile?.target_career_name || 'Select Career Track'}</span>
               <ChevronRight className="w-3.5 h-3.5 text-[#86868B] group-hover:text-[#007AFF] transition-colors" />
             </div>
-
           </Link>
 
           {/* Primary Navigation */}
@@ -255,13 +281,22 @@ export const AppShell: React.FC<AppShellProps> = ({
                 </div>
               </div>
 
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 text-xs text-[#FF3B30] hover:text-[#E02E24] pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E]"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
+              <div className="pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-between">
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#AEAEB2]"
+                >
+                  {theme === 'light' ? <Sun className="w-4 h-4 text-[#FF9F0A]" /> : <Moon className="w-4 h-4 text-[#007AFF]" />}
+                  <span className="capitalize">{theme} Mode</span>
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-1.5 text-xs text-[#FF3B30] hover:text-[#E02E24]"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </div>
             <div className="flex-1" onClick={() => setMobileNavOpen(false)} />
           </div>

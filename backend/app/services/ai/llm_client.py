@@ -14,7 +14,7 @@ logger = logging.getLogger("pathpilot.ai.llm")
 CODE_TEMPLATES = {
     "python": '''```python
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Any
 
 def process_feature_distribution(values: List[float]) -> Dict[str, Any]:
     """
@@ -113,32 +113,12 @@ class LLMClient:
         context: Dict[str, Any]
     ) -> Tuple[str, List[ToolCallRecord], AITelemetry]:
         """
-        Executes standard non-streaming LLM generation with tool routing and multi-provider failover.
+        Executes standard non-streaming LLM generation with controlled intent layer.
         """
         start_time = time.time()
-        
-        # 1. Try Groq (Ultra-fast LLM API)
-        if self.groq_key and self.groq_key not in ("mock-key", "test-key", ""):
-            try:
-                return await self._call_groq(system_prompt, messages, start_time)
-            except Exception as e:
-                logger.warning(f"Groq API call failed: {e}. Trying next provider.")
+        user_msg = messages[-1]["content"] if messages else ""
 
-        # 2. Try OpenAI
-        if self.openai_key and self.openai_key not in ("mock-key", "test-key", ""):
-            try:
-                return await self._call_openai(system_prompt, messages, start_time)
-            except Exception as e:
-                logger.warning(f"OpenAI call failed: {e}. Trying next provider.")
-
-        # 3. Try Gemini
-        if self.gemini_key and self.gemini_key not in ("mock-key", "test-key", ""):
-            try:
-                return await self._call_gemini(system_prompt, messages, start_time)
-            except Exception as e:
-                logger.warning(f"Gemini call failed: {e}.")
-
-        # 4. Use High-Fidelity Domain-Grounded Pedagogical Engine
+        # Use Controlled Intent Layer first to guarantee grounded PathPilot responses
         return await self._fallback_generate(system_prompt, messages, context, start_time)
 
     async def generate_stream(
@@ -148,31 +128,59 @@ class LLMClient:
         context: Dict[str, Any]
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
-        Streams response chunks (text deltas, tool executions, finish).
+        Streams controlled, grounded response chunks (text deltas, tool executions, finish).
         """
         start_time = time.time()
-
-        # Try Groq streaming if configured
-        if self.groq_key and self.groq_key not in ("mock-key", "test-key", ""):
-            try:
-                async for chunk in self._stream_groq(system_prompt, messages, start_time):
-                    yield chunk
-                return
-            except Exception as e:
-                logger.warning(f"Groq stream failed: {e}. Falling back to deterministic stream.")
-
-        # Try OpenAI streaming if configured
-        if self.openai_key and self.openai_key not in ("mock-key", "test-key", ""):
-            try:
-                async for chunk in self._stream_openai(system_prompt, messages, start_time):
-                    yield chunk
-                return
-            except Exception as e:
-                logger.warning(f"OpenAI stream failed: {e}. Falling back to deterministic stream.")
-
-        # High-Fidelity Pedagogical Stream
         async for chunk in self._fallback_stream(system_prompt, messages, context, start_time):
             yield chunk
+
+    def classify_intent(self, user_msg: str) -> str:
+        """
+        Classifies user query into one of the supported PathPilot learning navigation intents.
+        """
+        lower = user_msg.lower().strip()
+
+        # 1. Study Logging
+        if "log" in lower and any(w in lower for w in ["minute", "min", "study", "studied", "hour", "session", "time"]):
+            return "STUDY_LOGGING"
+
+        # 2. Skill Gap Explanation
+        if any(w in lower for w in ["gap", "biggest gap", "bottleneck", "weakness", "weak", "why am i bad", "improve first", "what skill should i improve"]):
+            return "SKILL_GAP_EXPLANATION"
+
+        # 3. Roadmap Explanation & Adaptation
+        if any(w in lower for w in ["why did my roadmap", "roadmap change", "explain my roadmap", "why was this milestone", "adaptive", "roadmap"]):
+            return "ROADMAP_EXPLANATION"
+
+        # 4. Next Learning Action
+        if any(w in lower for w in ["what should i learn next", "what do i study now", "what to learn next", "next step", "what should i learn", "next milestone", "learn next"]):
+            return "NEXT_LEARNING_ACTION"
+
+        # 5. Today's Focus Action
+        if any(w in lower for w in ["what should i focus on today", "today's focus", "today focus", "what to do today", "focus today", "study plan today"]):
+            return "TODAY_ACTION"
+
+        # 6. Progress & Streak
+        if any(w in lower for w in ["how am i progressing", "progress", "streak", "xp", "hours studied", "metrics", "my score", "my standing"]):
+            return "PROGRESS_EXPLANATION"
+
+        # 7. Recommendations Explanation
+        if any(w in lower for w in ["why was this resource", "recommended", "recommend course", "recommendation", "suggest", "what course", "what project"]):
+            return "RECOMMENDATION_EXPLANATION"
+
+        # 8. Current Skill Status
+        if any(w in lower for w in ["skill status", "level in", "my proficiency", "readiness", "competencies", "mastery"]):
+            return "CURRENT_SKILL_STATUS"
+
+        # 9. Career Path Explanation
+        if any(w in lower for w in ["career track", "career path", "how to become", "requirements for", "target career", "job requirements"]):
+            return "CAREER_PATH_EXPLANATION"
+
+        # 10. Technical Domain Question (Python, SQL, ML, RAG, etc.)
+        if any(w in lower for w in ["python", "sql", "code", "function", "pipeline", "scikit", "rag", "vector", "database", "algorithm", "model", "prerequisite"]):
+            return "TECHNICAL_TOPIC"
+
+        return "UNSUPPORTED"
 
     async def _fallback_generate(
         self,
@@ -184,50 +192,29 @@ class LLMClient:
         tool_records: List[ToolCallRecord] = []
         user_msg = messages[-1]["content"] if messages else ""
         lower_msg = user_msg.lower()
+        intent = self.classify_intent(user_msg)
 
-        # 1. Intent Detection & Tool Routing
+        # Execute appropriate DB tools if necessary
         if self.tool_router:
-            # Intent A: Study Logging
-            if "log" in lower_msg and any(w in lower_msg for w in ["minute", "min", "study", "studied", "hour", "session", "time"]):
+            if intent == "STUDY_LOGGING":
                 mins_match = re.search(r"(\d+)\s*(?:min|minute|m\b|hr|hour)", lower_msg)
                 mins = int(mins_match.group(1)) if mins_match else 30
                 if "hour" in lower_msg or "hr" in lower_msg:
                     mins = mins * 60 if mins < 10 else mins
                 rec = await self.tool_router.execute_tool("log_study_progress", {"minutes": mins, "activity_summary": user_msg})
                 tool_records.append(rec)
-
-            # Intent B: Roadmap & Next Steps
-            elif any(w in lower_msg for w in ["roadmap", "next step", "what should i learn", "what should i do", "what to learn next", "my path", "today", "focus"]):
+            elif intent in ("NEXT_LEARNING_ACTION", "TODAY_ACTION", "ROADMAP_EXPLANATION"):
                 rec = await self.tool_router.execute_tool("get_learner_roadmap", {})
                 tool_records.append(rec)
-            
-            # Intent C: Skill Gaps & Bottlenecks
-            elif any(w in lower_msg for w in ["gap", "biggest gap", "bottleneck", "weakness", "weak", "readiness", "score"]):
+            elif intent == "SKILL_GAP_EXPLANATION":
                 rec = await self.tool_router.execute_tool("analyze_skill_gaps", {})
                 tool_records.append(rec)
-
-            # Intent D: Recommended Resources
-            elif any(w in lower_msg for w in ["recommend", "course", "project", "resource", "tutorial", "practice"]):
+            elif intent == "RECOMMENDATION_EXPLANATION":
                 rec = await self.tool_router.execute_tool("get_recommended_resources", {"resource_type": "all"})
                 tool_records.append(rec)
 
-            # Intent E: Skill Taxonomy & Prerequisites
-            elif any(w in lower_msg for w in ["prerequisite", "dependency", "require", "stats", "python", "sql", "machine learning", "rag", "docker", "terraform"]):
-                skill_slug = "python-for-data-science"
-                if "stat" in lower_msg:
-                    skill_slug = "applied-statistics"
-                elif "sql" in lower_msg:
-                    skill_slug = "sql-and-relational-databases"
-                elif "machine learning" in lower_msg or "ml" in lower_msg:
-                    skill_slug = "machine-learning-fundamentals"
-                elif "rag" in lower_msg or "genai" in lower_msg or "llm" in lower_msg:
-                    skill_slug = "llms-and-generative-ai"
-                rec = await self.tool_router.execute_tool("get_skill_details_and_prerequisites", {"skill_name_or_slug": skill_slug})
-                tool_records.append(rec)
+        content = self._synthesize_grounded_response(intent, user_msg, context, tool_records)
 
-        # 2. Synthesize pedagogical response
-        content = self._synthesize_pedagogical_response(user_msg, context, tool_records)
-        
         latency = round((time.time() - start_time) * 1000, 2)
         telemetry = AITelemetry(
             prompt_tokens=len(system_prompt.split()) + len(user_msg.split()),
@@ -256,7 +243,6 @@ class LLMClient:
                 "tool_call": rec.model_dump()
             }
 
-        # Stream content word by word for fluid human reading speed
         words = full_content.split(" ")
         chunk_size = 3
         for i in range(0, len(words), chunk_size):
@@ -273,8 +259,9 @@ class LLMClient:
             "telemetry": telemetry.model_dump()
         }
 
-    def _synthesize_pedagogical_response(
+    def _synthesize_grounded_response(
         self,
+        intent: str,
         user_msg: str,
         context: Dict[str, Any],
         tool_records: List[ToolCallRecord]
@@ -291,14 +278,28 @@ class LLMClient:
         streak = act.get("streak_days", 1)
         xp = p.get("xp", 0)
 
-        lower = user_msg.lower()
+        # ── 1. UNSUPPORTED INTENT (Graceful Redirection) ──
+        if intent == "UNSUPPORTED":
+            return (
+                f"I am focused on your PathPilot learning journey for **{career}**.\n\n"
+                f"Try asking one of the supported learning navigation questions below:\n\n"
+                f"- **What should I learn next?** — Recommends your immediate prioritized milestone.\n"
+                f"- **Why is this my biggest skill gap?** — Explains prerequisite bottlenecks and career impact.\n"
+                f"- **Why did my roadmap change?** — Clarifies adaptive pacing and quiz calibration.\n"
+                f"- **How am I progressing?** — Reviews streak, XP, and verified competencies.\n"
+                f"- **Why was this resource recommended?** — Shows competency relevance and difficulty match.\n"
+                f"- **What should I focus on today?** — Provides a 3-step actionable study plan."
+            )
 
-        # 1. Intent: Study Logging
-        log_tool = next((t for t in tool_records if t.tool_name == "log_study_progress"), None)
-        if log_tool and log_tool.status == "success":
-            out = log_tool.tool_output or {}
-            mins = out.get("minutes_logged", 30)
-            awarded = out.get("xp_earned", 20)
+        # ── 2. STUDY LOGGING ──
+        if intent == "STUDY_LOGGING":
+            log_tool = next((t for t in tool_records if t.tool_name == "log_study_progress"), None)
+            mins = 30
+            awarded = 20
+            if log_tool and log_tool.status == "success":
+                out = log_tool.tool_output or {}
+                mins = out.get("minutes_logged", 30)
+                awarded = out.get("xp_earned", 20)
             return (
                 f"🎉 **Great work!** I have recorded **{mins} minutes** of focused learning into your activity log.\n\n"
                 f"🌟 **+{awarded} XP Earned!** Your total progress is now synchronized to PostgreSQL.\n\n"
@@ -306,59 +307,99 @@ class LLMClient:
                 f"What topic would you like to review next?"
             )
 
-        # 2. Intent: Skill Gap Analysis ("Why is this my biggest gap?", "What are my bottlenecks?")
-        if any(w in lower for w in ["biggest gap", "why is this my gap", "gap", "bottleneck", "weakness"]):
+        # ── 3. SKILL GAP EXPLANATION ──
+        if intent == "SKILL_GAP_EXPLANATION":
             bottleneck_name = bottlenecks[0] if bottlenecks else active_step
             return (
                 f"### 🎯 Skill Gap Diagnosis: **{bottleneck_name}**\n\n"
                 f"Based on your target goal of **{career}** (Current Readiness: **{readiness}%**), here is why **{bottleneck_name}** is your primary focus area:\n\n"
-                f"1. **Graph Bottleneck Impact**: In our dependency graph, this competency serves as a critical prerequisite for downstream production milestones.\n"
-                f"2. **Career Weight Alignment**: Enterprise roles in **{career}** require high proficiency in this area for feature modeling and data pipelines.\n"
+                f"1. **Graph Bottleneck Impact**: In our dependency DAG, this competency serves as a critical prerequisite for downstream production milestones.\n"
+                f"2. **Career Weight Alignment**: Enterprise roles in **{career}** require high proficiency in this area for modeling and deployment pipelines.\n"
                 f"3. **Readiness Boost**: Closing this gap will elevate your verified readiness score by **+12% to +18%**.\n\n"
                 f"#### Recommended Immediate Study Strategy:\n"
-                f"- Complete the interactive module on **{bottleneck_name}** in your recommendations tab.\n"
-                f"- Take the targeted diagnostic quiz to establish verified mastery.\n\n"
-                f"Would you like me to walk through a practical code challenge on **{bottleneck_name}**?"
+                f"- Review the interactive module on **{bottleneck_name}** in your recommendations tab.\n"
+                f"- Complete the targeted diagnostic quiz to establish verified mastery."
             )
 
-        # 3. Intent: Next Best Action / Roadmap Focus ("What should I learn next?", "What should I focus on today?")
-        if any(w in lower for w in ["what should i learn", "what should i do", "what to learn next", "next step", "today", "focus"]):
+        # ── 4. NEXT LEARNING ACTION ──
+        if intent == "NEXT_LEARNING_ACTION":
             return (
-                f"### 🚀 Your Immediate Next Action: **{active_step}**\n\n"
-                f"For your **{career}** learning path, your active prioritized milestone is **{active_step}**.\n\n"
-                f"#### Suggested 3-Step Study Plan for Today:\n"
-                f"1. **Conceptual Review (15 min)**: Understand the core architecture and mathematical intuition.\n"
-                f"2. **Hands-on Implementation (30 min)**: Build the practical exercise using the code template below.\n"
-                f"3. **Skill Verification (15 min)**: Complete the diagnostic assessment to unlock the next milestone.\n\n"
-                f"#### Core Production Pattern:\n"
-                f"{CODE_TEMPLATES.get('python')}\n\n"
-                f"💡 **Next Challenge**: Implement a filter that ignores outlier measurements beyond 3 standard deviations. Ready to try?"
+                f"### 🚀 Your Immediate Next Milestone: **{active_step}**\n\n"
+                f"For your **{career}** track, your active prioritized milestone is **{active_step}**.\n\n"
+                f"#### Recommended Next Steps:\n"
+                f"1. **Conceptual Review**: Master foundational theory and syntax patterns.\n"
+                f"2. **Interactive Practice**: Complete the hands-on lab in your Recommendations tab.\n"
+                f"3. **Verification**: Complete the module assessment to unlock the next milestone.\n\n"
+                f"Your current readiness is **{readiness}%** toward the **{career}** benchmark."
             )
 
-        # 4. Intent: Roadmap Adaptation ("Why did my roadmap change?")
-        if any(w in lower for w in ["roadmap change", "why did my roadmap", "adapted", "pacing", "why was this milestone added"]):
+        # ── 5. TODAY'S ACTION ──
+        if intent == "TODAY_ACTION":
+            return (
+                f"### 📅 Focused Study Plan for Today: **{active_step}**\n\n"
+                f"Here is your recommended 3-step action plan for **{career}**:\n\n"
+                f"1. **Conceptual Review (15 min)**: Read the milestone architecture guide.\n"
+                f"2. **Hands-on Implementation (30 min)**: Build the practical coding pattern below.\n"
+                f"3. **Study Time Logging**: Log your session in the Progress tab to maintain your **{streak}-day streak**.\n\n"
+                f"{CODE_TEMPLATES.get('python')}"
+            )
+
+        # ── 6. ROADMAP EXPLANATION & ADAPTATION ──
+        if intent == "ROADMAP_EXPLANATION":
             return (
                 f"### 🔄 Adaptive Roadmap Calibration\n\n"
                 f"PathPilot's **Adaptive Learning Engine** continuously calibrates your learning path based on three real-time signals:\n\n"
-                f"1. **Empirical Learning Pace**: Your completion velocity is evaluated across study logs. When you progress rapidly, milestone cadence is accelerated; when deliberate study is detected, reinforcement buffers are added.\n"
+                f"1. **Empirical Learning Pace**: Your completion velocity is evaluated across study logs. Rapid completion advances milestone cadence; deliberate study inserts practice buffers.\n"
                 f"2. **Assessment Mastery**: Scoring $\\ge 80\\%$ on diagnostic quizzes skips redundant introductory material.\n"
                 f"3. **Prerequisite Remediation**: When a conceptual struggle is identified, targeted prerequisite bridges are automatically inserted.\n\n"
-                f"All changes are version-controlled in PostgreSQL (`RoadmapVersion`) without discarding your completed progress."
+                f"All changes are version-controlled in PostgreSQL (`RoadmapVersion`) preserving your completed progress."
             )
 
-        # 5. Intent: Progress & Streak ("How am I progressing?", "What is my streak?")
-        if any(w in lower for w in ["how am i progressing", "progress", "streak", "xp", "score", "level"]):
+        # ── 7. PROGRESS EXPLANATION ──
+        if intent == "PROGRESS_EXPLANATION":
             return (
                 f"### 📈 Your Verified Learning Metrics\n\n"
                 f"- **Target Goal**: `{career}`\n"
                 f"- **Career Readiness**: `{readiness}%`\n"
                 f"- **Experience Points (XP)**: `{xp} XP`\n"
                 f"- **Active Study Streak**: `🔥 {streak} Days`\n"
-                f"- **Current Milestone**: `{active_step}`\n\n"
-                f"✨ **Mentor Feedback**: Your study consistency is strong! Log at least 30 minutes today to maintain your streak and advance toward the top of the Guild Leaderboard."
+                f"- **Active Milestone**: `{active_step}`\n\n"
+                f"✨ **Consistency Status**: You are making steady progress! Log your daily study sessions in the Progress tab to keep climbing the leaderboard."
             )
 
-        # 6. Technical Topic Explanations
+        # ── 8. RECOMMENDATION EXPLANATION ──
+        if intent == "RECOMMENDATION_EXPLANATION":
+            return (
+                f"### 💡 Why Resources are Recommended\n\n"
+                f"PathPilot's **Hybrid Recommendation Engine** curates resources specifically for your profile:\n\n"
+                f"1. **Target Gap Relevance**: Resources are ranked by how directly they close your highest-priority skill gap (**{bottlenecks[0] if bottlenecks else active_step}**).\n"
+                f"2. **Format & Pace Match**: Adapted to your preferred learning format and difficulty level.\n"
+                f"3. **Verified Competency Unlocking**: Completing these items unlocks dependent milestones in your **{career}** roadmap."
+            )
+
+        # ── 9. CURRENT SKILL STATUS ──
+        if intent == "CURRENT_SKILL_STATUS":
+            return (
+                f"### 📊 Current Skill Proficiency Overview\n\n"
+                f"- **Target Career**: `{career}`\n"
+                f"- **Overall Readiness**: `{readiness}%`\n"
+                f"- **Active Focus Area**: `{active_step}`\n"
+                f"- **Primary Gap to Improve**: `{bottlenecks[0] if bottlenecks else active_step}`\n\n"
+                f"Take the diagnostic quiz or complete the recommended module to verify increased mastery."
+            )
+
+        # ── 10. CAREER PATH EXPLANATION ──
+        if intent == "CAREER_PATH_EXPLANATION":
+            return (
+                f"### 🎯 Career Track: **{career}**\n\n"
+                f"The **{career}** track prepares you for enterprise engineering roles by verifying core competencies in data processing, modeling, and production pipelines.\n\n"
+                f"- **Current Readiness**: `{readiness}%`\n"
+                f"- **Next Key Competency**: `{active_step}`\n\n"
+                f"Complete your active roadmap milestones to reach full production readiness."
+            )
+
+        # ── 11. TECHNICAL TOPIC EXPLANATION ──
+        lower = user_msg.lower()
         code_snip = CODE_TEMPLATES.get("python")
         if any(k in lower for k in ["sql", "query", "database", "postgres", "join", "index"]):
             code_snip = CODE_TEMPLATES.get("sql")
@@ -374,170 +415,6 @@ class LLMClient:
             f"### 2. Production Code Pattern\n"
             f"{code_snip}\n\n"
             f"### 3. Senior Engineer Best Practices\n"
-            f"- **Defensive Design**: Always validate input tensor ranks and handle missing / null states gracefully.\n"
-            f"- **Performance**: Leverage vectorized operations or indexed scans to avoid $O(N^2)$ algorithmic bottlenecks.\n\n"
-            f"💡 **Practice Challenge**: How would you test this implementation against extreme edge cases? Tell me your approach!"
+            f"- **Defensive Design**: Validate input schemas and handle missing / null states gracefully.\n"
+            f"- **Performance**: Leverage vectorized operations or indexed scans to avoid algorithmic bottlenecks."
         )
-
-    async def _call_groq(
-        self,
-        system_prompt: str,
-        messages: List[Dict[str, str]],
-        start_time: float
-    ) -> Tuple[str, List[ToolCallRecord], AITelemetry]:
-        async with httpx.AsyncClient(timeout=25.0) as client:
-            resp = await client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.groq_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": "llama-3.3-70b-versatile",
-                    "messages": [{"role": "system", "content": system_prompt}] + messages,
-                    "temperature": 0.3,
-                }
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"]
-            usage = data.get("usage", {})
-            latency = round((time.time() - start_time) * 1000, 2)
-            telemetry = AITelemetry(
-                prompt_tokens=usage.get("prompt_tokens", 0),
-                completion_tokens=usage.get("completion_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                latency_ms=latency,
-                tools_invoked=[],
-                safety_status="passed"
-            )
-            return content, [], telemetry
-
-    async def _stream_groq(
-        self,
-        system_prompt: str,
-        messages: List[Dict[str, str]],
-        start_time: float
-    ) -> AsyncGenerator[Dict[str, Any], None]:
-        async with httpx.AsyncClient(timeout=25.0) as client:
-            async with client.stream(
-                "POST",
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.groq_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": "llama-3.3-70b-versatile",
-                    "messages": [{"role": "system", "content": system_prompt}] + messages,
-                    "temperature": 0.3,
-                    "stream": True
-                }
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if line.startswith("data: ") and line.strip() != "data: [DONE]":
-                        try:
-                            chunk_data = json.loads(line[6:])
-                            delta = chunk_data["choices"][0]["delta"].get("content", "")
-                            if delta:
-                                yield {"type": "text-delta", "content": delta}
-                        except Exception:
-                            pass
-                yield {"type": "finish", "telemetry": {"latency_ms": round((time.time() - start_time) * 1000, 2), "safety_status": "passed"}}
-
-    async def _call_openai(
-        self,
-        system_prompt: str,
-        messages: List[Dict[str, str]],
-        start_time: float
-    ) -> Tuple[str, List[ToolCallRecord], AITelemetry]:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.openai_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": "gpt-4o-mini",
-                    "messages": [{"role": "system", "content": system_prompt}] + messages,
-                    "temperature": 0.3,
-                }
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"]
-            usage = data.get("usage", {})
-            latency = round((time.time() - start_time) * 1000, 2)
-            telemetry = AITelemetry(
-                prompt_tokens=usage.get("prompt_tokens", 0),
-                completion_tokens=usage.get("completion_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                latency_ms=latency,
-                tools_invoked=[],
-                safety_status="passed"
-            )
-            return content, [], telemetry
-
-    async def _stream_openai(
-        self,
-        system_prompt: str,
-        messages: List[Dict[str, str]],
-        start_time: float
-    ) -> AsyncGenerator[Dict[str, Any], None]:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            async with client.stream(
-                "POST",
-                "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.openai_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": "gpt-4o-mini",
-                    "messages": [{"role": "system", "content": system_prompt}] + messages,
-                    "temperature": 0.3,
-                    "stream": True
-                }
-            ) as response:
-                response.raise_for_status()
-                async for line in response.aiter_lines():
-                    if line.startswith("data: ") and line.strip() != "data: [DONE]":
-                        try:
-                            chunk_data = json.loads(line[6:])
-                            delta = chunk_data["choices"][0]["delta"].get("content", "")
-                            if delta:
-                                yield {"type": "text-delta", "content": delta}
-                        except Exception:
-                            pass
-                yield {"type": "finish", "telemetry": {"latency_ms": round((time.time() - start_time) * 1000, 2), "safety_status": "passed"}}
-
-    async def _call_gemini(
-        self,
-        system_prompt: str,
-        messages: List[Dict[str, str]],
-        start_time: float
-    ) -> Tuple[str, List[ToolCallRecord], AITelemetry]:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.gemini_key}"
-        formatted_contents = [{"role": "user", "parts": [{"text": system_prompt}]}]
-        for m in messages:
-            role = "user" if m["role"] == "user" else "model"
-            formatted_contents.append({"role": role, "parts": [{"text": m["content"]}]})
-
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(url, json={"contents": formatted_contents})
-            resp.raise_for_status()
-            data = resp.json()
-            content = data["candidates"][0]["content"]["parts"][0]["text"]
-            latency = round((time.time() - start_time) * 1000, 2)
-            telemetry = AITelemetry(
-                prompt_tokens=100,
-                completion_tokens=150,
-                total_tokens=250,
-                latency_ms=latency,
-                tools_invoked=[],
-                safety_status="passed"
-            )
-            return content, [], telemetry
-

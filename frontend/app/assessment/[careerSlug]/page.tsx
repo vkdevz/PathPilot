@@ -11,6 +11,10 @@ import {
   Milestone,
   Target,
   ShieldAlert,
+  Trophy,
+  Sparkles,
+  BookOpen,
+  ChevronRight,
 } from 'lucide-react';
 import { apiClient } from '../../../lib/api-client';
 import type { AssessmentDetail, AssessmentResult, Question } from '../../../types';
@@ -63,9 +67,10 @@ export default function AssessmentPage() {
     if (!assessment) return;
     setSubmitting(true);
 
+    // Accurately map selected answers (use -1 for unselected questions)
     const answersPayload = assessment.questions.map((q) => ({
       question_id: q.id,
-      selected_option: selectedAnswers[q.id] !== undefined ? selectedAnswers[q.id] : 0,
+      selected_option: selectedAnswers[q.id] !== undefined ? selectedAnswers[q.id] : -1,
     }));
 
     try {
@@ -86,7 +91,7 @@ export default function AssessmentPage() {
       pageTitle={result ? 'Diagnostic Position Report' : `Diagnostic Assessment: ${assessment?.career_name || careerSlug}`}
       pageSubtitle={
         result
-          ? 'Calibrated competency baseline stored in database. Learning roadmap generated.'
+          ? `Calibrated competency baseline for ${result.career_name || assessment?.career_name || 'your career goal'}. Verified in PostgreSQL.`
           : 'Answer domain questions to detect skill gaps and calibrate your learning milestones.'
       }
     >
@@ -94,64 +99,95 @@ export default function AssessmentPage() {
         {loading ? (
           <SkeletonCard />
         ) : result ? (
-          /* Structured Assessment Results */
+          /* Structured Diagnostic Position Report */
           <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
-            <div className="text-center space-y-2 pb-4 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
-                Diagnostic Complete
-              </span>
+            <div className="text-center space-y-2 pb-5 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF8EE] dark:bg-[#30D158]/15 border border-[#34C759]/30 text-[#34C759] text-[11px] font-bold uppercase tracking-wider">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Diagnostic Verified</span>
+              </div>
               <h2 className="text-xl sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                 YOUR CURRENT POSITION
               </h2>
               <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] max-w-sm mx-auto">
-                Verified skill scores have been recorded to your learner profile.
+                Track: <span className="font-semibold text-[#007AFF]">{result.career_name || assessment?.career_name || 'Selected Track'}</span>
               </p>
 
               <div className="pt-3">
-                <span className="text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
+                <span className="text-5xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                   {result.overall_score}%
                 </span>
-                <span className="block text-[10px] uppercase font-semibold text-[#86868B] mt-0.5">
-                  Overall Assessed Proficiency
+                <span className="block text-xs font-bold text-[#007AFF] uppercase mt-1">
+                  {result.position_rank || (result.overall_score >= 80 ? 'Top 15% — Target Ready' : 'Top 35% — Developing Contender')}
                 </span>
               </div>
             </div>
 
             {/* 3-Part Position Breakdown: Strongest / Developing / Gaps */}
             <div className="space-y-3">
-              <div className="p-3.5 rounded-xl bg-[#EAF8EE] dark:bg-[#30D158]/10 border border-[#34C759]/20 space-y-1">
+              <div className="p-4 rounded-xl bg-[#EAF8EE] dark:bg-[#30D158]/10 border border-[#34C759]/20 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-[#34C759]">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Strongest Areas</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Strongest Areas (Mastered)</span>
                 </div>
                 <p className="text-xs text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
-                  {(result.strong_topics || []).map((t) => t.name).join(', ') || 'Ready to build foundation!'}
+                  {(result.strong_topics || []).map((t) => t.name).join(', ') || 'Ready to establish foundational mastery!'}
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#FFF4E0] dark:bg-[#FF9F0A]/10 border border-[#FF9F0A]/20 space-y-1">
+              <div className="p-4 rounded-xl bg-[#FFF4E0] dark:bg-[#FF9F0A]/10 border border-[#FF9F0A]/20 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-[#FF9F0A]">
-                  <Target className="w-3.5 h-3.5" />
-                  <span>Developing Competencies</span>
+                  <Target className="w-4 h-4" />
+                  <span>Developing Competencies (Intermediate)</span>
                 </div>
                 <p className="text-xs text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
-                  {(result.moderate_topics || []).map((t) => t.name).join(', ') || 'None identified'}
+                  {(result.moderate_topics || []).map((t) => t.name).join(', ') || 'None in intermediate range'}
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#FFF0EF] dark:bg-[#FF453A]/10 border border-[#FF3B30]/20 space-y-1">
+              <div className="p-4 rounded-xl bg-[#FFF0EF] dark:bg-[#FF453A]/10 border border-[#FF3B30]/20 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-[#FF3B30]">
-                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <ShieldAlert className="w-4 h-4" />
                   <span>Highest-Priority Skill Gaps</span>
                 </div>
                 <p className="text-xs text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
-                  {(result.weak_topics || []).map((t) => t.name).join(', ') || 'No critical gaps detected'}
+                  {(result.weak_topics || []).map((t) => t.name).join(', ') || 'No critical prerequisite bottlenecks detected'}
                 </p>
               </div>
             </div>
 
-            {/* Next Recommended Action CTA */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            {/* Next Recommended Learning Steps */}
+            {result.recommendations && result.recommendations.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#86868B]">
+                  Immediate Recommended Actions
+                </h4>
+                <div className="space-y-2">
+                  {result.recommendations.map((rec, i) => (
+                    <div
+                      key={i}
+                      className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <BookOpen className="w-4 h-4 text-[#007AFF] shrink-0" />
+                        <div>
+                          <span className="font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] block">
+                            {rec.resource_title}
+                          </span>
+                          <span className="text-[11px] text-[#6E6E73] dark:text-[#AEAEB2]">
+                            Skill: {rec.skill_name} • {rec.estimated_minutes} min estimated
+                          </span>
+                        </div>
+                      </div>
+                      <Badge variant="primary" size="sm">{rec.priority} Priority</Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Controls */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
               <Button
                 variant="secondary"
                 size="sm"
@@ -166,7 +202,7 @@ export default function AssessmentPage() {
               </Button>
               <Link href="/roadmap">
                 <Button variant="primary" size="md" icon={<Milestone className="w-4 h-4 text-white" />}>
-                  Explore Personalized Roadmap
+                  Explore Calibrated Roadmap
                 </Button>
               </Link>
             </div>

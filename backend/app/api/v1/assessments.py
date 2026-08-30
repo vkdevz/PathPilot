@@ -1,5 +1,5 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.dependencies.database import get_db
 from app.dependencies.auth import get_current_user
@@ -13,6 +13,24 @@ from app.schemas.assessment import (
 from app.services.assessment_service import AssessmentService
 
 router = APIRouter(prefix="/assessments", tags=["Assessments & Diagnostic Quizzes"])
+
+@router.get("/latest", response_model=AssessmentResultResponse)
+async def get_latest_assessment(
+    career_slug: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Returns the latest diagnostic assessment results for the authenticated learner.
+    """
+    assessment_service = AssessmentService(db)
+    attempt = await assessment_service.get_latest_attempt(current_user.id, career_slug=career_slug)
+    if not attempt:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No diagnostic assessment results found for this learner."
+        )
+    return attempt
 
 @router.get("/{career_slug}", response_model=AssessmentDetailResponse)
 async def get_assessment(
@@ -45,6 +63,7 @@ async def get_assessment(
         id=assessment.id,
         career_id=assessment.career_id,
         career_name=assessment.career.name if assessment.career else "Career Track",
+        career_slug=career_slug,
         title=assessment.title,
         total_questions=len(q_list),
         questions=q_list

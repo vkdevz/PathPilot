@@ -460,26 +460,21 @@ class ToolRouter:
             if all_res:
                 resource_id = all_res[0].id
 
-        if not resource_id:
-            return {"status": "error", "message": "No valid learning resource available to attach progress."}
-
-        progress = Progress(
+        from app.services.progress_service import ProgressService
+        progress_svc = ProgressService(self.db)
+        session = await progress_svc.log_study_session(
             user_id=self.user_id,
-            resource_id=resource_id,
-            time_spent_minutes=minutes,
-            status="in_progress"
+            topic=args.get("activity_summary") or "AI Directed Learning",
+            duration_minutes=minutes,
+            resource_id=resource_id
         )
-        await self.progress_repo.create_progress(progress)
-        
-        # Award XP (10 XP per 15 min)
-        xp_earned = max(10, (minutes // 15) * 10)
-        await self.user_repo.add_xp(self.user_id, xp_earned)
 
         return {
             "status": "success",
             "minutes_logged": minutes,
-            "xp_earned": xp_earned,
-            "message": f"Successfully logged {minutes} minutes of learning. Earned +{xp_earned} XP!"
+            "xp_earned": session.xp_earned,
+            "session_id": session.id,
+            "message": f"Successfully logged {minutes} minutes of focused learning into your Study Sessions. Earned +{session.xp_earned} XP!"
         }
 
     async def _tool_semantic_search_learning_resources(self, args: Dict[str, Any]) -> Dict[str, Any]:

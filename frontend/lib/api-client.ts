@@ -33,6 +33,9 @@ import type {
   RoadmapVersion,
   FeedbackInterpretationResult,
   AdaptiveBenchmarkReport,
+  StudySession,
+  StudyTimeSummary,
+  CompleteResourceResult,
 } from '../types';
 
 
@@ -359,6 +362,11 @@ class ApiClient {
     return this.request<AssessmentDetail>(`/assessments/${careerSlug}`);
   }
 
+  async getLatestAssessment(careerSlug?: string): Promise<AssessmentResult> {
+    const query = careerSlug ? `?career_slug=${encodeURIComponent(careerSlug)}` : '';
+    return this.request<AssessmentResult>(`/assessments/latest${query}`);
+  }
+
   async submitAssessment(
     careerSlug: string,
     answers: Array<{ question_id: string; selected_option: number }>
@@ -386,8 +394,39 @@ class ApiClient {
   }
 
   // ---------------------------------------------------------------------------
-  // Progress & Activity
+  // Progress & Activity (Study Sessions vs Completed Learning)
   // ---------------------------------------------------------------------------
+  async logStudySession(payload: {
+    topic: string;
+    duration_minutes: number;
+    resource_id?: string | null;
+    session_date?: string | null;
+    notes?: string | null;
+  }): Promise<StudySession> {
+    return this.request<StudySession>('/progress/study-sessions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getStudySessions(limit: number = 50): Promise<StudySession[]> {
+    return this.request<StudySession[]>(`/progress/study-sessions?limit=${limit}`);
+  }
+
+  async getStudySummary(): Promise<StudyTimeSummary> {
+    return this.request<StudyTimeSummary>('/progress/summary');
+  }
+
+  async completeResource(resourceId: string, timeSpentMinutes?: number): Promise<CompleteResourceResult> {
+    return this.request<CompleteResourceResult>('/progress/complete', {
+      method: 'POST',
+      body: JSON.stringify({
+        resource_id: resourceId,
+        time_spent_minutes: timeSpentMinutes,
+      }),
+    });
+  }
+
   async logProgress(resourceId: string, minutes: number, status: string = 'completed'): Promise<any> {
     return this.request('/progress/log', {
       method: 'POST',

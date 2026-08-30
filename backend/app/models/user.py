@@ -18,6 +18,7 @@ class User(Base, TimestampMixin):
     assessment_attempts = relationship("AssessmentAttempt", back_populates="user", cascade="all, delete-orphan")
     learning_paths = relationship("LearningPath", back_populates="user", cascade="all, delete-orphan")
     progress_logs = relationship("Progress", back_populates="user", cascade="all, delete-orphan")
+    study_sessions = relationship("StudySession", back_populates="user", cascade="all, delete-orphan")
     feedback_records = relationship("Feedback", back_populates="user", cascade="all, delete-orphan")
     conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
 
@@ -49,4 +50,3 @@ class LearnerProfile(Base, TimestampMixin):
         except Exception:
             pass
         return None
-
