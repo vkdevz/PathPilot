@@ -6,6 +6,7 @@ export interface LearnerProfile {
   id: string;
   user_id: string;
   target_career_id?: string | null;
+  target_career_name?: string | null;
   experience_level: string;
   learning_pace: string;
   preferred_format: string;

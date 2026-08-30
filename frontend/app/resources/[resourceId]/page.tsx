@@ -88,11 +88,11 @@ def target_encode(train_df, test_df, col, target):
   const handleLogActivity = async () => {
     setLogging(true);
     try {
-      await apiClient.logProgress({
-        resource_id: resourceId,
-        minutes_spent: resource?.estimated_minutes || 30,
-        completed: true,
-      });
+      await apiClient.logProgress(
+        resourceId,
+        resource?.estimated_minutes || 30,
+        'completed'
+      );
       setLogged(true);
     } catch (e) {
       console.error(e);
