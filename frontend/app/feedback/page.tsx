@@ -4,14 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   MessageSquareHeart,
-  Sparkles,
   Zap,
   CheckCircle2,
-  AlertCircle,
   ArrowRight,
-  TrendingUp,
   BrainCircuit,
-  Milestone,
 } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { AppShell } from '../../components/layout/AppShell';
@@ -101,22 +97,22 @@ export default function FeedbackPage() {
     >
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Signature Feature: The Adaptive Moment Visualizer */}
-        <div className="surface-accent-card rounded-2xl p-6 space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-indigo-500/20">
+        <div className="surface-card rounded-2xl p-6 space-y-5 border-l-4 border-l-[#007AFF] shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
             <div>
               <div className="flex items-center gap-2">
-                <BrainCircuit className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-sm font-semibold text-white tracking-tight">
+                <BrainCircuit className="w-4 h-4 text-[#007AFF]" />
+                <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                   Continuous Adaptation Lifecycle
                 </h3>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] mt-0.5">
                 How live evidence mutates proficiency, unlocks prerequisites, and shifts recommendations
               </p>
             </div>
 
             <Button
-              variant="glow"
+              variant="primary"
               size="sm"
               loading={simulating}
               onClick={handleSimulateEvidence}
@@ -128,45 +124,45 @@ export default function FeedbackPage() {
 
           {/* 6-Stage Visual Chain */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-white/[0.06] space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase">1. Before</span>
-              <p className="text-slate-300 font-medium">Estimated State (45%)</p>
+            <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-1">
+              <span className="text-[10px] font-semibold text-[#86868B] uppercase">1. Before</span>
+              <p className="text-[#1D1D1F] dark:text-[#F5F5F7] font-medium">Estimated State (45%)</p>
             </div>
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-indigo-500/30 space-y-1">
-              <span className="text-[10px] font-semibold text-indigo-400 uppercase">2. Evidence</span>
-              <p className="text-indigo-200 font-medium">85% Quiz Score</p>
+            <div className="p-3 rounded-xl bg-[#EAF3FF] dark:bg-[#0A84FF]/15 border border-[#007AFF]/30 space-y-1">
+              <span className="text-[10px] font-semibold text-[#007AFF] uppercase">2. Evidence</span>
+              <p className="text-[#007AFF] font-semibold">85% Quiz Score</p>
             </div>
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-white/[0.06] space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase">3. Skill State</span>
-              <p className="text-emerald-400 font-medium">45% → 78%</p>
+            <div className="p-3 rounded-xl bg-[#EAF8EE] dark:bg-[#30D158]/15 border border-[#34C759]/30 space-y-1">
+              <span className="text-[10px] font-semibold text-[#34C759] uppercase">3. Skill State</span>
+              <p className="text-[#34C759] font-semibold">45% → 78%</p>
             </div>
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-white/[0.06] space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase">4. Gap Closed</span>
-              <p className="text-slate-300 font-medium">Prereq Unlocked</p>
+            <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-1">
+              <span className="text-[10px] font-semibold text-[#86868B] uppercase">4. Gap Closed</span>
+              <p className="text-[#1D1D1F] dark:text-[#F5F5F7] font-medium">Prereq Unlocked</p>
             </div>
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-white/[0.06] space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase">5. Recs Shift</span>
-              <p className="text-slate-300 font-medium">New Next Best</p>
+            <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-1">
+              <span className="text-[10px] font-semibold text-[#86868B] uppercase">5. Recs Shift</span>
+              <p className="text-[#1D1D1F] dark:text-[#F5F5F7] font-medium">New Next Best</p>
             </div>
-            <div className="p-3 rounded-xl bg-slate-950/70 border border-white/[0.06] space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase">6. Roadmap</span>
-              <p className="text-indigo-400 font-medium">Snapshot v2</p>
+            <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-1">
+              <span className="text-[10px] font-semibold text-[#86868B] uppercase">6. Roadmap</span>
+              <p className="text-[#007AFF] font-semibold">Snapshot v2</p>
             </div>
           </div>
 
           {/* Simulation Output Card */}
           {simulatedResult && (
-            <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+            <div className="p-4 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#007AFF]/40 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#34C759]">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Live State Mutation Executed on PostgreSQL</span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
                 {simulatedResult.reasoning ||
                   'Statistics proficiency adjusted from 45% to 78%. Prerequisite downstream dependencies unlocked.'}
               </p>
               <div className="pt-1">
-                <Link href="/dashboard" className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1">
+                <Link href="/dashboard" className="text-xs text-[#007AFF] hover:text-[#006EDB] font-medium flex items-center gap-1">
                   <span>View updated dashboard readiness</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
@@ -176,16 +172,16 @@ export default function FeedbackPage() {
         </div>
 
         {/* Pacing Calibration Card */}
-        <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+        <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
             <div>
-              <h3 className="text-sm font-semibold text-white tracking-tight">
+              <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                 Study Pace & Weekly Target
               </h3>
-              <p className="text-xs text-slate-400">Adjust your learning intensity</p>
+              <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2]">Adjust your learning intensity</p>
             </div>
             {paceSaved && (
-              <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1">
+              <span className="text-xs font-semibold text-[#34C759] flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Pacing Saved
               </span>
             )}
@@ -201,14 +197,14 @@ export default function FeedbackPage() {
                 key={p.id}
                 type="button"
                 onClick={() => setPaceChange(p.id)}
-                className={`p-3.5 rounded-xl border text-left transition-all ${
+                className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                   paceChange === p.id
-                    ? 'bg-indigo-600/15 border-indigo-500 text-white font-medium shadow-sm'
-                    : 'bg-slate-950/60 border-white/[0.06] text-slate-400 hover:text-white'
+                    ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 border-[#007AFF] text-[#1D1D1F] dark:text-[#F5F5F7] font-medium shadow-sm'
+                    : 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border-[#E5E5EA] dark:border-[#38383A] text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F]'
                 }`}
               >
-                <div className="text-xs font-semibold text-white">{p.label}</div>
-                <div className="text-[11px] text-slate-400 mt-1">{p.desc}</div>
+                <div className="text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">{p.label}</div>
+                <div className="text-[11px] text-[#6E6E73] dark:text-[#AEAEB2] mt-1">{p.desc}</div>
               </button>
             ))}
           </div>
@@ -226,10 +222,10 @@ export default function FeedbackPage() {
         </div>
 
         {/* Qualitative Feedback Form */}
-        <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
-            <MessageSquareHeart className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-sm font-semibold text-white tracking-tight">
+        <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2 pb-3 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
+            <MessageSquareHeart className="w-4 h-4 text-[#007AFF]" />
+            <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
               Rate Content Calibration
             </h3>
           </div>
@@ -241,20 +237,20 @@ export default function FeedbackPage() {
                   key={opt.id}
                   type="button"
                   onClick={() => setFeedbackType(opt.id)}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     feedbackType === opt.id
-                      ? 'bg-indigo-600/15 border-indigo-500 text-white font-medium shadow-sm'
-                      : 'bg-slate-950/60 border-white/[0.06] text-slate-400 hover:text-white'
+                      ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 border-[#007AFF] text-[#1D1D1F] dark:text-[#F5F5F7] font-medium shadow-sm'
+                      : 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border-[#E5E5EA] dark:border-[#38383A] text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F]'
                   }`}
                 >
-                  <div className="text-xs font-semibold text-white">{opt.label}</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">{opt.desc}</div>
+                  <div className="text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">{opt.label}</div>
+                  <div className="text-[11px] text-[#6E6E73] dark:text-[#AEAEB2] mt-0.5">{opt.desc}</div>
                 </button>
               ))}
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">
                 Additional Comments (Optional)
               </label>
               <textarea
@@ -262,7 +258,7 @@ export default function FeedbackPage() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Share any details on course pacing or clarity..."
-                className="w-full p-3 rounded-xl bg-slate-950/80 border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                className="w-full p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] focus:outline-none focus:border-[#007AFF]"
               />
             </div>
 
@@ -271,7 +267,7 @@ export default function FeedbackPage() {
                 Submit Feedback
               </Button>
               {submitted && (
-                <span className="text-xs font-medium text-emerald-400 flex items-center gap-1">
+                <span className="text-xs font-medium text-[#34C759] flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Feedback recorded!
                 </span>
               )}

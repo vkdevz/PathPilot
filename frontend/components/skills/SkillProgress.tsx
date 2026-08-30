@@ -14,40 +14,39 @@ export const SkillProgress: React.FC<SkillProgressProps> = ({
   const currentScore = Math.round(skill.score || 0);
   const isMastered = currentScore >= 85;
   const isProficient = currentScore >= 70 && currentScore < 85;
-  const isDeveloping = currentScore < 70;
 
   const getStatusBadge = () => {
-    if (isMastered) return <Badge variant="emerald">Mastered</Badge>;
-    if (isProficient) return <Badge variant="indigo">Proficient</Badge>;
-    return <Badge variant="amber">Needs Focus</Badge>;
+    if (isMastered) return <Badge variant="success">Mastered</Badge>;
+    if (isProficient) return <Badge variant="primary">Proficient</Badge>;
+    return <Badge variant="warning">Needs Focus</Badge>;
   };
 
   const getBarColor = () => {
-    if (isMastered) return 'from-emerald-500 to-cyan-400';
-    if (isProficient) return 'from-indigo-500 to-brand-400';
-    return 'from-amber-500 to-rose-400';
+    if (isMastered) return 'bg-[#34C759]';
+    if (isProficient) return 'bg-[#007AFF]';
+    return 'bg-[#FF9F0A]';
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-4 space-y-3">
+    <div className="surface-card rounded-2xl p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+          <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider block">
             {skill.category}
           </span>
-          <h4 className="text-sm font-bold text-white mt-0.5">{skill.skill_name}</h4>
+          <h4 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] mt-0.5">{skill.skill_name}</h4>
         </div>
         <div className="flex items-center gap-2">
           {getStatusBadge()}
-          <span className="text-sm font-extrabold text-white">{currentScore}%</span>
+          <span className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">{currentScore}%</span>
         </div>
       </div>
 
       {/* Progress Bar with Target Marker */}
       <div className="relative pt-1">
-        <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+        <div className="w-full h-2 rounded-full bg-[#E5E5EA] dark:bg-[#2C2C2E] overflow-hidden">
           <div
-            className={`h-full rounded-full bg-gradient-to-r ${getBarColor()} transition-all duration-500`}
+            className={`h-full rounded-full ${getBarColor()} transition-all duration-500`}
             style={{ width: `${Math.min(currentScore, 100)}%` }}
           />
         </div>
@@ -55,12 +54,12 @@ export const SkillProgress: React.FC<SkillProgressProps> = ({
         {/* Target Proficiency Marker */}
         <div
           title={`Target Industry Benchmark: ${targetScore}%`}
-          className="absolute top-0 w-0.5 h-4 bg-slate-400/80 -translate-x-1/2 pointer-events-none"
+          className="absolute top-0 w-0.5 h-3.5 bg-[#86868B] -translate-x-1/2 pointer-events-none"
           style={{ left: `${targetScore}%` }}
         />
       </div>
 
-      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-0.5">
+      <div className="flex items-center justify-between text-[11px] text-[#6E6E73] dark:text-[#AEAEB2] pt-0.5">
         <span>Current: {currentScore}%</span>
         <span>Target: {targetScore}%</span>
       </div>

@@ -20,7 +20,6 @@ import {
   Zap,
   Flame,
   ChevronRight,
-  User as UserIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -71,39 +70,39 @@ export const AppShell: React.FC<AppShellProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen surface-base text-slate-100 flex items-center justify-center p-6">
+      <div className="min-h-screen surface-base flex items-center justify-center p-6">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center animate-pulse">
-            <Compass className="w-5 h-5 text-indigo-400 animate-spin" />
+          <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] dark:bg-[#0A84FF]/20 border border-[#007AFF]/30 flex items-center justify-center animate-pulse">
+            <Compass className="w-5 h-5 text-[#007AFF] animate-spin" />
           </div>
-          <span className="text-xs font-medium text-slate-400">Loading PathPilot...</span>
+          <span className="text-xs font-medium text-[#6E6E73] dark:text-[#AEAEB2]">Loading PathPilot...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen surface-base text-slate-100 flex flex-col selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen surface-base text-[#1D1D1F] dark:text-[#F5F5F7] flex flex-col selection:bg-[#007AFF] selection:text-white">
       {/* Top Header */}
-      <header className="border-b border-white/[0.06] bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-[#E5E5EA] dark:border-[#2C2C2E] bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           {/* Logo & Mobile Menu Toggle */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 transition-colors"
+              className="lg:hidden p-2 rounded-lg text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] transition-colors"
               aria-label="Toggle navigation menu"
             >
               {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
             <Link href="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-sm group-hover:bg-indigo-500 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-[#007AFF] flex items-center justify-center shadow-sm group-hover:bg-[#006EDB] transition-colors">
                 <Compass className="w-4 h-4 text-white" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="font-bold text-sm tracking-tight text-white">PathPilot</span>
-                <span className="text-[10px] font-medium text-indigo-400 uppercase tracking-widest hidden sm:inline">AI Compass</span>
+                <span className="font-bold text-sm tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7]">PathPilot</span>
+                <span className="text-[10px] font-medium text-[#007AFF] uppercase tracking-widest hidden sm:inline">AI Navigation</span>
               </div>
             </Link>
           </div>
@@ -113,28 +112,28 @@ export const AppShell: React.FC<AppShellProps> = ({
             <div className="flex items-center gap-2">
               <div
                 title="Earned XP"
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 border border-white/[0.06] text-amber-300 text-xs font-medium"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FFF4E0] dark:bg-[#FF9F0A]/15 border border-[#FF9F0A]/20 text-[#FF9F0A] text-xs font-semibold"
               >
-                <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <Zap className="w-3.5 h-3.5 fill-[#FF9F0A]" />
                 <span>{user?.profile?.xp || 0} XP</span>
               </div>
 
               <div
                 title="Active Study Streak"
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 border border-white/[0.06] text-rose-300 text-xs font-medium"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#EAF8EE] dark:bg-[#30D158]/15 border border-[#34C759]/20 text-[#34C759] text-xs font-semibold"
               >
-                <Flame className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
+                <Flame className="w-3.5 h-3.5 fill-[#34C759]" />
                 <span>{user?.profile?.streak_days || 1}d Streak</span>
               </div>
             </div>
 
             {/* Profile Avatar / Logout */}
-            <div className="flex items-center gap-2 pl-3 border-l border-white/[0.06]">
+            <div className="flex items-center gap-2 pl-3 border-l border-[#E5E5EA] dark:border-[#2C2C2E]">
               <Link
                 href="/settings"
-                className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md hover:bg-slate-900 text-xs text-slate-300 hover:text-white transition-colors"
+                className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors"
               >
-                <div className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-bold text-[10px] border border-indigo-500/20">
+                <div className="w-5 h-5 rounded-full bg-[#EAF3FF] text-[#007AFF] flex items-center justify-center font-bold text-[10px] border border-[#007AFF]/20">
                   {user?.display_name ? user.display_name.charAt(0).toUpperCase() : 'L'}
                 </div>
                 <span className="max-w-[110px] truncate font-medium">{user?.display_name || 'Learner'}</span>
@@ -142,7 +141,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
               <button
                 onClick={handleSignOut}
-                className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-slate-900 transition-colors"
+                className="p-1.5 rounded-md text-[#86868B] hover:text-[#FF3B30] hover:bg-[#FFF0EF] dark:hover:bg-[#FF453A]/15 transition-colors"
                 title="Sign out of PathPilot"
               >
                 <LogOut className="w-4 h-4" />
@@ -159,18 +158,18 @@ export const AppShell: React.FC<AppShellProps> = ({
           {/* Target Track Chip */}
           <Link
             href="/careers"
-            className="p-3.5 rounded-xl bg-slate-900/90 border border-white/[0.06] hover:border-indigo-500/30 transition-all group"
+            className="p-3.5 rounded-xl bg-white dark:bg-[#1C1C1E] border border-[#E5E5EA] dark:border-[#2C2C2E] hover:border-[#007AFF]/40 transition-all group shadow-sm"
           >
-            <div className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 mb-0.5">Target Track</div>
-            <div className="text-xs font-semibold text-white group-hover:text-indigo-300 flex items-center justify-between transition-colors">
+            <div className="text-[10px] uppercase font-semibold tracking-wider text-[#86868B] mb-0.5">Target Track</div>
+            <div className="text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] flex items-center justify-between transition-colors">
               <span className="truncate">{user?.profile?.target_career_id ? user.profile.target_career_id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Data Scientist'}</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 transition-colors" />
+              <ChevronRight className="w-3.5 h-3.5 text-[#86868B] group-hover:text-[#007AFF] transition-colors" />
             </div>
           </Link>
 
           {/* Primary Navigation */}
           <div className="space-y-1">
-            <div className="px-3 text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-2">Core Learning</div>
+            <div className="px-3 text-[10px] uppercase font-bold tracking-wider text-[#86868B] mb-2">Core Learning</div>
             {primaryNav.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -180,11 +179,11 @@ export const AppShell: React.FC<AppShellProps> = ({
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-indigo-600/15 text-indigo-300 border border-indigo-500/30 font-semibold'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/60'
+                      ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 text-[#007AFF] border border-[#007AFF]/20 font-semibold'
+                      : 'text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] hover:bg-white dark:hover:bg-[#1C1C1E]'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#007AFF]' : 'text-[#86868B]'}`} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -192,8 +191,8 @@ export const AppShell: React.FC<AppShellProps> = ({
           </div>
 
           {/* Secondary Navigation */}
-          <div className="space-y-1 pt-4 border-t border-white/[0.06]">
-            <div className="px-3 text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-2">System</div>
+          <div className="space-y-1 pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
+            <div className="px-3 text-[10px] uppercase font-bold tracking-wider text-[#86868B] mb-2">System</div>
             {secondaryNav.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -203,11 +202,11 @@ export const AppShell: React.FC<AppShellProps> = ({
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-indigo-600/15 text-indigo-300 border border-indigo-500/30 font-semibold'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/60'
+                      ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 text-[#007AFF] border border-[#007AFF]/20 font-semibold'
+                      : 'text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] hover:bg-white dark:hover:bg-[#1C1C1E]'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#007AFF]' : 'text-[#86868B]'}`} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -217,17 +216,17 @@ export const AppShell: React.FC<AppShellProps> = ({
 
         {/* Mobile Navigation Drawer */}
         {mobileNavOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex">
-            <div className="w-64 bg-slate-900 border-r border-white/[0.08] p-6 flex flex-col justify-between">
+          <div className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex">
+            <div className="w-64 bg-white dark:bg-[#1C1C1E] border-r border-[#E5E5EA] dark:border-[#2C2C2E] p-6 flex flex-col justify-between shadow-xl">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-[#007AFF] flex items-center justify-center">
                       <Compass className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-bold text-sm text-white">PathPilot</span>
+                    <span className="font-bold text-sm text-[#1D1D1F] dark:text-[#F5F5F7]">PathPilot</span>
                   </div>
-                  <button onClick={() => setMobileNavOpen(false)} className="text-slate-400 hover:text-white">
+                  <button onClick={() => setMobileNavOpen(false)} className="text-[#6E6E73] hover:text-[#1D1D1F]">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -243,8 +242,8 @@ export const AppShell: React.FC<AppShellProps> = ({
                         onClick={() => setMobileNavOpen(false)}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium ${
                           isActive
-                            ? 'bg-indigo-600/20 text-indigo-300 font-semibold'
-                            : 'text-slate-400 hover:text-white'
+                            ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 text-[#007AFF] font-semibold'
+                            : 'text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F]'
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -257,7 +256,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 text-xs text-rose-400 hover:text-rose-300 pt-4 border-t border-white/[0.06]"
+                className="flex items-center gap-2 text-xs text-[#FF3B30] hover:text-[#E02E24] pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E]"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>
@@ -273,12 +272,12 @@ export const AppShell: React.FC<AppShellProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
               <div>
                 {pageTitle && (
-                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7]">
                     {pageTitle}
                   </h1>
                 )}
                 {pageSubtitle && (
-                  <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                  <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] mt-1 max-w-2xl leading-relaxed">
                     {pageSubtitle}
                   </p>
                 )}

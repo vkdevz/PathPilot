@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Lock, Zap, Layers, AlertCircle } from 'lucide-react';
+import { ArrowRight, Lock, Zap, Layers } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import type { IntelligentSkillGap } from '../../types';
 
@@ -34,35 +34,37 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({
   const delta = gap ? Math.round(gap.raw_gap * 100) : (propGapDelta || Math.max(0, tgt - cur));
   const isBottleneck = gap ? gap.is_bottleneck : false;
   const readiness = gap ? gap.readiness_state : 'READY_TO_START';
-  const importance = gap ? gap.career_importance : 'high';
   const downstreamCount = gap ? gap.downstream_skills_count : 0;
   const unsatisfied = gap ? gap.unsatisfied_prerequisites : [];
   const slug = gap ? gap.skill_slug : '';
 
-  let readinessBadgeVariant: 'indigo' | 'emerald' | 'cyan' | 'amber' | 'rose' | 'slate' = 'indigo';
+  let readinessBadgeVariant: 'primary' | 'success' | 'warning' | 'danger' | 'slate' = 'primary';
   let readinessLabel = 'Ready to Start';
   if (readiness === 'TARGET_REACHED') {
-    readinessBadgeVariant = 'emerald';
+    readinessBadgeVariant = 'success';
     readinessLabel = 'Mastered';
   } else if (readiness === 'FOUNDATION_REQUIRED' || readiness === 'NOT_READY') {
-    readinessBadgeVariant = 'rose';
+    readinessBadgeVariant = 'danger';
     readinessLabel = 'Prereq Required';
   } else if (readiness === 'NEAR_TARGET') {
-    readinessBadgeVariant = 'cyan';
+    readinessBadgeVariant = 'primary';
     readinessLabel = 'Near Target';
+  } else if (readiness === 'DEVELOPING') {
+    readinessBadgeVariant = 'warning';
+    readinessLabel = 'Developing';
   }
 
   return (
-    <div className={`surface-card rounded-xl p-4 flex flex-col justify-between space-y-3.5 ${isBottleneck ? 'border-rose-500/30' : ''}`}>
+    <div className={`surface-card rounded-xl p-4 flex flex-col justify-between space-y-3.5 ${isBottleneck ? 'border-l-4 border-l-[#FF3B30]' : ''}`}>
       <div className="space-y-2.5">
         {/* Header */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate">
+          <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider truncate">
             {cat}
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
             {isBottleneck && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-rose-500/15 text-rose-300 border border-rose-500/30">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-[#FFF0EF] dark:bg-[#FF453A]/15 text-[#FF3B30] border border-[#FF3B30]/20">
                 Bottleneck
               </span>
             )}
@@ -74,31 +76,31 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({
 
         {/* Title */}
         <div>
-          <h4 className="text-sm font-semibold text-white tracking-tight">{name}</h4>
+          <h4 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">{name}</h4>
           {gap && gap.explanation && (
-            <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+            <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] mt-1 line-clamp-2 leading-relaxed">
               {gap.explanation}
             </p>
           )}
         </div>
 
         {/* Progression: Current -> Target -> Gap */}
-        <div className="p-2.5 rounded-lg bg-slate-950/60 border border-white/[0.04] space-y-1.5">
+        <div className="p-2.5 rounded-lg bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-400">
-              Current: <strong className="text-white font-medium">{cur}%</strong>
+            <span className="text-[#6E6E73] dark:text-[#AEAEB2]">
+              Current: <strong className="text-[#1D1D1F] dark:text-[#F5F5F7] font-medium">{cur}%</strong>
             </span>
-            <span className="text-slate-400">
-              Target: <strong className="text-slate-300 font-medium">{tgt}%</strong>
+            <span className="text-[#6E6E73] dark:text-[#AEAEB2]">
+              Target: <strong className="text-[#1D1D1F] dark:text-[#F5F5F7] font-medium">{tgt}%</strong>
             </span>
-            <span className="text-rose-400 font-semibold text-[11px]">
+            <span className="text-[#FF3B30] font-semibold text-[11px]">
               -{delta}% Gap
             </span>
           </div>
 
-          <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+          <div className="w-full bg-[#E5E5EA] dark:bg-[#38383A] h-1.5 rounded-full overflow-hidden">
             <div
-              className={`h-full ${isBottleneck ? 'bg-rose-500' : 'bg-indigo-600'}`}
+              className={`h-full ${isBottleneck ? 'bg-[#FF3B30]' : cur >= 75 ? 'bg-[#34C759]' : 'bg-[#007AFF]'}`}
               style={{ width: `${Math.min(100, Math.max(4, cur))}%` }}
             />
           </div>
@@ -106,27 +108,27 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({
 
         {/* Unsatisfied Prereqs */}
         {unsatisfied.length > 0 && (
-          <div className="flex items-start gap-1.5 text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 rounded p-1.5">
-            <Lock className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-1.5 text-[11px] text-[#FF9F0A] bg-[#FFF4E0] dark:bg-[#FF9F0A]/15 border border-[#FF9F0A]/20 rounded p-1.5">
+            <Lock className="w-3 h-3 text-[#FF9F0A] shrink-0 mt-0.5" />
             <span>Requires: {unsatisfied.join(', ')}</span>
           </div>
         )}
 
         {/* Downstream unlock indicator */}
         {downstreamCount > 0 && (
-          <div className="flex items-center gap-1.5 text-[11px] text-indigo-300 font-medium">
-            <Zap className="w-3 h-3 text-indigo-400" />
+          <div className="flex items-center gap-1.5 text-[11px] text-[#007AFF] font-medium">
+            <Zap className="w-3 h-3 text-[#007AFF]" />
             <span>Unlocks {downstreamCount} downstream competencies</span>
           </div>
         )}
       </div>
 
       {/* Footer controls */}
-      <div className="flex items-center gap-2 pt-2 border-t border-white/[0.04]">
+      <div className="flex items-center gap-2 pt-2 border-t border-[#E5E5EA] dark:border-[#38383A]">
         {onInspectSkill && slug && (
           <button
             onClick={() => onInspectSkill(slug)}
-            className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] text-[#6E6E73] hover:text-[#1D1D1F] border border-[#D2D2D7] dark:border-[#38383A] transition-colors cursor-pointer"
             title="Inspect Prerequisite Node"
           >
             <Layers className="w-3.5 h-3.5" />
@@ -135,10 +137,10 @@ export const SkillGapCard: React.FC<SkillGapCardProps> = ({
 
         <Link
           href="/recommendations"
-          className="inline-flex items-center justify-between flex-1 py-1.5 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium border border-white/[0.06] transition-colors"
+          className="inline-flex items-center justify-between flex-1 py-1.5 px-3 rounded-lg bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] text-[#1D1D1F] dark:text-[#F5F5F7] text-xs font-medium border border-[#D2D2D7] dark:border-[#38383A] transition-colors"
         >
           <span>Bridge Gap</span>
-          <ArrowRight className="w-3 h-3 text-slate-500" />
+          <ArrowRight className="w-3 h-3 text-[#007AFF]" />
         </Link>
       </div>
     </div>

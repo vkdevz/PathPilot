@@ -4,18 +4,12 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Compass,
-  Zap,
-  Flame,
-  Play,
   ArrowRight,
   Sparkles,
   Milestone,
   RefreshCw,
-  Target,
   CheckCircle2,
   AlertCircle,
-  TrendingUp,
-  Layers,
   ChevronRight,
   BrainCircuit,
 } from 'lucide-react';
@@ -87,10 +81,12 @@ export default function DashboardPage() {
     }
   };
 
+  // Select active milestone
   const activeMilestone =
     roadmap?.milestones?.find((m) => m.status === 'available') ||
-    roadmap?.milestones?.find((m) => m.status === 'in_progress') ||
-    roadmap?.milestones?.[0];
+    roadmap?.milestones?.find((m) => m.status !== 'completed') ||
+    roadmap?.milestones?.[0] ||
+    null;
 
   const completedCount = roadmap?.milestones?.filter((m) => m.status === 'completed').length || 0;
   const totalCount = roadmap?.milestones?.length || 1;
@@ -138,7 +134,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={loadDashboardData}
-            className="p-2 rounded-lg bg-slate-900 hover:bg-slate-850 border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] border border-[#D2D2D7] dark:border-[#38383A] text-[#6E6E73] hover:text-[#1D1D1F] transition-colors"
             title="Refresh Progression"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -171,38 +167,38 @@ export default function DashboardPage() {
           {/* Top Anchor: Career Goal & Readiness Score Banner */}
           <div className="surface-card rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div className="space-y-1">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-[#007AFF]">
                 Target Role
               </div>
-              <h2 className="text-xl font-bold text-white tracking-tight">
+              <h2 className="text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                 {readiness?.career_name || roadmap?.career_name || 'Data Scientist'}
               </h2>
-              <p className="text-xs text-slate-400 max-w-md">
+              <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] max-w-md">
                 Industry validated roadmap • Multi-factor diagnostic calibration
               </p>
             </div>
 
-            <div className="flex items-center gap-6 sm:pl-6 sm:border-l sm:border-white/[0.08]">
+            <div className="flex items-center gap-6 sm:pl-6 sm:border-l sm:border-[#E5E5EA] dark:sm:border-[#2C2C2E]">
               <div className="space-y-1">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-[#86868B]">
                   Career Readiness
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                     {readinessScore}%
                   </span>
-                  <span className="text-xs font-semibold text-emerald-400">
+                  <span className="text-xs font-semibold text-[#34C759]">
                     {readinessScore >= 70 ? 'On Track' : 'Calibrating'}
                   </span>
                 </div>
               </div>
 
               {readiness?.confidence_score !== undefined && (
-                <div className="space-y-1 pl-4 border-l border-white/[0.06] hidden md:block">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <div className="space-y-1 pl-4 border-l border-[#E5E5EA] dark:border-[#2C2C2E] hidden md:block">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[#86868B]">
                     Evidence Confidence
                   </div>
-                  <div className="text-base font-bold text-slate-300">
+                  <div className="text-base font-bold text-[#6E6E73] dark:text-[#AEAEB2]">
                     {Math.round(readiness.confidence_score * 100)}%
                   </div>
                 </div>
@@ -235,14 +231,14 @@ export default function DashboardPage() {
               <div className="surface-card rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Milestone className="w-4 h-4 text-indigo-400" />
-                    <h3 className="text-sm font-semibold text-white tracking-tight">
+                    <Milestone className="w-4 h-4 text-[#007AFF]" />
+                    <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                       Active Roadmap Progression
                     </h3>
                   </div>
                   <Link
                     href="/roadmap"
-                    className="text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                    className="text-xs font-medium text-[#007AFF] hover:text-[#006EDB] flex items-center gap-1 transition-colors"
                   >
                     <span>View Roadmap</span>
                     <ArrowRight className="w-3 h-3" />
@@ -260,29 +256,29 @@ export default function DashboardPage() {
                           key={m.id}
                           className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all ${
                             isAvailable
-                              ? 'bg-slate-900/90 border-indigo-500/30'
+                              ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/10 border-[#007AFF]/30'
                               : isCompleted
-                              ? 'bg-slate-950/40 border-white/[0.04] opacity-75'
-                              : 'bg-slate-950/20 border-white/[0.03] opacity-50'
+                              ? 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border-[#E5E5EA] dark:border-[#38383A] opacity-80'
+                              : 'bg-[#F5F5F7] dark:bg-[#1C1C1E] border-[#E5E5EA] dark:border-[#2C2C2E] opacity-50'
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div
                               className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
                                 isCompleted
-                                  ? 'bg-emerald-500/20 text-emerald-400'
+                                  ? 'bg-[#EAF8EE] text-[#34C759] border border-[#34C759]/20'
                                   : isAvailable
-                                  ? 'bg-indigo-600 text-white'
-                                  : 'bg-slate-900 text-slate-500'
+                                  ? 'bg-[#007AFF] text-white'
+                                  : 'bg-[#E5E5EA] text-[#86868B]'
                               }`}
                             >
                               {isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : m.step_order}
                             </div>
                             <div className="min-w-0">
-                              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                              <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider block">
                                 {m.category}
                               </span>
-                              <h4 className="text-xs font-medium text-white truncate">{m.skill_name}</h4>
+                              <h4 className="text-xs font-medium text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{m.skill_name}</h4>
                             </div>
                           </div>
 
@@ -291,7 +287,7 @@ export default function DashboardPage() {
                               <button
                                 onClick={() => handleCompleteMilestone(m.id)}
                                 disabled={completingId === m.id}
-                                className="px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition-colors"
+                                className="px-2.5 py-1 rounded-md bg-[#007AFF] hover:bg-[#006EDB] text-white text-xs font-medium transition-colors cursor-pointer"
                               >
                                 {completingId === m.id ? 'Saving...' : 'Mark Done'}
                               </button>
@@ -299,10 +295,10 @@ export default function DashboardPage() {
                             <span
                               className={`text-[10px] font-medium px-2 py-0.5 rounded uppercase ${
                                 isCompleted
-                                  ? 'bg-emerald-500/10 text-emerald-400'
+                                  ? 'bg-[#EAF8EE] text-[#34C759]'
                                   : isAvailable
-                                  ? 'bg-indigo-500/10 text-indigo-300'
-                                  : 'bg-slate-850 text-slate-500'
+                                  ? 'bg-[#EAF3FF] text-[#007AFF]'
+                                  : 'bg-[#F5F5F7] text-[#86868B]'
                               }`}
                             >
                               {m.status}
@@ -314,7 +310,7 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <div className="text-center py-6">
-                    <p className="text-xs text-slate-400 mb-2">No active learning path calibrated.</p>
+                    <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] mb-2">No active learning path calibrated.</p>
                     <Link href="/careers">
                       <Button variant="primary" size="sm">
                         Select Career Track
@@ -328,12 +324,12 @@ export default function DashboardPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-amber-400" />
-                    <h3 className="text-sm font-semibold text-white">High-Impact Skill Gaps</h3>
+                    <AlertCircle className="w-4 h-4 text-[#FF9F0A]" />
+                    <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">High-Impact Skill Gaps</h3>
                   </div>
                   <Link
                     href="/skills"
-                    className="text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                    className="text-xs font-medium text-[#007AFF] hover:text-[#006EDB] flex items-center gap-1 transition-colors"
                   >
                     <span>Inspect Skill Graph</span>
                     <ArrowRight className="w-3 h-3" />
@@ -355,7 +351,7 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="surface-card rounded-xl p-5 text-center text-xs text-slate-400">
+                  <div className="surface-card rounded-xl p-5 text-center text-xs text-[#6E6E73] dark:text-[#AEAEB2]">
                     {skills.length > 0
                       ? 'All evaluated competencies meet target industry benchmarks.'
                       : 'Take a diagnostic assessment to identify your prioritized skill gaps.'}
@@ -380,17 +376,17 @@ export default function DashboardPage() {
 
               {/* AI Navigator Shortcut Card */}
               <div className="surface-card rounded-2xl p-5 space-y-3">
-                <div className="flex items-center gap-2 text-indigo-400 text-xs font-semibold">
+                <div className="flex items-center gap-2 text-[#007AFF] text-xs font-semibold">
                   <BrainCircuit className="w-4 h-4" />
-                  <span>AI Learning Assistant</span>
+                  <span>AI Learning Navigator</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] leading-relaxed">
                   Have questions about your prerequisite sequence or why a particular skill was recommended?
                 </p>
                 <Link href="/assistant" className="block pt-1">
                   <Button variant="outline" size="sm" className="w-full justify-between">
                     <span>Ask AI Navigator</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <ChevronRight className="w-3.5 h-3.5 text-[#007AFF]" />
                   </Button>
                 </Link>
               </div>

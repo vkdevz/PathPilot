@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layers, Sparkles, RefreshCw, AlertCircle, ArrowRight, Target, ShieldAlert } from 'lucide-react';
+import { Sparkles, RefreshCw, ShieldAlert, Target } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import type { Skill, LearnerSkill, LearningPath, CareerReadinessSummary } from '../../types';
 import { AppShell } from '../../components/layout/AppShell';
@@ -54,19 +54,19 @@ export default function SkillsPage() {
 
   return (
     <AppShell
-      pageTitle="Skills Hub & Knowledge Graph"
-      pageSubtitle="Analyze your assessed competencies, topological prerequisite DAG, identified bottlenecks, and career readiness."
+      pageTitle="Skills & Knowledge Graph"
+      pageSubtitle="Analyze assessed competencies, topological prerequisite DAG, identified bottlenecks, and career readiness."
       actions={
         <div className="flex items-center gap-2">
           <button
             onClick={fetchSkillsData}
-            className="p-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] border border-[#D2D2D7] dark:border-[#38383A] text-[#6E6E73] hover:text-[#1D1D1F] transition-colors"
             title="Refresh Skill Intelligence"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3.5 h-3.5" />
           </button>
           <Link href={`/assessment/${roadmap?.career_id || 'data-scientist'}`}>
-            <Button variant="glow" size="sm" icon={<Sparkles className="w-3.5 h-3.5" />}>
+            <Button variant="primary" size="sm" icon={<Sparkles className="w-3.5 h-3.5" />}>
               Calibrate Skills
             </Button>
           </Link>
@@ -79,7 +79,7 @@ export default function SkillsPage() {
           <SkeletonCard />
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Career Readiness Card */}
           {readinessSummary && (
             <CareerReadinessCard summary={readinessSummary} />
@@ -103,19 +103,19 @@ export default function SkillsPage() {
           />
 
           {/* Strategic Bottlenecks & Critical Gaps */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-rose-400" />
-                <h3 className="text-base font-bold text-white tracking-tight">
+                <ShieldAlert className="w-4 h-4 text-[#FF3B30]" />
+                <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                   Prioritized Competency Gaps & Bottlenecks
                 </h3>
               </div>
-              <span className="text-xs text-slate-400">Target Benchmark: 85%</span>
+              <span className="text-xs text-[#86868B]">Target Benchmark: 85%</span>
             </div>
 
             {readinessSummary?.skill_gaps && readinessSummary.skill_gaps.filter((g) => g.raw_gap > 0.10).length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {readinessSummary.skill_gaps
                   .filter((g) => g.raw_gap > 0.10)
                   .map((gap) => (
@@ -127,32 +127,32 @@ export default function SkillsPage() {
                   ))}
               </div>
             ) : (
-              <div className="glass-panel rounded-2xl p-6 text-center text-xs text-slate-400">
+              <div className="surface-card rounded-2xl p-6 text-center text-xs text-[#6E6E73] dark:text-[#AEAEB2]">
                 <p>No critical gaps detected. All assessed competencies meet or exceed targets.</p>
               </div>
             )}
           </div>
 
           {/* Complete Assessed Competencies Breakdown */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-base font-bold text-white tracking-tight">
+                <Target className="w-4 h-4 text-[#007AFF]" />
+                <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                   All Assessed Competencies
                 </h3>
               </div>
-              <span className="text-xs text-slate-400">{learnerSkills.length} Total Assessed</span>
+              <span className="text-xs text-[#86868B]">{learnerSkills.length} Total Assessed</span>
             </div>
 
             {learnerSkills.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {learnerSkills.map((sk) => (
                   <SkillProgress key={sk.id} skill={sk} targetScore={85} />
                 ))}
               </div>
             ) : (
-              <div className="glass-panel rounded-3xl p-8 text-center text-xs text-slate-400 space-y-3">
+              <div className="surface-card rounded-2xl p-8 text-center text-xs text-[#6E6E73] dark:text-[#AEAEB2] space-y-3">
                 <p>No skills assessed yet. Take a diagnostic assessment to calibrate your skill graph.</p>
                 <Link href="/careers">
                   <Button variant="primary" size="sm">

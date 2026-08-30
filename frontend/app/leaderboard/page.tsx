@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Trophy, Medal, Flame, Zap, Crown, RefreshCw } from 'lucide-react';
+import { Trophy, Flame, Zap, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import type { LeaderboardUser } from '../../types';
 import { AppShell } from '../../components/layout/AppShell';
@@ -34,10 +34,10 @@ export default function LeaderboardPage() {
       actions={
         <button
           onClick={fetchLeaderboard}
-          className="p-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-400 hover:text-white transition-colors"
+          className="p-2 rounded-lg bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] border border-[#D2D2D7] dark:border-[#38383A] text-[#6E6E73] hover:text-[#1D1D1F] transition-colors cursor-pointer"
           title="Refresh Standings"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-3.5 h-3.5" />
         </button>
       }
     >
@@ -45,31 +45,29 @@ export default function LeaderboardPage() {
         {loading ? (
           <SkeletonCard />
         ) : (
-          <div className="glass-panel rounded-3xl p-6 sm:p-8 space-y-3">
+          <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-3 shadow-sm">
             {leaderboard.length > 0 ? (
               leaderboard.map((u) => {
                 const isTop3 = u.rank <= 3;
                 return (
                   <div
                     key={u.user_id}
-                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                    className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
                       u.is_current
-                        ? 'bg-indigo-600/20 border-indigo-500 shadow-glow-indigo'
-                        : isTop3
-                        ? 'bg-slate-950/60 border-slate-800/80'
-                        : 'bg-slate-950/30 border-slate-900'
+                        ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 border-[#007AFF]'
+                        : 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border-[#E5E5EA] dark:border-[#38383A]'
                     }`}
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
                           u.rank === 1
-                            ? 'bg-amber-400 text-slate-950 shadow-glow-amber'
+                            ? 'bg-[#FF9F0A] text-white shadow-sm'
                             : u.rank === 2
-                            ? 'bg-slate-300 text-slate-950'
+                            ? 'bg-[#86868B] text-white'
                             : u.rank === 3
-                            ? 'bg-amber-600 text-white'
-                            : 'bg-slate-900 text-slate-500 border border-slate-800'
+                            ? 'bg-[#007AFF] text-white'
+                            : 'bg-[#F5F5F7] dark:bg-[#1C1C1E] text-[#86868B] border border-[#E5E5EA] dark:border-[#38383A]'
                         }`}
                       >
                         {u.rank}
@@ -77,24 +75,24 @@ export default function LeaderboardPage() {
 
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-white">{u.name}</span>
+                          <span className="font-semibold text-sm text-[#1D1D1F] dark:text-[#F5F5F7]">{u.name}</span>
                           {u.is_current && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-extrabold">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#007AFF] text-white font-bold">
                               YOU
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-slate-400">{u.career}</span>
+                        <span className="text-xs text-[#6E6E73] dark:text-[#AEAEB2]">{u.career}</span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-5 text-xs font-semibold">
-                      <div className="flex items-center gap-1.5 text-amber-400">
-                        <Zap className="w-4 h-4 fill-amber-400" />
+                      <div className="flex items-center gap-1.5 text-[#FF9F0A]">
+                        <Zap className="w-3.5 h-3.5 fill-[#FF9F0A]" />
                         <span>{u.xp} XP</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-rose-400">
-                        <Flame className="w-4 h-4 fill-rose-400" />
+                      <div className="flex items-center gap-1.5 text-[#34C759]">
+                        <Flame className="w-3.5 h-3.5" />
                         <span>{u.streak}d streak</span>
                       </div>
                     </div>
@@ -102,7 +100,7 @@ export default function LeaderboardPage() {
                 );
               })
             ) : (
-              <div className="text-center py-8 text-xs text-slate-500">
+              <div className="text-center py-8 text-xs text-[#86868B]">
                 Leaderboard will populate as learners earn XP in PostgreSQL.
               </div>
             )}

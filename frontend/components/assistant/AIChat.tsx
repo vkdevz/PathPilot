@@ -6,17 +6,13 @@ import {
   Bot,
   Send,
   User,
-  Sparkles,
   RefreshCw,
   AlertCircle,
-  Lightbulb,
   Check,
   Copy,
   PlusCircle,
   ShieldCheck,
-  Wrench,
 } from 'lucide-react';
-import { apiClient } from '../../lib/api-client';
 
 interface AIChatProps {
   careerTrack?: string;
@@ -34,19 +30,19 @@ const CodeBlock: React.FC<{ code: string; language?: string }> = ({ code, langua
   };
 
   return (
-    <div className="relative my-2.5 rounded-xl bg-slate-950 border border-white/[0.08] overflow-hidden font-mono text-[11px]">
-      <div className="flex items-center justify-between px-3 py-1 bg-slate-900 border-b border-white/[0.06] text-[10px] text-slate-400">
-        <span className="uppercase font-semibold tracking-wider text-indigo-400">{language}</span>
+    <div className="relative my-2.5 rounded-xl bg-[#1C1C1E] border border-[#38383A] overflow-hidden font-mono text-[11px]">
+      <div className="flex items-center justify-between px-3 py-1 bg-[#2C2C2E] border-b border-[#38383A] text-[10px] text-[#AEAEB2]">
+        <span className="uppercase font-semibold tracking-wider text-[#0A84FF]">{language}</span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 hover:text-white transition-colors"
+          className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
           title="Copy code"
         >
-          {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+          {copied ? <Check className="w-3 h-3 text-[#30D158]" /> : <Copy className="w-3 h-3" />}
           <span>{copied ? 'Copied' : 'Copy'}</span>
         </button>
       </div>
-      <pre className="p-3 overflow-x-auto text-slate-200 leading-relaxed">
+      <pre className="p-3 overflow-x-auto text-[#F5F5F7] leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -136,21 +132,21 @@ export const AIChat: React.FC<AIChatProps> = ({
   return (
     <div className="surface-card rounded-2xl p-4 sm:p-5 flex flex-col h-[650px] shadow-sm relative overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3.5 border-b border-white/[0.06] shrink-0">
+      <div className="flex items-center justify-between pb-3.5 border-b border-[#E5E5EA] dark:border-[#2C2C2E] shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-[#007AFF] flex items-center justify-center">
             <Bot className="w-4 h-4 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-white">AI Learning Navigator</h3>
-              <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">AI Learning Navigator</h3>
+              <span className="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-[#EAF8EE] text-[#34C759] border border-[#34C759]/20">
                 <ShieldCheck className="w-3 h-3" />
                 <span>DB Grounded</span>
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">
-              Active Context: <span className="text-indigo-300 font-medium">{careerTrack}</span>
+            <p className="text-[11px] text-[#6E6E73] dark:text-[#AEAEB2]">
+              Active Context: <span className="text-[#007AFF] font-medium">{careerTrack}</span>
             </p>
           </div>
         </div>
@@ -159,16 +155,16 @@ export const AIChat: React.FC<AIChatProps> = ({
           <button
             onClick={handleStartNewSession}
             title="Start New Session"
-            className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-white/[0.08] transition-colors"
+            className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] border border-[#D2D2D7] dark:border-[#38383A] transition-colors cursor-pointer"
           >
-            <PlusCircle className="w-3.5 h-3.5 text-indigo-400" />
+            <PlusCircle className="w-3.5 h-3.5 text-[#007AFF]" />
             <span className="hidden sm:inline">New Session</span>
           </button>
 
           <button
             onClick={() => reload()}
             title="Regenerate Last Response"
-            className="p-1.5 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/[0.08] transition-colors"
+            className="p-1.5 rounded-md bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-[#86868B] hover:text-[#1D1D1F] border border-[#D2D2D7] dark:border-[#38383A] transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
@@ -187,8 +183,8 @@ export const AIChat: React.FC<AIChatProps> = ({
               <div
                 className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
                   isUser
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-900 border border-white/[0.08] text-indigo-300'
+                    ? 'bg-[#007AFF] text-white'
+                    : 'bg-[#F5F5F7] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-[#007AFF]'
                 }`}
               >
                 {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
@@ -197,8 +193,8 @@ export const AIChat: React.FC<AIChatProps> = ({
               <div
                 className={`p-3.5 rounded-xl max-w-[85%] text-xs leading-relaxed ${
                   isUser
-                    ? 'bg-indigo-600 text-white rounded-tr-sm'
-                    : 'bg-slate-900 border border-white/[0.06] text-slate-200 rounded-tl-sm'
+                    ? 'bg-[#007AFF] text-white rounded-tr-sm'
+                    : 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-[#1D1D1F] dark:text-[#F5F5F7] rounded-tl-sm'
                 }`}
               >
                 <FormattedMessage content={m.content} />
@@ -208,15 +204,15 @@ export const AIChat: React.FC<AIChatProps> = ({
         })}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-xs text-slate-400 p-2">
-            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+          <div className="flex items-center gap-2 text-xs text-[#6E6E73] p-2">
+            <div className="w-2 h-2 rounded-full bg-[#007AFF] animate-pulse" />
             <span>Consulting learner knowledge graph & recommendations...</span>
           </div>
         )}
 
         {error && (
-          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+          <div className="p-3 rounded-lg bg-[#FFF0EF] border border-[#FF3B30]/20 text-[#FF3B30] text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#FF3B30]" />
             <span>Unable to connect to assistant stream. Please try again.</span>
           </div>
         )}
@@ -225,12 +221,12 @@ export const AIChat: React.FC<AIChatProps> = ({
       </div>
 
       {/* Contextual Quick Prompts */}
-      <div className="pt-2 pb-2 border-t border-white/[0.04] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+      <div className="pt-2 pb-2 border-t border-[#E5E5EA] dark:border-[#38383A] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
         {contextualPrompts.map((prompt) => (
           <button
             key={prompt}
             onClick={() => setInput(prompt)}
-            className="shrink-0 px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-white/[0.06] text-[11px] text-slate-300 hover:text-white transition-colors"
+            className="shrink-0 px-2.5 py-1 rounded-md bg-[#F5F5F7] dark:bg-[#2C2C2E] hover:bg-white dark:hover:bg-[#38383A] border border-[#E5E5EA] dark:border-[#38383A] text-[11px] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors cursor-pointer"
           >
             {prompt}
           </button>
@@ -244,12 +240,12 @@ export const AIChat: React.FC<AIChatProps> = ({
           value={input}
           onChange={handleInputChange}
           placeholder="Ask AI Navigator about skills, gaps, or roadmap logic..."
-          className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+          className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] focus:outline-none focus:border-[#007AFF] transition-colors"
         />
         <button
           type="submit"
           disabled={isLoading || !input.trim()}
-          className="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white transition-colors"
+          className="p-2.5 rounded-xl bg-[#007AFF] hover:bg-[#006EDB] disabled:opacity-40 text-white transition-colors cursor-pointer"
         >
           <Send className="w-4 h-4" />
         </button>

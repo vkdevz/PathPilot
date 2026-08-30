@@ -147,6 +147,10 @@ class ApiClient {
     });
   }
 
+  async setCareerGoal(careerSlug: string): Promise<any> {
+    return this.setTargetCareer(careerSlug);
+  }
+
   // ---------------------------------------------------------------------------
   // Careers
   // ---------------------------------------------------------------------------

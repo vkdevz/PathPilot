@@ -12,13 +12,13 @@ export const CareerReadinessCard: React.FC<CareerReadinessCardProps> = ({ summar
   const readiness = Math.round(summary.career_readiness_score || 0);
   const confidence = Math.round((summary.confidence_score || 0.5) * 100);
 
-  let statusColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+  let statusColor = 'text-[#FF9F0A] bg-[#FFF4E0] dark:bg-[#FF9F0A]/15 border-[#FF9F0A]/20';
   let statusText = 'Foundations Phase';
   if (readiness >= 85) {
-    statusColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+    statusColor = 'text-[#34C759] bg-[#EAF8EE] dark:bg-[#30D158]/15 border-[#34C759]/20';
     statusText = 'Industry Ready';
   } else if (readiness >= 60) {
-    statusColor = 'text-indigo-300 bg-indigo-500/10 border-indigo-500/20';
+    statusColor = 'text-[#007AFF] bg-[#EAF3FF] dark:bg-[#0A84FF]/15 border-[#007AFF]/20';
     statusText = 'Core Competency Advancing';
   }
 
@@ -28,14 +28,14 @@ export const CareerReadinessCard: React.FC<CareerReadinessCardProps> = ({ summar
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <span className="p-1 rounded bg-indigo-500/15 text-indigo-400">
+            <span className="p-1 rounded bg-[#EAF3FF] text-[#007AFF]">
               <Target className="w-4 h-4" />
             </span>
-            <h2 className="text-base font-bold text-white tracking-tight">
+            <h2 className="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
               {summary.career_name} Track Readiness
             </h2>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2]">
             Graph-aware curriculum coverage factoring prerequisite depth and benchmark mastery
           </p>
         </div>
@@ -44,8 +44,8 @@ export const CareerReadinessCard: React.FC<CareerReadinessCardProps> = ({ summar
           <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border ${statusColor}`}>
             {statusText}
           </span>
-          <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-slate-900 text-slate-300 border border-white/[0.08] flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3 text-emerald-400" />
+          <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] border border-[#E5E5EA] dark:border-[#38383A] flex items-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#34C759]" />
             {confidence}% Confidence
           </span>
         </div>
@@ -54,18 +54,18 @@ export const CareerReadinessCard: React.FC<CareerReadinessCardProps> = ({ summar
       {/* Progress & Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
         {/* Readiness Meter */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-center p-5 rounded-xl bg-slate-950/60 border border-white/[0.06] text-center space-y-1.5">
-          <span className="text-3xl font-bold text-white tracking-tight flex items-baseline gap-0.5">
+        <div className="lg:col-span-4 flex flex-col items-center justify-center p-5 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-center space-y-1.5">
+          <span className="text-3xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight flex items-baseline gap-0.5">
             {readiness}
-            <span className="text-lg text-indigo-400 font-normal">%</span>
+            <span className="text-lg text-[#007AFF] font-normal">%</span>
           </span>
-          <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+          <span className="text-[10px] uppercase font-semibold text-[#86868B] tracking-wider">
             Overall Readiness
           </span>
 
-          <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden mt-1.5">
+          <div className="w-full bg-[#E5E5EA] dark:bg-[#38383A] h-2 rounded-full overflow-hidden mt-1.5">
             <div
-              className="h-full bg-indigo-600 transition-all duration-700"
+              className="h-full bg-[#007AFF] transition-all duration-700"
               style={{ width: `${Math.min(100, Math.max(5, readiness))}%` }}
             />
           </div>
@@ -73,42 +73,42 @@ export const CareerReadinessCard: React.FC<CareerReadinessCardProps> = ({ summar
 
         {/* Breakdown Counts */}
         <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <div className="p-3 rounded-xl bg-slate-950/40 border border-white/[0.04] space-y-0.5">
-            <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
+          <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-[#34C759] font-medium">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Mastered</span>
             </div>
-            <p className="text-base font-bold text-white">
-              {summary.covered_skills_count || 0} <span className="text-xs text-slate-500 font-normal">/ {summary.required_skills_count || 0}</span>
+            <p className="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">
+              {summary.covered_skills_count || 0} <span className="text-xs text-[#86868B] font-normal">/ {summary.required_skills_count || 0}</span>
             </p>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-950/40 border border-white/[0.04] space-y-0.5">
-            <div className="flex items-center gap-1.5 text-xs text-indigo-300 font-medium">
+          <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-[#007AFF] font-medium">
               <Target className="w-3.5 h-3.5" />
               <span>In Progress</span>
             </div>
-            <p className="text-base font-bold text-white">
+            <p className="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">
               {summary.partial_skills_count || 0}
             </p>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-950/40 border border-white/[0.04] space-y-0.5">
-            <div className="flex items-center gap-1.5 text-xs text-rose-400 font-medium">
+          <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-[#FF3B30] font-medium">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>Critical Gaps</span>
             </div>
-            <p className="text-base font-bold text-white">
+            <p className="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">
               {summary.critical_gaps_count || 0}
             </p>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-950/40 border border-white/[0.04] space-y-0.5">
-            <div className="flex items-center gap-1.5 text-xs text-amber-400 font-medium">
+          <div className="p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] space-y-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-[#FF9F0A] font-medium">
               <Lock className="w-3.5 h-3.5" />
               <span>Prereq Blocked</span>
             </div>
-            <p className="text-base font-bold text-white">
+            <p className="text-base font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">
               {summary.blocked_skills_count || 0}
             </p>
           </div>
@@ -116,10 +116,10 @@ export const CareerReadinessCard: React.FC<CareerReadinessCardProps> = ({ summar
       </div>
 
       {/* Top Strengths & Bottlenecks Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-white/[0.04] text-xs">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-[#E5E5EA] dark:border-[#38383A] text-xs">
         <div className="flex items-start gap-1.5">
-          <span className="font-semibold text-emerald-400 shrink-0">Top Strengths:</span>
-          <span className="text-slate-400">
+          <span className="font-semibold text-[#34C759] shrink-0">Top Strengths:</span>
+          <span className="text-[#6E6E73] dark:text-[#AEAEB2]">
             {summary.strongest_skills && summary.strongest_skills.length > 0
               ? summary.strongest_skills.join(', ')
               : 'Complete a diagnostic test to identify verified competencies'}
@@ -127,8 +127,8 @@ export const CareerReadinessCard: React.FC<CareerReadinessCardProps> = ({ summar
         </div>
 
         <div className="flex items-start gap-1.5">
-          <span className="font-semibold text-rose-400 shrink-0">Prerequisite Bottlenecks:</span>
-          <span className="text-slate-400">
+          <span className="font-semibold text-[#FF3B30] shrink-0">Prerequisite Bottlenecks:</span>
+          <span className="text-[#6E6E73] dark:text-[#AEAEB2]">
             {summary.bottlenecks && summary.bottlenecks.length > 0
               ? summary.bottlenecks.map((b) => b.skill_name).join(', ')
               : 'No blocking bottlenecks detected'}

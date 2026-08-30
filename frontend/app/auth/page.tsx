@@ -60,28 +60,28 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen surface-base text-slate-100 flex items-center justify-center p-4 selection:bg-indigo-600 selection:text-white">
-      <div className="w-full max-w-sm surface-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+    <div className="min-h-screen bg-[#F5F5F7] dark:bg-[#0A0A0C] text-[#1D1D1F] dark:text-[#F5F5F7] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm surface-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
         {/* Header Identity */}
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-sm group-hover:bg-indigo-500 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-[#007AFF] flex items-center justify-center shadow-sm group-hover:bg-[#006EDB] transition-colors">
               <Compass className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-base tracking-tight text-white">PathPilot</span>
+            <span className="font-bold text-base tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7]">PathPilot</span>
           </Link>
 
-          <h1 className="text-lg font-bold text-white tracking-tight">
+          <h1 className="text-lg font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
             {isSignUp ? 'Create Learner Account' : 'Sign in to PathPilot'}
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2]">
             {isSignUp ? 'Begin your calibrated learning journey' : 'Access your active roadmap and skill diagnostics'}
           </p>
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+          <div className="p-3 rounded-lg bg-[#FFF0EF] border border-[#FF3B30]/20 text-[#FF3B30] text-xs flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -89,53 +89,53 @@ export default function AuthPage() {
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {isSignUp && (
             <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-slate-400">
+              <label className="block text-[11px] font-medium text-[#6E6E73] dark:text-[#AEAEB2]">
                 Display Name
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <User className="w-4 h-4 text-[#86868B] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   required={isSignUp}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="e.g. Alex Morgan"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-white/[0.08] rounded-lg text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full pl-9 pr-3 py-2 bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] rounded-lg text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] text-xs focus:outline-none focus:border-[#007AFF]"
                 />
               </div>
             </div>
           )}
 
           <div className="space-y-1">
-            <label className="block text-[11px] font-medium text-slate-400">
+            <label className="block text-[11px] font-medium text-[#6E6E73] dark:text-[#AEAEB2]">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-[#86868B] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="alex@example.com"
-                className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-white/[0.08] rounded-lg text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full pl-9 pr-3 py-2 bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] rounded-lg text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] text-xs focus:outline-none focus:border-[#007AFF]"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="block text-[11px] font-medium text-slate-400">
+            <label className="block text-[11px] font-medium text-[#6E6E73] dark:text-[#AEAEB2]">
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-[#86868B] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-white/[0.08] rounded-lg text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
+                className="w-full pl-9 pr-3 py-2 bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] rounded-lg text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] text-xs focus:outline-none focus:border-[#007AFF]"
               />
             </div>
           </div>
@@ -156,29 +156,29 @@ export default function AuthPage() {
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
-            className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="text-xs text-[#007AFF] hover:text-[#006EDB] transition-colors cursor-pointer"
           >
             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
           </button>
         </div>
 
         {/* Quick Demo Credentials */}
-        <div className="pt-4 border-t border-white/[0.06] space-y-2">
-          <div className="text-[10px] uppercase font-semibold text-slate-500 text-center tracking-wider">
+        <div className="pt-4 border-t border-[#E5E5EA] dark:border-[#38383A] space-y-2">
+          <div className="text-[10px] uppercase font-semibold text-[#86868B] text-center tracking-wider">
             Quick Demo Profiles
           </div>
           <div className="grid grid-cols-2 gap-1.5">
             <button
               type="button"
               onClick={() => handleQuickDemoLogin('data_scientist')}
-              className="p-2 bg-slate-950/60 hover:bg-slate-900 border border-white/[0.06] rounded-md text-[11px] text-slate-300 text-left transition-colors"
+              className="p-2 bg-[#FBFBFD] dark:bg-[#2C2C2E] hover:bg-[#F5F5F7] dark:hover:bg-[#38383A] border border-[#E5E5EA] dark:border-[#38383A] rounded-lg text-[11px] text-[#1D1D1F] dark:text-[#F5F5F7] text-left transition-colors cursor-pointer"
             >
               🧙 Data Scientist
             </button>
             <button
               type="button"
               onClick={() => handleQuickDemoLogin('ai_engineer')}
-              className="p-2 bg-slate-950/60 hover:bg-slate-900 border border-white/[0.06] rounded-md text-[11px] text-slate-300 text-left transition-colors"
+              className="p-2 bg-[#FBFBFD] dark:bg-[#2C2C2E] hover:bg-[#F5F5F7] dark:hover:bg-[#38383A] border border-[#E5E5EA] dark:border-[#38383A] rounded-lg text-[11px] text-[#1D1D1F] dark:text-[#F5F5F7] text-left transition-colors cursor-pointer"
             >
               ⚡ AI Engineer
             </button>

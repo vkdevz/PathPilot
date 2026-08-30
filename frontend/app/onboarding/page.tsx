@@ -9,11 +9,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   Sparkles,
-  Clock,
-  BookOpen,
-  Target,
-  BrainCircuit,
-  Zap,
 } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import type { Career } from '../../types';
@@ -59,22 +54,22 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen surface-base text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#F5F5F7] dark:bg-[#0A0A0C] text-[#1D1D1F] dark:text-[#F5F5F7] flex flex-col justify-between">
       {/* Header */}
-      <header className="border-b border-white/[0.06] bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-[#E5E5EA] dark:border-[#2C2C2E] bg-white/80 dark:bg-[#1C1C1E]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#007AFF] flex items-center justify-center">
               <Compass className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-sm tracking-tight text-white">PathPilot</span>
+            <span className="font-bold text-sm tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7]">PathPilot</span>
           </Link>
 
-          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+          <div className="flex items-center gap-2 text-xs text-[#6E6E73] dark:text-[#AEAEB2] font-medium">
             <span>Step {step} of 3</span>
-            <div className="w-20 h-1.5 rounded-full bg-slate-900 overflow-hidden border border-white/[0.06]">
+            <div className="w-20 h-1.5 rounded-full bg-[#E5E5EA] dark:bg-[#2C2C2E] overflow-hidden">
               <div
-                className="h-full bg-indigo-600 transition-all duration-300"
+                className="h-full bg-[#007AFF] transition-all duration-300"
                 style={{ width: `${(step / 3) * 100}%` }}
               />
             </div>
@@ -88,13 +83,13 @@ export default function OnboardingPage() {
         {step === 1 && (
           <div className="space-y-6">
             <div className="text-center space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
                 Question 1 • Target Direction
               </span>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                 Select Your Target Role
               </h1>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
+              <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] max-w-md mx-auto">
                 PathPilot calibrates your diagnostic questions and sequential milestones to this specialization.
               </p>
             </div>
@@ -106,23 +101,23 @@ export default function OnboardingPage() {
                   <div
                     key={career.slug}
                     onClick={() => setSelectedCareer(career.slug)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all text-left ${
+                    className={`p-4 rounded-xl border cursor-pointer transition-all text-left shadow-sm ${
                       isSelected
-                        ? 'bg-slate-900 border-indigo-500 ring-1 ring-indigo-500/50'
-                        : 'surface-card hover:border-white/[0.12]'
+                        ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 border-[#007AFF] ring-1 ring-[#007AFF]/30'
+                        : 'surface-card hover:border-[#007AFF]/40'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-xl">{career.icon || '🎯'}</span>
                       {isSelected && (
-                        <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+                        <CheckCircle2 className="w-4 h-4 text-[#007AFF]" />
                       )}
                     </div>
-                    <h3 className="text-sm font-semibold text-white">{career.name}</h3>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{career.description}</p>
-                    <div className="mt-3 flex items-center justify-between text-[11px] font-medium text-slate-400 pt-2 border-t border-white/[0.04]">
+                    <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">{career.name}</h3>
+                    <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] mt-1 line-clamp-2">{career.description}</p>
+                    <div className="mt-3 flex items-center justify-between text-[11px] font-medium text-[#6E6E73] dark:text-[#AEAEB2] pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
                       <span>{career.salary_range}</span>
-                      <span className="text-emerald-400">{career.market_demand_score}% Demand</span>
+                      <span className="text-[#34C759]">{career.market_demand_score}% Demand</span>
                     </div>
                   </div>
                 );
@@ -146,20 +141,20 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div className="space-y-6">
             <div className="text-center space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
                 Question 2 • Current Baseline
               </span>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                 Your Background & Experience
               </h1>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
+              <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] max-w-md mx-auto">
                 Helps determine the starting depth of your diagnostic evaluation.
               </p>
             </div>
 
-            <div className="surface-card rounded-2xl p-6 space-y-5">
+            <div className="surface-card rounded-2xl p-6 space-y-5 shadow-sm">
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
                   Current Engineering Experience Level
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -168,10 +163,10 @@ export default function OnboardingPage() {
                       key={lvl}
                       type="button"
                       onClick={() => setExperienceLevel(lvl)}
-                      className={`py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
+                      className={`py-2.5 px-3 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                         experienceLevel === lvl
-                          ? 'bg-indigo-600 text-white border-indigo-500 font-semibold shadow-sm'
-                          : 'bg-slate-950 border-white/[0.06] text-slate-400 hover:text-white'
+                          ? 'bg-[#007AFF] text-white border-[#007AFF] font-semibold shadow-sm'
+                          : 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border-[#E5E5EA] dark:border-[#38383A] text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F]'
                       }`}
                     >
                       {lvl}
@@ -181,14 +176,14 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
                   Brief Background or Goal (Optional)
                 </label>
                 <textarea
                   rows={3}
                   value={naturalLanguageBio}
                   onChange={(e) => setNaturalLanguageBio(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-slate-950 border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full p-3 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] focus:outline-none focus:border-[#007AFF]"
                   placeholder="e.g. Self-taught programmer with Python basics looking to build production models..."
                 />
               </div>
@@ -219,22 +214,22 @@ export default function OnboardingPage() {
         {step === 3 && (
           <div className="space-y-6">
             <div className="text-center space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
                 Question 3 • Calibration
               </span>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                 Study Pacing & Modality
               </h1>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
+              <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] max-w-md mx-auto">
                 We pace your milestones to fit your weekly schedule and format preferences.
               </p>
             </div>
 
-            <div className="surface-card rounded-2xl p-6 space-y-5">
+            <div className="surface-card rounded-2xl p-6 space-y-5 shadow-sm">
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="font-medium text-slate-300">Target Weekly Study Commitment</span>
-                  <span className="font-bold text-indigo-400 font-mono">{weeklyHours} Hours / Week</span>
+                  <span className="font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">Target Weekly Study Commitment</span>
+                  <span className="font-bold text-[#007AFF] font-mono">{weeklyHours} Hours / Week</span>
                 </div>
                 <input
                   type="range"
@@ -243,12 +238,12 @@ export default function OnboardingPage() {
                   step={5}
                   value={weeklyHours}
                   onChange={(e) => setWeeklyHours(Number(e.target.value))}
-                  className="w-full accent-indigo-500"
+                  className="w-full accent-[#007AFF]"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
                   Preferred Learning Modality
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -261,10 +256,10 @@ export default function OnboardingPage() {
                       key={fmt.id}
                       type="button"
                       onClick={() => setLearningPreference(fmt.id)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                         learningPreference === fmt.id
-                          ? 'bg-indigo-600 text-white border-indigo-500 font-medium shadow-sm'
-                          : 'bg-slate-950 border-white/[0.06] text-slate-400 hover:text-white'
+                          ? 'bg-[#007AFF] text-white border-[#007AFF] font-medium shadow-sm'
+                          : 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border-[#E5E5EA] dark:border-[#38383A] text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F]'
                       }`}
                     >
                       <div className="text-base mb-1">{fmt.icon}</div>
@@ -299,7 +294,7 @@ export default function OnboardingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.06] bg-slate-950/60 py-4 text-center text-xs text-slate-500">
+      <footer className="border-t border-[#E5E5EA] dark:border-[#2C2C2E] bg-white/60 dark:bg-[#1C1C1E]/60 py-4 text-center text-xs text-[#86868B]">
         <p>PathPilot AI • Automated Prerequisite Graph & Adaptation Calibration</p>
       </footer>
     </div>

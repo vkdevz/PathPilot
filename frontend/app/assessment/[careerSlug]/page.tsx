@@ -5,13 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   CheckCircle2,
-  AlertTriangle,
   ArrowRight,
   ArrowLeft,
-  Sparkles,
-  Trophy,
   RotateCcw,
-  BookOpen,
   Milestone,
   Target,
   ShieldAlert,
@@ -99,56 +95,56 @@ export default function AssessmentPage() {
           <SkeletonCard />
         ) : result ? (
           /* Structured Assessment Results */
-          <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-6">
-            <div className="text-center space-y-2 pb-4 border-b border-white/[0.06]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+          <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+            <div className="text-center space-y-2 pb-4 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
                 Diagnostic Complete
               </span>
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                Your Current Position
+              <h2 className="text-xl sm:text-2xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
+                YOUR CURRENT POSITION
               </h2>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] max-w-sm mx-auto">
                 Verified skill scores have been recorded to your learner profile.
               </p>
 
               <div className="pt-3">
-                <span className="text-4xl font-extrabold text-white tracking-tight">
+                <span className="text-4xl font-extrabold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
                   {result.overall_score}%
                 </span>
-                <span className="block text-[10px] uppercase font-semibold text-slate-500 mt-0.5">
+                <span className="block text-[10px] uppercase font-semibold text-[#86868B] mt-0.5">
                   Overall Assessed Proficiency
                 </span>
               </div>
             </div>
 
-            {/* 3-Part Position Breakdown: Strongest / Biggest Gaps / Critical Bottlenecks */}
+            {/* 3-Part Position Breakdown: Strongest / Developing / Gaps */}
             <div className="space-y-3">
-              <div className="p-3.5 rounded-xl bg-slate-950/60 border border-emerald-500/20 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+              <div className="p-3.5 rounded-xl bg-[#EAF8EE] dark:bg-[#30D158]/10 border border-[#34C759]/20 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#34C759]">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Strongest Areas</span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
                   {(result.strong_topics || []).map((t) => t.name).join(', ') || 'Ready to build foundation!'}
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-950/60 border border-amber-500/20 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-400">
+              <div className="p-3.5 rounded-xl bg-[#FFF4E0] dark:bg-[#FF9F0A]/10 border border-[#FF9F0A]/20 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#FF9F0A]">
                   <Target className="w-3.5 h-3.5" />
                   <span>Developing Competencies</span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
                   {(result.moderate_topics || []).map((t) => t.name).join(', ') || 'None identified'}
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-950/60 border border-rose-500/20 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-400">
+              <div className="p-3.5 rounded-xl bg-[#FFF0EF] dark:bg-[#FF453A]/10 border border-[#FF3B30]/20 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#FF3B30]">
                   <ShieldAlert className="w-3.5 h-3.5" />
                   <span>Highest-Priority Skill Gaps</span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
                   {(result.weak_topics || []).map((t) => t.name).join(', ') || 'No critical gaps detected'}
                 </p>
               </div>
@@ -177,7 +173,7 @@ export default function AssessmentPage() {
           </div>
         ) : currentQ ? (
           /* Focused Question View */
-          <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-6">
+          <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
             <AssessmentProgress
               currentQuestion={currentIndex + 1}
               totalQuestions={totalQ}
@@ -185,12 +181,12 @@ export default function AssessmentPage() {
 
             <div className="pt-2">
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant="indigo" size="sm">{currentQ.difficulty}</Badge>
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+                <Badge variant="primary" size="sm">{currentQ.difficulty}</Badge>
+                <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wide">
                   {currentQ.skill_name || 'Competency'}
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-semibold text-white leading-snug">
+              <h2 className="text-base sm:text-lg font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] leading-snug">
                 {currentQ.question_text}
               </h2>
             </div>
@@ -203,17 +199,17 @@ export default function AssessmentPage() {
                   <button
                     key={optIdx}
                     onClick={() => handleSelectOption(currentQ.id, optIdx)}
-                    className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center gap-3 ${
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center gap-3 cursor-pointer ${
                       isSelected
-                        ? 'bg-indigo-600/15 border-indigo-500 text-white font-medium'
-                        : 'bg-slate-950/60 border-white/[0.06] text-slate-300 hover:bg-slate-900 hover:border-white/[0.12]'
+                        ? 'bg-[#EAF3FF] dark:bg-[#0A84FF]/15 border-[#007AFF] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold'
+                        : 'bg-white dark:bg-[#1C1C1E] border-[#E5E5EA] dark:border-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E]'
                     }`}
                   >
                     <div
                       className={`w-6 h-6 rounded-md border flex items-center justify-center shrink-0 text-xs font-semibold ${
                         isSelected
-                          ? 'bg-indigo-600 border-indigo-500 text-white'
-                          : 'border-white/[0.08] bg-slate-900 text-slate-400'
+                          ? 'bg-[#007AFF] border-[#007AFF] text-white'
+                          : 'border-[#D2D2D7] dark:border-[#38383A] bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#6E6E73] dark:text-[#AEAEB2]'
                       }`}
                     >
                       {String.fromCharCode(65 + optIdx)}
@@ -225,7 +221,7 @@ export default function AssessmentPage() {
             </div>
 
             {/* Navigation Controls */}
-            <div className="pt-4 flex items-center justify-between border-t border-white/[0.06]">
+            <div className="pt-4 flex items-center justify-between border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
               <Button
                 variant="secondary"
                 size="sm"
@@ -251,7 +247,7 @@ export default function AssessmentPage() {
                   size="md"
                   loading={submitting}
                   onClick={handleSubmit}
-                  icon={<CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />}
+                  icon={<CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                 >
                   Submit Assessment
                 </Button>
@@ -259,7 +255,7 @@ export default function AssessmentPage() {
             </div>
           </div>
         ) : (
-          <div className="surface-card rounded-2xl p-10 text-center text-xs text-slate-400 space-y-3">
+          <div className="surface-card rounded-2xl p-10 text-center text-xs text-[#6E6E73] dark:text-[#AEAEB2] space-y-3">
             <p>No questions found for this track. Please select another career.</p>
             <Link href="/careers" className="inline-block">
               <Button variant="primary" size="sm">

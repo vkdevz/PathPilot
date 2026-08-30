@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'glass' | 'interactive' | 'glow' | 'accent';
+  variant?: 'default' | 'glass' | 'interactive' | 'glow' | 'accent' | 'subtle';
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -11,11 +11,12 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    default: 'bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6 shadow-sm',
+    default: 'surface-card rounded-2xl p-6 shadow-sm',
     glass: 'surface-card rounded-2xl p-6 shadow-sm',
     interactive: 'surface-card-hover rounded-2xl p-6 cursor-pointer',
-    glow: 'surface-card rounded-2xl p-6 border-indigo-500/30 shadow-md shadow-indigo-500/10',
+    glow: 'surface-card rounded-2xl p-6 border-[#007AFF]/30 shadow-[0_1px_3px_rgba(0,122,255,0.08)]',
     accent: 'surface-accent-card rounded-2xl p-6',
+    subtle: 'surface-subtle rounded-2xl p-6',
   };
 
   return (
@@ -40,7 +41,7 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   className = '',
   ...props
 }) => (
-  <h3 className={`text-base font-semibold text-white tracking-tight ${className}`} {...props}>
+  <h3 className={`text-base font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight ${className}`} {...props}>
     {children}
   </h3>
 );
@@ -50,7 +51,7 @@ export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement
   className = '',
   ...props
 }) => (
-  <p className={`text-xs text-slate-400 mt-0.5 leading-relaxed ${className}`} {...props}>
+  <p className={`text-xs text-[#6E6E73] dark:text-[#AEAEB2] mt-0.5 leading-relaxed ${className}`} {...props}>
     {children}
   </p>
 );
@@ -66,7 +67,7 @@ export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className = '',
   ...props
 }) => (
-  <div className={`mt-5 pt-3.5 border-t border-slate-800/80 flex items-center justify-between ${className}`} {...props}>
+  <div className={`mt-5 pt-3.5 border-t border-[#E5E5EA] dark:border-[#2C2C2E] flex items-center justify-between ${className}`} {...props}>
     {children}
   </div>
 );

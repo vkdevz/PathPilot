@@ -13,16 +13,16 @@ export const AssessmentProgress: React.FC<AssessmentProgressProps> = ({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between text-xs text-slate-400">
-        <span className="font-medium text-white">
-          Question {currentQuestion} <span className="text-slate-500">/ {totalQuestions}</span>
+      <div className="flex items-center justify-between text-xs text-[#6E6E73] dark:text-[#AEAEB2]">
+        <span className="font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
+          Question {currentQuestion} <span className="text-[#86868B]">/ {totalQuestions}</span>
         </span>
-        <span className="font-mono text-indigo-400 font-semibold">{progressPct}%</span>
+        <span className="font-mono text-[#007AFF] font-bold">{progressPct}%</span>
       </div>
 
-      <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-white/[0.06]">
+      <div className="w-full h-1.5 rounded-full bg-[#E5E5EA] dark:bg-[#2C2C2E] overflow-hidden">
         <div
-          className="h-full bg-indigo-600 transition-all duration-300"
+          className="h-full bg-[#007AFF] transition-all duration-300"
           style={{ width: `${progressPct}%` }}
         />
       </div>

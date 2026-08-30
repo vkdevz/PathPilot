@@ -52,15 +52,15 @@ export default function SettingsPage() {
       <div className="max-w-2xl mx-auto space-y-6">
         <form onSubmit={handleSave} className="space-y-6">
           {/* Account Details */}
-          <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
-              <User className="w-4 h-4 text-indigo-400" />
-              <h3 className="text-sm font-semibold text-white tracking-tight">Account Information</h3>
+          <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
+              <User className="w-4 h-4 text-[#007AFF]" />
+              <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Account Information</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
                   Display Name
                 </label>
                 <input
@@ -68,33 +68,33 @@ export default function SettingsPage() {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="e.g. Alex Morgan"
-                  className="w-full px-3.5 py-2 rounded-lg bg-slate-950/80 border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2 rounded-lg bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] focus:outline-none focus:border-[#007AFF]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-medium text-slate-300">
+                <label className="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
                   Email Address
                 </label>
                 <input
                   type="email"
                   disabled
                   value={user?.email || 'learner@pathpilot.ai'}
-                  className="w-full px-3.5 py-2 rounded-lg bg-slate-950/40 border border-white/[0.04] text-xs text-slate-500 cursor-not-allowed"
+                  className="w-full px-3.5 py-2 rounded-lg bg-[#F5F5F7] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-xs text-[#86868B] cursor-not-allowed"
                 />
               </div>
             </div>
           </div>
 
           {/* Experience & Pacing */}
-          <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-5">
-            <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
-              <Clock className="w-4 h-4 text-indigo-400" />
-              <h3 className="text-sm font-semibold text-white tracking-tight">Study Schedule</h3>
+          <div className="surface-card rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
+              <Clock className="w-4 h-4 text-[#007AFF]" />
+              <h3 className="text-sm font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">Study Schedule</h3>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7]">
                 Experience Level
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -103,10 +103,10 @@ export default function SettingsPage() {
                     key={lvl}
                     type="button"
                     onClick={() => setExperienceLevel(lvl)}
-                    className={`py-2 px-3 rounded-lg text-xs font-medium border transition-all ${
+                    className={`py-2 px-3 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
                       experienceLevel === lvl
-                        ? 'bg-indigo-600 text-white border-indigo-500 font-semibold shadow-sm'
-                        : 'bg-slate-950 border-white/[0.06] text-slate-400 hover:text-white'
+                        ? 'bg-[#007AFF] text-white border-[#007AFF] font-semibold shadow-sm'
+                        : 'bg-[#FBFBFD] dark:bg-[#2C2C2E] border-[#E5E5EA] dark:border-[#38383A] text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F]'
                     }`}
                   >
                     {lvl}
@@ -117,8 +117,8 @@ export default function SettingsPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-medium">Target Weekly Hours:</span>
-                <span className="text-indigo-400 font-bold font-mono">{weeklyHours} Hours / Week</span>
+                <span className="text-[#6E6E73] dark:text-[#AEAEB2] font-medium">Target Weekly Hours:</span>
+                <span className="text-[#007AFF] font-bold font-mono">{weeklyHours} Hours / Week</span>
               </div>
               <input
                 type="range"
@@ -127,7 +127,7 @@ export default function SettingsPage() {
                 step={2}
                 value={weeklyHours}
                 onChange={(e) => setWeeklyHours(parseInt(e.target.value))}
-                className="w-full accent-indigo-500 cursor-pointer"
+                className="w-full accent-[#007AFF] cursor-pointer"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function SettingsPage() {
             </Button>
 
             {saved && (
-              <span className="text-xs font-medium text-emerald-400 flex items-center gap-1">
+              <span className="text-xs font-medium text-[#34C759] flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Preferences updated successfully
               </span>
             )}

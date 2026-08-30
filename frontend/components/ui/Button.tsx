@@ -18,7 +18,8 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 disabled:opacity-40 disabled:cursor-not-allowed select-none active:scale-[0.98] cursor-pointer';
+  const baseStyles =
+    'inline-flex items-center justify-center font-medium rounded-xl transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/30 disabled:opacity-40 disabled:cursor-not-allowed select-none cursor-pointer';
 
   const sizeStyles = {
     sm: 'px-3 py-1.5 text-xs font-semibold gap-1.5',
@@ -27,12 +28,18 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm border border-indigo-500/30 hover:shadow-md hover:shadow-indigo-600/20',
-    secondary: 'bg-slate-900 hover:bg-slate-800/90 text-slate-200 border border-slate-750 hover:border-slate-600',
-    outline: 'bg-transparent hover:bg-slate-800/50 text-slate-300 hover:text-white border border-slate-750 hover:border-slate-600',
-    ghost: 'bg-transparent hover:bg-slate-800/60 text-slate-400 hover:text-slate-100',
-    danger: 'bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-500/30 shadow-sm hover:shadow-rose-600/20',
-    glow: 'bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-md shadow-indigo-600/30 border border-indigo-400/40 hover:scale-[1.01]',
+    primary:
+      'bg-[#007AFF] hover:bg-[#006EDB] text-white border border-transparent active:bg-[#0062C4]',
+    secondary:
+      'bg-white dark:bg-[#1C1C1E] text-[#1D1D1F] dark:text-[#F5F5F7] border border-[#D2D2D7] dark:border-[#38383A] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E]',
+    outline:
+      'bg-transparent text-[#1D1D1F] dark:text-[#F5F5F7] border border-[#D2D2D7] dark:border-[#38383A] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E]',
+    ghost:
+      'bg-transparent text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E]',
+    danger:
+      'bg-[#FF3B30] hover:bg-[#E02E24] text-white border border-transparent',
+    glow:
+      'bg-[#007AFF] hover:bg-[#006EDB] text-white font-semibold border border-transparent shadow-[0_1px_3px_rgba(0,122,255,0.2)]',
   };
 
   return (

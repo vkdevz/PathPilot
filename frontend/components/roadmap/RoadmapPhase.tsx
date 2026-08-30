@@ -27,21 +27,21 @@ export const RoadmapPhase: React.FC<RoadmapPhaseProps> = ({
   return (
     <div className="space-y-4">
       {/* Phase Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-white/[0.06]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-[#E5E5EA] dark:border-[#2C2C2E]">
         <div>
-          <h3 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+          <h3 className="text-sm sm:text-base font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
             {phaseTitle}
           </h3>
           {phaseDescription && (
-            <p className="text-xs text-slate-400 mt-0.5">{phaseDescription}</p>
+            <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] mt-0.5">{phaseDescription}</p>
           )}
         </div>
 
         <span
           className={`text-xs font-medium px-2.5 py-0.5 rounded border self-start sm:self-center ${
             isPhaseComplete
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-              : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'
+              ? 'bg-[#EAF8EE] text-[#34C759] border-[#34C759]/20'
+              : 'bg-[#EAF3FF] text-[#007AFF] border-[#007AFF]/20'
           }`}
         >
           {completedInPhase} / {milestones.length} Completed

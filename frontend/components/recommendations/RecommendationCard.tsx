@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExternalLink, Clock, Sparkles, BookOpen, Code2, Video, FileText, CheckCircle2, ThumbsUp, ThumbsDown, Info } from 'lucide-react';
+import { ExternalLink, Clock, BookOpen, Code2, Video, FileText, CheckCircle2, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import type { Recommendation } from '../../types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -24,15 +24,15 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const getResourceTypeIcon = () => {
     switch (recommendation.resource_type?.toLowerCase()) {
       case 'project':
-        return <Code2 className="w-3.5 h-3.5 text-indigo-400" />;
+        return <Code2 className="w-3.5 h-3.5 text-[#007AFF]" />;
       case 'course':
-        return <BookOpen className="w-3.5 h-3.5 text-indigo-400" />;
+        return <BookOpen className="w-3.5 h-3.5 text-[#007AFF]" />;
       case 'video':
-        return <Video className="w-3.5 h-3.5 text-rose-400" />;
+        return <Video className="w-3.5 h-3.5 text-[#FF3B30]" />;
       case 'practice':
-        return <Sparkles className="w-3.5 h-3.5 text-amber-400" />;
+        return <Sparkles className="w-3.5 h-3.5 text-[#FF9F0A]" />;
       default:
-        return <FileText className="w-3.5 h-3.5 text-slate-400" />;
+        return <FileText className="w-3.5 h-3.5 text-[#86868B]" />;
     }
   };
 
@@ -63,31 +63,31 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   };
 
   return (
-    <div className="surface-card rounded-xl p-5 flex flex-col justify-between space-y-4">
+    <div className="surface-card rounded-xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
       <div className="space-y-3">
         {/* Top Meta Line */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="p-1 rounded bg-slate-900 border border-white/[0.06]">
+            <span className="p-1 rounded bg-[#F5F5F7] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A]">
               {getResourceTypeIcon()}
             </span>
-            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider">
               {recommendation.resource_type} • {recommendation.provider}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 text-xs text-slate-400">
-              <Clock className="w-3 h-3 text-slate-500" />
+            <span className="flex items-center gap-1 text-xs text-[#6E6E73] dark:text-[#AEAEB2]">
+              <Clock className="w-3 h-3 text-[#86868B]" />
               {recommendation.estimated_minutes}m
             </span>
             <Badge
               variant={
                 recommendation.difficulty === 'Beginner'
-                  ? 'emerald'
+                  ? 'success'
                   : recommendation.difficulty === 'Intermediate'
-                  ? 'indigo'
-                  : 'rose'
+                  ? 'primary'
+                  : 'danger'
               }
               size="sm"
             >
@@ -98,10 +98,10 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
         {/* Title & Description */}
         <div>
-          <h3 className="text-sm sm:text-base font-semibold text-white tracking-tight">
+          <h3 className="text-sm sm:text-base font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
             {recommendation.title}
           </h3>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">
+          <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] mt-1 leading-relaxed line-clamp-2">
             {recommendation.description}
           </p>
         </div>
@@ -112,7 +112,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
             {recommendation.skills_taught.map((sk) => (
               <span
                 key={sk}
-                className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-white/[0.06]"
+                className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#6E6E73] dark:text-[#AEAEB2] border border-[#E5E5EA] dark:border-[#38383A]"
               >
                 {sk}
               </span>
@@ -130,7 +130,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
       </div>
 
       {/* Footer Controls */}
-      <div className="pt-3 border-t border-white/[0.04] flex flex-wrap items-center justify-between gap-2">
+      <div className="pt-3 border-t border-[#E5E5EA] dark:border-[#38383A] flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           {recommendation.url ? (
             <a
@@ -138,7 +138,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => handleFeedback('helpful')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#007AFF] hover:bg-[#006EDB] text-white text-xs font-semibold transition-colors"
             >
               <span>Launch Resource</span>
               <ExternalLink className="w-3 h-3" />
@@ -150,13 +150,13 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
           )}
 
           {/* Feedback */}
-          <div className="flex items-center gap-1 pl-2 border-l border-white/[0.06]">
+          <div className="flex items-center gap-1 pl-2 border-l border-[#E5E5EA] dark:border-[#38383A]">
             <button
               onClick={() => handleFeedback('helpful')}
-              className={`p-1 rounded border text-xs transition-colors ${
+              className={`p-1 rounded border text-xs transition-colors cursor-pointer ${
                 feedbackSent === 'helpful'
-                  ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'
-                  : 'bg-slate-900 border-white/[0.06] text-slate-400 hover:text-white'
+                  ? 'bg-[#EAF8EE] border-[#34C759]/30 text-[#34C759]'
+                  : 'bg-white dark:bg-[#1C1C1E] border-[#D2D2D7] dark:border-[#38383A] text-[#86868B] hover:text-[#1D1D1F]'
               }`}
               title="Helpful"
             >
@@ -164,10 +164,10 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
             </button>
             <button
               onClick={() => handleFeedback('too_hard')}
-              className={`p-1 rounded border text-xs transition-colors ${
+              className={`p-1 rounded border text-xs transition-colors cursor-pointer ${
                 feedbackSent === 'too_hard'
-                  ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
-                  : 'bg-slate-900 border-white/[0.06] text-slate-400 hover:text-white'
+                  ? 'bg-[#FFF0EF] border-[#FF3B30]/30 text-[#FF3B30]'
+                  : 'bg-white dark:bg-[#1C1C1E] border-[#D2D2D7] dark:border-[#38383A] text-[#86868B] hover:text-[#1D1D1F]'
               }`}
               title="Too hard"
             >
@@ -183,7 +183,7 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
             loading={logging}
             disabled={logged}
             onClick={handleLogActivity}
-            icon={logged ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : undefined}
+            icon={logged ? <CheckCircle2 className="w-3.5 h-3.5 text-[#34C759]" /> : undefined}
           >
             {logged ? 'Logged (+50 XP)' : 'Log Completion'}
           </Button>
