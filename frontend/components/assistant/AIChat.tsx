@@ -12,7 +12,9 @@ import {
   Copy,
   PlusCircle,
   ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
+
 
 interface AIChatProps {
   careerTrack?: string;
@@ -89,14 +91,9 @@ export const AIChat: React.FC<AIChatProps> = ({
     reload,
     setInput,
     setMessages,
+    append,
   } = useChat({
     api: '/api/chat',
-    headers: {
-      'Authorization': typeof window !== 'undefined' && localStorage.getItem('pathpilot_token')
-        ? `Bearer ${localStorage.getItem('pathpilot_token')}`
-        : '',
-    },
-
     body: {
       conversation_id: conversationId,
       active_skill: activeSkill,
@@ -125,6 +122,29 @@ export const AIChat: React.FC<AIChatProps> = ({
         content: `👋 Started a fresh session calibrated for **${careerTrack}** (**${activeSkill}**). What would you like to explore?`,
       },
     ]);
+  };
+
+  const handlePromptClick = (prompt: string) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : '';
+    append(
+      { role: 'user', content: prompt },
+      {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      }
+    );
+  };
+
+  const onFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('pathpilot_token') : '';
+    handleSubmit(e, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+      },
+    });
   };
 
   const contextualPrompts = [
@@ -163,37 +183,29 @@ export const AIChat: React.FC<AIChatProps> = ({
             title="Start New Session"
             className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] border border-[#D2D2D7] dark:border-[#38383A] transition-colors cursor-pointer"
           >
-            <PlusCircle className="w-3.5 h-3.5 text-[#007AFF]" />
-            <span className="hidden sm:inline">New Session</span>
-          </button>
-
-          <button
-            onClick={() => reload()}
-            title="Regenerate Last Response"
-            className="p-1.5 rounded-md bg-white dark:bg-[#1C1C1E] hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-[#86868B] hover:text-[#1D1D1F] border border-[#D2D2D7] dark:border-[#38383A] transition-colors cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-3 h-3 text-[#007AFF]" />
+            <span>New Session</span>
           </button>
         </div>
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto py-4 space-y-3.5 pr-1">
+      <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
         {messages.map((m) => {
           const isUser = m.role === 'user';
           return (
             <div
               key={m.id}
-              className={`flex items-start gap-2.5 ${isUser ? 'flex-row-reverse' : ''}`}
+              className={`flex items-start gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
             >
               <div
-                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold ${
                   isUser
                     ? 'bg-[#007AFF] text-white'
                     : 'bg-[#F5F5F7] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-[#007AFF]'
                 }`}
               >
-                {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                {isUser ? 'You' : <Sparkles className="w-3 h-3" />}
               </div>
 
               <div
@@ -217,9 +229,17 @@ export const AIChat: React.FC<AIChatProps> = ({
         )}
 
         {error && (
-          <div className="p-3 rounded-lg bg-[#FFF0EF] border border-[#FF3B30]/20 text-[#FF3B30] text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-[#FF3B30]" />
-            <span>Unable to connect to assistant stream. Please try again.</span>
+          <div className="p-3 rounded-lg bg-[#FFF0EF] border border-[#FF3B30]/20 text-[#FF3B30] text-xs flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-[#FF3B30]" />
+              <span>{error.message || 'Unable to connect to assistant stream. Please try again.'}</span>
+            </div>
+            <button
+              onClick={() => reload()}
+              className="text-xs font-semibold underline text-[#FF3B30] hover:opacity-80"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -231,7 +251,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         {contextualPrompts.map((prompt) => (
           <button
             key={prompt}
-            onClick={() => setInput(prompt)}
+            onClick={() => handlePromptClick(prompt)}
             className="shrink-0 px-2.5 py-1 rounded-md bg-[#F5F5F7] dark:bg-[#2C2C2E] hover:bg-white dark:hover:bg-[#38383A] border border-[#E5E5EA] dark:border-[#38383A] text-[11px] text-[#1D1D1F] dark:text-[#F5F5F7] transition-colors cursor-pointer"
           >
             {prompt}
@@ -240,7 +260,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSubmit} className="pt-2 flex items-center gap-2 shrink-0">
+      <form onSubmit={onFormSubmit} className="pt-2 flex items-center gap-2 shrink-0">
         <input
           type="text"
           value={input}

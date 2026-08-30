@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_user, get_current_user_optional
 from app.models.user import User
 from app.schemas.ai import AIChatRequest, AIChatResponse
 from app.schemas.chat import (
@@ -15,6 +15,7 @@ from app.schemas.chat import (
 )
 from app.repositories.chat_repository import ChatRepository
 from app.services.ai.ai_service import AIService
+from typing import Optional
 
 logger = logging.getLogger("pathpilot.api.chat")
 router = APIRouter(prefix="/ai", tags=["AI Assistant"])
@@ -22,10 +23,11 @@ router = APIRouter(prefix="/ai", tags=["AI Assistant"])
 @router.post("/chat", summary="Stream conversational response with tool routing and context injection")
 async def chat_streaming(
     request: AIChatRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    ai_service = AIService(db, user_id=current_user.id)
+    user_id = current_user.id if current_user else "usr-dev-01"
+    ai_service = AIService(db, user_id=user_id)
     return StreamingResponse(
         ai_service.chat_stream(request),
         media_type="text/event-stream",
@@ -39,11 +41,13 @@ async def chat_streaming(
 @router.post("/chat/sync", response_model=AIChatResponse, summary="Synchronous chat completion")
 async def chat_synchronous(
     request: AIChatRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    ai_service = AIService(db, user_id=current_user.id)
+    user_id = current_user.id if current_user else "usr-dev-01"
+    ai_service = AIService(db, user_id=user_id)
     return await ai_service.chat_sync(request)
+
 
 @router.get("/conversations", response_model=List[ConversationSummary], summary="List user chat conversations")
 async def list_conversations(

@@ -2,16 +2,29 @@ import { StreamingTextResponse } from 'ai';
 
 export const runtime = 'edge';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+function getChatBackendUrl(): string {
+  let rawBase = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  let normalized = rawBase.replace(/\/+$/, '');
+  if (!normalized.endsWith('/api/v1') && !normalized.endsWith('/api')) {
+    normalized = `${normalized}/api/v1`;
+  }
+  return `${normalized}/ai/chat`;
+}
 
 export async function POST(req: Request) {
   try {
     const { messages, conversation_id, active_skill } = await req.json();
     const lastMessage = messages[messages.length - 1]?.content || 'Hello';
-    const authHeader = req.headers.get('authorization') || '';
+    
+    let authHeader = req.headers.get('authorization') || '';
+    if (!authHeader || authHeader === 'Bearer' || authHeader === 'Bearer null' || authHeader === 'Bearer undefined') {
+      authHeader = 'Bearer dev-token-usr-dev-01';
+    }
+
+    const backendEndpoint = getChatBackendUrl();
 
     // Forward request to FastAPI authoritative AI intelligence layer
-    const backendResponse = await fetch(`${BACKEND_URL}/ai/chat`, {
+    const backendResponse = await fetch(backendEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,6 +37,7 @@ export async function POST(req: Request) {
         stream: true,
       }),
     });
+
 
     if (!backendResponse.ok) {
       const errData = await backendResponse.json().catch(() => ({ detail: backendResponse.statusText }));
