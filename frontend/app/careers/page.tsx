@@ -9,8 +9,11 @@ import { AppShell } from '../../components/layout/AppShell';
 import { CareerGoalCard } from '../../components/careers/CareerGoalCard';
 import { SkeletonCard } from '../../components/ui/Skeleton';
 
+import { useAuth } from '../../context/AuthContext';
+
 export default function CareersPage() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const [careers, setCareers] = useState<Career[]>([]);
   const [roadmap, setRoadmap] = useState<LearningPath | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,13 +45,15 @@ export default function CareersPage() {
     setSelectingSlug(careerSlug);
     try {
       await apiClient.setCareerGoal(careerSlug);
-      router.push(`/assessment/${careerSlug}`);
+      await refreshUser();
+      await fetchCareersData();
     } catch (err) {
       console.error('Failed to set career goal:', err);
     } finally {
       setSelectingSlug(null);
     }
   };
+
 
   const categories = ['All', 'Data & AI', 'Software Engineering', 'Cloud & Infrastructure', 'Security'];
 

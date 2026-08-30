@@ -26,16 +26,14 @@ export async function POST(req: Request) {
     });
 
     if (!backendResponse.ok) {
-      // If backend call fails (e.g. unauthenticated or dev mock), provide informative resilient guidance
-      const fallbackText = `I am your **PathPilot AI Learning Navigator**. You asked: "${lastMessage}". Let's dive deep into this concept and connect it with your engineering roadmap.`;
-      const fallbackStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(new TextEncoder().encode(fallbackText));
-          controller.close();
-        },
+      const errData = await backendResponse.json().catch(() => ({ detail: backendResponse.statusText }));
+      const errorMsg = typeof errData.detail === 'string' ? errData.detail : (errData.detail?.[0]?.msg || `AI Service Error (${backendResponse.status})`);
+      return new Response(JSON.stringify({ error: errorMsg }), {
+        status: backendResponse.status,
+        headers: { 'Content-Type': 'application/json' },
       });
-      return new StreamingTextResponse(fallbackStream);
     }
+
 
     // Parse SSE stream from FastAPI backend and transform into AI SDK text stream
     const reader = backendResponse.body?.getReader();

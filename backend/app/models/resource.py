@@ -16,6 +16,7 @@ class Resource(Base, TimestampMixin):
     estimated_minutes = Column(Integer, default=60, nullable=False)
     provider = Column(String(100), default="PathPilot Academy")
     is_interactive = Column(Boolean, default=False)
+    content = Column(Text, nullable=True)
 
     # Relationships
     resource_skills = relationship("ResourceSkill", back_populates="resource", cascade="all, delete-orphan")

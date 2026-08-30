@@ -31,7 +31,11 @@ class UserRepository:
         return result.scalar_one_or_none()
 
     async def update_profile(self, user_id: str, update_data: dict) -> Optional[LearnerProfile]:
-        stmt = select(LearnerProfile).where(LearnerProfile.user_id == user_id)
+        stmt = (
+            select(LearnerProfile)
+            .options(selectinload(LearnerProfile.target_career))
+            .where(LearnerProfile.user_id == user_id)
+        )
         result = await self.db.execute(stmt)
         profile = result.scalar_one_or_none()
         if not profile:
@@ -42,10 +46,21 @@ class UserRepository:
                 setattr(profile, key, value)
 
         await self.db.flush()
-        return profile
+        # Refresh with relationship
+        stmt_fresh = (
+            select(LearnerProfile)
+            .options(selectinload(LearnerProfile.target_career))
+            .where(LearnerProfile.user_id == user_id)
+        )
+        fresh_res = await self.db.execute(stmt_fresh)
+        return fresh_res.scalar_one_or_none() or profile
 
     async def add_xp(self, user_id: str, amount: int) -> Optional[LearnerProfile]:
-        stmt = select(LearnerProfile).where(LearnerProfile.user_id == user_id)
+        stmt = (
+            select(LearnerProfile)
+            .options(selectinload(LearnerProfile.target_career))
+            .where(LearnerProfile.user_id == user_id)
+        )
         result = await self.db.execute(stmt)
         profile = result.scalar_one_or_none()
         if profile:
@@ -57,8 +72,10 @@ class UserRepository:
         stmt = (
             select(User, LearnerProfile)
             .join(LearnerProfile, User.id == LearnerProfile.user_id)
+            .options(selectinload(LearnerProfile.target_career))
             .order_by(desc(LearnerProfile.xp))
             .limit(limit)
         )
         result = await self.db.execute(stmt)
         return result.all()
+

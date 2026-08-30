@@ -39,10 +39,14 @@ class LearnerProfile(Base, TimestampMixin):
 
     # Relationships
     user = relationship("User", back_populates="profile")
-    target_career = relationship("Career", back_populates="learner_profiles")
+    target_career = relationship("Career", back_populates="learner_profiles", lazy="selectin")
 
     @property
     def target_career_name(self):
-        if self.target_career:
-            return self.target_career.name
+        try:
+            if self.target_career:
+                return self.target_career.name
+        except Exception:
+            pass
         return None
+

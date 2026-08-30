@@ -4,6 +4,8 @@ from app.repositories.learning_path_repository import LearningPathRepository
 from app.repositories.career_repository import CareerRepository
 from app.models.learning_path import LearningPath, LearningPathItem
 
+from datetime import datetime, timezone
+
 class RoadmapService:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -24,11 +26,18 @@ class RoadmapService:
             return None
 
         matching_item.status = "completed"
+        matching_item.completed_at = datetime.now(timezone.utc)
         
-        # Unlock next milestone in sequence
-        next_item = next((item for item in active_path.items if item.step_order == matching_item.step_order + 1), None)
-        if next_item and next_item.status == "locked":
-            next_item.status = "available"
+        # Evaluate subsequent roadmap milestones in sequence, skipping already-completed items
+        sorted_items = sorted(active_path.items, key=lambda x: x.step_order)
+        for item in sorted_items:
+            if item.step_order > matching_item.step_order:
+                if item.status in ("completed", "skipped"):
+                    continue
+                if item.status == "locked":
+                    item.status = "available"
+                    break
 
         await self.db.flush()
         return matching_item
+

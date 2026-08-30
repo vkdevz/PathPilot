@@ -126,6 +126,20 @@ class ApiClient {
     return this.request<User>('/auth/me');
   }
 
+  async forgotPassword(email: string): Promise<any> {
+    return this.request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resetPassword(payload: { token: string; new_password: string }): Promise<any> {
+    return this.request('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
   async syncUser(payload: { display_name?: string; avatar_url?: string }): Promise<User> {
     return this.request<User>('/auth/sync', {
       method: 'POST',
@@ -139,6 +153,7 @@ class ApiClient {
       body: JSON.stringify(payload),
     });
   }
+
 
   async setTargetCareer(careerSlug: string): Promise<any> {
     return this.request('/profile/career', {
@@ -384,9 +399,18 @@ class ApiClient {
     });
   }
 
+  async getResourceById(resourceId: string): Promise<Resource> {
+    return this.request<Resource>(`/resources/${resourceId}`);
+  }
+
+  async getCompletedProgress(limit: number = 50): Promise<any[]> {
+    return this.request<any[]>(`/progress/completed?limit=${limit}`);
+  }
+
   async getHeatmap(days: number = 28): Promise<HeatmapDay[]> {
     return this.request<HeatmapDay[]>(`/progress/heatmap?days=${days}`);
   }
+
 
   // ---------------------------------------------------------------------------
   // Feedback & Pacing Adaptation

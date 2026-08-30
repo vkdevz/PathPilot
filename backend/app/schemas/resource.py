@@ -11,6 +11,7 @@ class ResourceBase(BaseModel):
     estimated_minutes: int = 60
     provider: str = "PathPilot Academy"
     is_interactive: bool = False
+    content: Optional[str] = None
 
 class ResourceResponse(ResourceBase):
     id: str
@@ -30,6 +31,7 @@ class RecommendationResponse(BaseModel):
     estimated_minutes: int = 60
     provider: str = "PathPilot Academy"
     is_interactive: bool = False
+    content: Optional[str] = None
     skills_taught: List[str] = []
     target_skill_slug: Optional[str] = None
     target_skill_name: Optional[str] = None
@@ -38,4 +40,5 @@ class RecommendationResponse(BaseModel):
     explanation_reasons: List[str] = []
 
     model_config = ConfigDict(from_attributes=True)
+
 

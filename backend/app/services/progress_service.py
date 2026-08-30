@@ -5,25 +5,78 @@ from app.repositories.progress_repository import ProgressRepository
 from app.repositories.user_repository import UserRepository
 from app.models.progress import Progress
 
+from app.repositories.resource_repository import ResourceRepository
+
 class ProgressService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.progress_repo = ProgressRepository(db)
         self.user_repo = UserRepository(db)
+        self.resource_repo = ResourceRepository(db)
 
     async def log_activity(self, user_id: str, resource_id: str, minutes: int, status: str = "completed") -> Progress:
+        # Resolve resource by ID or slug
+        real_resource = await self.resource_repo.get_by_id_or_slug(resource_id)
+        target_res_id = real_resource.id if real_resource else resource_id
+
         progress = Progress(
             user_id=user_id,
-            resource_id=resource_id,
+            resource_id=target_res_id,
             time_spent_minutes=minutes,
             status=status,
             completed_at=datetime.now(timezone.utc)
         )
         await self.progress_repo.log_progress(progress)
-        # Award XP: 10 XP per 5 minutes learned
-        xp_earned = max(10, (minutes // 5) * 10)
+        
+        # Award XP: 10 XP per 5 minutes learned, minimum 20 XP
+        xp_earned = max(20, (minutes // 5) * 10)
         await self.user_repo.add_xp(user_id, xp_earned)
+
+        # Ingest evidence into Adaptive Learning Engine if resource has associated skills
+        if real_resource and real_resource.resource_skills:
+            try:
+                from app.services.adaptive.adaptive_service import AdaptiveLearningService
+                adaptive_svc = AdaptiveLearningService(self.db)
+                for rs in real_resource.resource_skills:
+                    await adaptive_svc.ingest_evidence_and_adapt(
+                        user_id=user_id,
+                        skill_id=rs.skill_id,
+                        evidence_type="RESOURCE_COMPLETION",
+                        score=0.90 if status == "completed" else 0.70,
+                        raw_score=100.0 if status == "completed" else 70.0,
+                        source_id=f"progress_{progress.id}",
+                        metadata={"resource_title": real_resource.title, "minutes": minutes}
+                    )
+            except Exception as e:
+                # Log adaptive ingestion non-blocking
+                pass
+
         return progress
+
+    async def get_completed_learning(self, user_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        logs = await self.progress_repo.get_completed_resources(user_id, limit=limit)
+        results = []
+        for log in logs:
+            res_title = log.resource.title if log.resource else "Interactive Module"
+            res_type = log.resource.resource_type.capitalize() if log.resource else "Course"
+            res_slug = log.resource.slug if log.resource else None
+            skills = [rs.skill.name for rs in log.resource.resource_skills if rs.skill] if log.resource else []
+            xp_earned = max(20, (log.time_spent_minutes // 5) * 10)
+
+            results.append({
+                "id": log.id,
+                "resource_id": log.resource_id,
+                "resource_title": res_title,
+                "resource_type": res_type,
+                "resource_slug": res_slug,
+                "skills_taught": skills,
+                "time_spent_minutes": log.time_spent_minutes,
+                "xp_earned": xp_earned,
+                "status": log.status,
+                "completed_at": log.completed_at or log.created_at
+            })
+        return results
+
 
     async def get_heatmap(self, user_id: str, days: int = 28) -> List[Dict[str, Any]]:
         logs = await self.progress_repo.get_user_activity_days(user_id, days=days)

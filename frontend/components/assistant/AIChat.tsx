@@ -92,10 +92,11 @@ export const AIChat: React.FC<AIChatProps> = ({
   } = useChat({
     api: '/api/chat',
     headers: {
-      'Authorization': typeof window !== 'undefined' && localStorage.getItem('auth_token')
-        ? `Bearer ${localStorage.getItem('auth_token')}`
+      'Authorization': typeof window !== 'undefined' && localStorage.getItem('pathpilot_token')
+        ? `Bearer ${localStorage.getItem('pathpilot_token')}`
         : '',
     },
+
     body: {
       conversation_id: conversationId,
       active_skill: activeSkill,

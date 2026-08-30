@@ -7,6 +7,8 @@ import { Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 
+import { apiClient } from '../../lib/api-client';
+
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,21 +42,11 @@ function ResetPasswordForm() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, new_password: password }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || 'Failed to reset password');
-      }
+      await apiClient.resetPassword({ token, new_password: password });
       setSuccess(true);
       setTimeout(() => {
-        router.push('/login');
-      }, 3000);
+        router.push('/auth');
+      }, 2500);
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
     } finally {
@@ -84,18 +76,19 @@ function ResetPasswordForm() {
             <CheckCircle2 className="w-5 h-5 text-[#34C759] shrink-0 mt-0.5" />
             <div className="text-sm text-[#1D1D1F] dark:text-[#F5F5F7] leading-relaxed">
               <p className="font-medium text-[#34C759]">Password Reset Successfully!</p>
-              <p className="mt-1">Redirecting to login...</p>
+              <p className="mt-1">Redirecting to sign in...</p>
             </div>
           </div>
           <Button
             variant="primary"
             className="w-full"
-            onClick={() => router.push('/login')}
+            onClick={() => router.push('/auth')}
           >
-            Go to Login
+            Go to Sign In
           </Button>
         </div>
       ) : (
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <label htmlFor="password" className="text-sm font-medium text-[#1D1D1F] dark:text-[#F5F5F7]">

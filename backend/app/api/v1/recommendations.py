@@ -48,9 +48,40 @@ async def list_resources(
             estimated_minutes=r.estimated_minutes,
             provider=r.provider,
             is_interactive=r.is_interactive,
+            content=r.content,
             skills_taught=skills
         ))
     return result
+
+@router.get("/resources/{resource_id}", response_model=ResourceResponse)
+async def get_resource_detail(
+    resource_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Returns full details for a learning resource by ID or slug.
+    """
+    resource_repo = ResourceRepository(db)
+    r = await resource_repo.get_by_id_or_slug(resource_id)
+    if not r:
+        raise HTTPException(status_code=404, detail=f"Resource '{resource_id}' not found.")
+    
+    skills = [rs.skill.name for rs in r.resource_skills if rs.skill]
+    return ResourceResponse(
+        id=r.id,
+        slug=r.slug,
+        title=r.title,
+        description=r.description,
+        resource_type=r.resource_type,
+        url=r.url,
+        difficulty=r.difficulty,
+        estimated_minutes=r.estimated_minutes,
+        provider=r.provider,
+        is_interactive=r.is_interactive,
+        content=r.content,
+        skills_taught=skills
+    )
+
 
 @router.get("/recommendations", response_model=List[PersonalizedRecommendationItem])
 async def get_personalized_recommendations(

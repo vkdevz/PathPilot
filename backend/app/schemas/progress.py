@@ -22,6 +22,18 @@ class HeatmapDay(BaseModel):
     minutes: int
     intensity: int  # 0, 1, 2, 3
 
+class CompletedLearningItem(BaseModel):
+    id: str
+    resource_id: str
+    resource_title: str
+    resource_type: str
+    resource_slug: Optional[str] = None
+    skills_taught: List[str] = []
+    time_spent_minutes: int
+    xp_earned: int
+    status: str
+    completed_at: Optional[datetime] = None
+
 class LeaderboardUserResponse(BaseModel):
     rank: int
     user_id: str
@@ -30,3 +42,4 @@ class LeaderboardUserResponse(BaseModel):
     streak: int
     career: str
     is_current: bool = False
+

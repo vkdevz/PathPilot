@@ -150,7 +150,7 @@ class AdaptiveLearningService:
             self.db.add(skill_event)
             adaptation_events.append(skill_event)
 
-        # 10. Check for Roadmap Adaptations (Struggle or Mastery)
+        # 10. Check for Roadmap Adaptations (Struggle, Mastery, or Pace)
         roadmap_adapted = False
         if struggle_eval["is_struggling"]:
             await self.graph_service.initialize()
@@ -174,8 +174,19 @@ class AdaptiveLearningService:
             if mastery_res:
                 roadmap_adapted = True
                 adaptation_events.append(mastery_res[0])
+        
+        # Check pace adaptation
+        if pace_eval.get("pace") in ("FAST", "SLOW"):
+            pace_res = await self.roadmap_adapter.adapt_for_pace(
+                user_id=user_id,
+                pace_info=pace_eval
+            )
+            if pace_res:
+                roadmap_adapted = True
+                adaptation_events.append(pace_res[0])
 
         await self.db.flush()
+
 
         # 11. Run Phase 7 Skill Gap Engine to detect Next Best Skill change
         gap_analysis = await self.gap_engine.analyze_learner_gaps(user_id)

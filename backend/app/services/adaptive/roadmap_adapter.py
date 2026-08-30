@@ -235,3 +235,97 @@ class RoadmapAdapter:
         await self.db.flush()
 
         return event, version
+
+    async def adapt_for_pace(
+        self,
+        user_id: str,
+        pace_info: Dict[str, Any]
+    ) -> Optional[Tuple[AdaptationEvent, RoadmapVersion]]:
+        """
+        Dynamically adapts roadmap milestone duration and structure based on empirical learning pace.
+        FAST: Compresses estimated hours and accelerates milestone cadence.
+        SLOW: Reinforces estimated hours with dedicated milestone buffers.
+        """
+        pace = pace_info.get("pace")
+        if pace not in ("FAST", "SLOW"):
+            return None
+
+        active_path = await self.learning_path_repo.get_active_by_user(user_id)
+        if not active_path:
+            return None
+
+        # Check if already adapted for this pace to avoid redundant version creation
+        latest_ver_num = await self.get_latest_version_number(active_path.id)
+        q_recent = (
+            select(AdaptationEvent)
+            .where(AdaptationEvent.user_id == user_id, AdaptationEvent.event_type == "PACE_ADAPTED")
+            .order_by(AdaptationEvent.created_at.desc())
+            .limit(1)
+        )
+        recent_ev = (await self.db.execute(q_recent)).scalar_one_or_none()
+        if recent_ev and recent_ev.new_state.get("pace") == pace:
+            return None
+
+        previous_milestones = await self._serialize_milestones(active_path.items)
+        velocity_ratio = pace_info.get("velocity_ratio", 1.0)
+        modified_count = 0
+
+        if pace == "FAST":
+            reason_text = (
+                f"Your recent pace is faster than expected (velocity: {velocity_ratio}x benchmark). "
+                f"Accelerated roadmap milestone cadence and optimized study schedule."
+            )
+            for item in active_path.items:
+                if item.status in ("locked", "available"):
+                    item.estimated_hours = max(1, round(item.estimated_hours * 0.75))
+                    if "Accelerated" not in (item.recommendation_reason or ""):
+                        item.recommendation_reason = f"{item.recommendation_reason or ''} (Accelerated pacing based on fast completion velocity)."
+                    modified_count += 1
+        else: # SLOW
+            reason_text = (
+                f"Your recent pace indicates a deliberate study cadence (velocity: {velocity_ratio}x). "
+                f"Reinforced milestone pacing with dedicated review buffers to ensure thorough skill acquisition."
+            )
+            for item in active_path.items:
+                if item.status in ("locked", "available"):
+                    item.estimated_hours = round(item.estimated_hours * 1.3)
+                    if "Reinforced" not in (item.recommendation_reason or ""):
+                        item.recommendation_reason = f"{item.recommendation_reason or ''} (Reinforced pacing with dedicated mastery buffer)."
+                    modified_count += 1
+
+        if modified_count == 0:
+            return None
+
+        await self.db.flush()
+
+        # Create AdaptationEvent
+        event = AdaptationEvent(
+            user_id=user_id,
+            skill_id=active_path.items[0].skill_id if active_path.items else None,
+            event_type="PACE_ADAPTED",
+            trigger=f"PaceDetected:{pace}",
+            previous_state={"pace": "NORMAL", "velocity_ratio": 1.0},
+            new_state={"pace": pace, "velocity_ratio": velocity_ratio, "modified_milestones": modified_count},
+            reason=reason_text,
+            algorithm_version=ALGORITHM_VERSION
+        )
+        self.db.add(event)
+        await self.db.flush()
+
+        # Create RoadmapVersion
+        updated_milestones = await self._serialize_milestones(active_path.items)
+        version = RoadmapVersion(
+            user_id=user_id,
+            learning_path_id=active_path.id,
+            version_number=latest_ver_num + 1,
+            adaptation_event_id=event.id,
+            milestones_snapshot=updated_milestones,
+            reason=reason_text,
+            is_active=True
+        )
+        self.db.add(version)
+        await self.db.flush()
+
+        logger.info(f"Pace adaptation applied for user={user_id}. Pace={pace}, Version={version.version_number}")
+        return event, version
+

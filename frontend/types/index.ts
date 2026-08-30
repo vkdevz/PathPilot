@@ -201,8 +201,10 @@ export interface Resource {
   estimated_minutes: number;
   provider: string;
   is_interactive: boolean;
+  content?: string | null;
   skills_taught?: string[];
 }
+
 
 export interface FeatureScoreBreakdown {
   skill_gap: number;

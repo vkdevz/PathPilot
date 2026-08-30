@@ -128,13 +128,25 @@ async def seed_database(session: AsyncSession) -> None:
                 title=r_data["title"],
                 description=r_data["description"],
                 resource_type=r_data["resource_type"],
+                url=r_data.get("url"),
                 difficulty=r_data["difficulty"],
                 estimated_minutes=r_data["estimated_minutes"],
                 provider=r_data["provider"],
-                is_interactive=r_data.get("is_interactive", False)
+                is_interactive=r_data.get("is_interactive", False),
+                content=r_data.get("content")
             )
             session.add(resource)
             await session.flush()
+        else:
+            resource.title = r_data["title"]
+            resource.description = r_data["description"]
+            resource.url = r_data.get("url", resource.url)
+            resource.content = r_data.get("content", resource.content)
+            resource.difficulty = r_data["difficulty"]
+            resource.estimated_minutes = r_data["estimated_minutes"]
+            resource.provider = r_data["provider"]
+            resource.is_interactive = r_data.get("is_interactive", resource.is_interactive)
+
 
         for idx, sk_slug in enumerate(r_data.get("skills", [])):
             if sk_slug in skill_map:
@@ -210,8 +222,16 @@ async def seed_database(session: AsyncSession) -> None:
         logger.warning(f"Vector embedding generation during seeding encountered note: {e}")
 
 async def run_seeder():
+    from sqlalchemy import text
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+        try:
+            await conn.execute(text("ALTER TABLE resources ADD COLUMN content TEXT;"))
+        except Exception:
+            pass
     async with AsyncSessionLocal() as session:
         await seed_database(session)
 
 if __name__ == "__main__":
     asyncio.run(run_seeder())
+

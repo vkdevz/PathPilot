@@ -9,11 +9,13 @@ import { Card } from '../../components/ui/Card';
 import { apiClient } from '../../lib/api-client';
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [demoToken, setDemoToken] = useState<string | null>(null);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,19 +27,9 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || 'Failed to send reset link');
-      }
+      const data = await apiClient.forgotPassword(email);
       setSuccess(true);
-      if (data.reset_token_for_demo) {
+      if (data?.reset_token_for_demo) {
         setDemoToken(data.reset_token_for_demo);
       }
     } catch (err: any) {
@@ -94,9 +86,9 @@ export default function ForgotPasswordPage() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => window.location.href = '/login'}
+              onClick={() => router.push('/auth')}
             >
-              Back to Login
+              Back to Sign In
             </Button>
           </div>
         ) : (
@@ -133,8 +125,8 @@ export default function ForgotPasswordPage() {
             </Button>
 
             <div className="text-center">
-              <Link href="/login" className="text-sm font-medium text-[#007AFF] hover:text-[#006EDB] transition-colors">
-                Back to Login
+              <Link href="/auth" className="text-sm font-medium text-[#007AFF] hover:text-[#006EDB] transition-colors">
+                Back to Sign In
               </Link>
             </div>
           </form>
@@ -143,3 +135,4 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+

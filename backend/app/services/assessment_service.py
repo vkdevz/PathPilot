@@ -194,10 +194,12 @@ class AssessmentService:
             )
             await self.learning_path_repo.create(active_path)
         else:
+            active_path.career_id = career.id
             # Delete old items explicitly via query to avoid async lazyload issues
             await self.db.execute(
                 delete(LearningPathItem).where(LearningPathItem.learning_path_id == active_path.id)
             )
+
 
         for idx, cs in enumerate(career_skills, start=1):
             sk = cs.skill

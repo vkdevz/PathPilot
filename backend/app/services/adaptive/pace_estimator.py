@@ -36,9 +36,13 @@ class PaceEstimator:
             }
 
         completed_count = len(completed_items)
-        total_study_minutes = sum(log.duration_minutes for log in study_logs) if study_logs else 0
+        total_study_minutes = sum(
+            getattr(log, "time_spent_minutes", getattr(log, "duration_minutes", 0))
+            for log in study_logs
+        ) if study_logs else 0
 
         # Require at least 2 completed milestones or >= 120 minutes of study logs
+
         if completed_count < 2 and total_study_minutes < 120:
             return {
                 "pace": "NORMAL",
