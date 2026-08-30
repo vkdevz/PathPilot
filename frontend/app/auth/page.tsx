@@ -124,9 +124,16 @@ export default function AuthPage() {
           </div>
 
           <div className="space-y-1">
-            <label className="block text-[11px] font-medium text-[#6E6E73] dark:text-[#AEAEB2]">
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="block text-[11px] font-medium text-[#6E6E73] dark:text-[#AEAEB2]">
+                Password
+              </label>
+              {!isSignUp && (
+                <Link href="/forgot-password" className="text-[11px] font-medium text-[#007AFF] hover:text-[#006EDB] transition-colors">
+                  Forgot password?
+                </Link>
+              )}
+            </div>
             <div className="relative">
               <Lock className="w-4 h-4 text-[#86868B] absolute left-3 top-1/2 -translate-y-1/2" />
               <input

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { ExternalLink, Clock, BookOpen, Code2, Video, FileText, CheckCircle2, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import type { Recommendation } from '../../types';
 import { Badge } from '../ui/Badge';
@@ -144,9 +145,12 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
               <ExternalLink className="w-3 h-3" />
             </a>
           ) : (
-            <Button variant="primary" size="sm">
-              Launch Resource
-            </Button>
+            <Link 
+              href={`/resources/${recommendation.resource_id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#007AFF] hover:bg-[#006EDB] text-white text-xs font-semibold transition-colors"
+            >
+              <span>Launch Resource</span>
+            </Link>
           )}
 
           {/* Feedback */}

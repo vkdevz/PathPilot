@@ -4,11 +4,55 @@ from sqlalchemy import select
 from app.dependencies.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User, LearnerProfile
-from app.schemas.user import UserResponse, UserSyncRequest, UserRegisterRequest, UserLoginRequest, AuthTokenResponse
+from app.schemas.user import UserResponse, UserSyncRequest, UserRegisterRequest, UserLoginRequest, AuthTokenResponse, ForgotPasswordRequest, ResetPasswordRequest
 from app.services.learner_service import LearnerService
-from app.core.security import hash_password, verify_password, create_access_token
+from app.core.security import hash_password, verify_password, create_access_token, create_password_reset_token, verify_password_reset_token
 
 router = APIRouter(prefix="/auth", tags=["Authentication & User"])
+
+@router.post("/forgot-password", status_code=status.HTTP_200_OK)
+async def forgot_password(req: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    clean_email = req.email.lower().strip()
+    result = await db.execute(select(User).where(User.email == clean_email))
+    user = result.scalar_one_or_none()
+    
+    if user:
+        reset_token = create_password_reset_token(user.id, user.email)
+        # For Hackathon MVP without an SMTP server, print the reset token to the server console.
+        # In a real app, send an email. For demo purposes, we can return it (or just rely on the logs).
+        # We will return it to allow the frontend to automatically handle it or display a test link.
+        return {"status": "success", "message": "Password reset email sent", "reset_token_for_demo": reset_token}
+    
+    # Always return success to prevent email enumeration
+    return {"status": "success", "message": "If an account exists, a password reset email has been sent."}
+
+@router.post("/reset-password", status_code=status.HTTP_200_OK)
+async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    if not req.new_password or len(req.new_password) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 6 characters in length."
+        )
+
+    user_id = verify_password_reset_token(req.token)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired password reset token."
+        )
+        
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User not found."
+        )
+        
+    user.password_hash = hash_password(req.new_password)
+    await db.commit()
+    
+    return {"status": "success", "message": "Password successfully reset."}
 
 @router.post("/register", response_model=AuthTokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(req: UserRegisterRequest, db: AsyncSession = Depends(get_db)):

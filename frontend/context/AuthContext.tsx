@@ -102,34 +102,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       syncUserState(authenticatedUser, access_token);
     } catch (err: any) {
-      // If network fails in standalone offline mode, provide seamless local fallback
-      if (isDevMode && (err?.message?.includes('failed') || err?.message?.includes('fetch') || err?.message?.includes('network'))) {
-        const userId = `dev-${cleanEmail.split('@')[0].replace(/[^a-z0-9]/gi, '-')}`;
-        const devToken = `dev-token-${userId}`;
-        const syntheticUser: User = {
-          id: userId,
-          email: cleanEmail,
-          display_name: cleanEmail.split('@')[0],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          profile: {
-            id: `prof-${userId}`,
-            user_id: userId,
-            target_career_id: 'data-scientist',
-            experience_level: 'beginner',
-            learning_pace: 'moderate',
-            preferred_format: 'interactive',
-            weekly_hours_goal: 5,
-            xp: 0,
-            streak_days: 1,
-            preferences: {},
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        };
-        syncUserState(syntheticUser, devToken);
-        return;
-      }
       throw err;
     } finally {
       setLoading(false);
@@ -161,34 +133,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       syncUserState(registeredUser, access_token);
     } catch (err: any) {
-      // If offline dev mode
-      if (isDevMode && (err?.message?.includes('failed') || err?.message?.includes('fetch') || err?.message?.includes('network'))) {
-        const userId = `dev-${cleanEmail.split('@')[0].replace(/[^a-z0-9]/gi, '-')}`;
-        const devToken = `dev-token-${userId}`;
-        const syntheticUser: User = {
-          id: userId,
-          email: cleanEmail,
-          display_name: displayName || cleanEmail.split('@')[0],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          profile: {
-            id: `prof-${userId}`,
-            user_id: userId,
-            target_career_id: 'data-scientist',
-            experience_level: 'beginner',
-            learning_pace: 'moderate',
-            preferred_format: 'interactive',
-            weekly_hours_goal: 5,
-            xp: 0,
-            streak_days: 1,
-            preferences: {},
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        };
-        syncUserState(syntheticUser, devToken);
-        return;
-      }
       throw err;
     } finally {
       setLoading(false);

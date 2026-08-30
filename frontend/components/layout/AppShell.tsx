@@ -162,7 +162,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           >
             <div className="text-[10px] uppercase font-semibold tracking-wider text-[#86868B] mb-0.5">Target Track</div>
             <div className="text-xs font-semibold text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-[#007AFF] flex items-center justify-between transition-colors">
-              <span className="truncate">{user?.profile?.target_career_id ? user.profile.target_career_id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Data Scientist'}</span>
+              <span className="truncate">{user?.profile?.target_career_name || user?.profile?.target_career_id?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Target Track'}</span>
               <ChevronRight className="w-3.5 h-3.5 text-[#86868B] group-hover:text-[#007AFF] transition-colors" />
             </div>
           </Link>

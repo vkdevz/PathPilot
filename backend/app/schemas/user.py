@@ -4,6 +4,7 @@ from datetime import datetime
 
 class LearnerProfileBase(BaseModel):
     target_career_id: Optional[str] = None
+    target_career_name: Optional[str] = None
     experience_level: str = "beginner"
     learning_pace: str = "moderate"
     preferred_format: str = "interactive"
@@ -47,6 +48,13 @@ class UserSyncRequest(BaseModel):
     email: Optional[str] = None
     display_name: Optional[str] = None
     avatar_url: Optional[str] = None
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
 class UserResponse(UserBase):
     id: str

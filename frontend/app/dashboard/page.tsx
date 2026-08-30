@@ -171,7 +171,7 @@ export default function DashboardPage() {
                 Target Role
               </div>
               <h2 className="text-xl font-bold text-[#1D1D1F] dark:text-[#F5F5F7] tracking-tight">
-                {readiness?.career_name || roadmap?.career_name || 'Data Scientist'}
+                {readiness?.career_name || roadmap?.career_name || user?.profile?.target_career_name || user?.profile?.target_career_id?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Target Track'}
               </h2>
               <p className="text-xs text-[#6E6E73] dark:text-[#AEAEB2] max-w-md">
                 Industry validated roadmap • Multi-factor diagnostic calibration

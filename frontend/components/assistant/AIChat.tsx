@@ -91,6 +91,11 @@ export const AIChat: React.FC<AIChatProps> = ({
     setMessages,
   } = useChat({
     api: '/api/chat',
+    headers: {
+      'Authorization': typeof window !== 'undefined' && localStorage.getItem('auth_token')
+        ? `Bearer ${localStorage.getItem('auth_token')}`
+        : '',
+    },
     body: {
       conversation_id: conversationId,
       active_skill: activeSkill,

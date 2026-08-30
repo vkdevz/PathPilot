@@ -49,6 +49,38 @@ def create_access_token(user_id: str, email: str, display_name: Optional[str] = 
     }
     return jwt.encode(payload, settings.SUPABASE_JWT_SECRET, algorithm="HS256")
 
+def create_password_reset_token(user_id: str, email: str) -> str:
+    """
+    Generates a short-lived cryptographically signed JWT specifically for password recovery.
+    """
+    now = int(time.time())
+    payload = {
+        "sub": user_id,
+        "email": email,
+        "purpose": "password_reset",
+        "iat": now,
+        "exp": now + 1800 # 30 minutes
+    }
+    return jwt.encode(payload, settings.SUPABASE_JWT_SECRET, algorithm="HS256")
+
+def verify_password_reset_token(token: str) -> Optional[str]:
+    """
+    Verifies a password reset token and returns the user_id if valid.
+    """
+    try:
+        decoded = jwt.decode(
+            token,
+            settings.SUPABASE_JWT_SECRET,
+            algorithms=["HS256"],
+            options={"verify_aud": False}
+        )
+        if decoded.get("purpose") != "password_reset":
+            return None
+        return decoded.get("sub")
+    except Exception as e:
+        logger.warning(f"Password reset token verification failed: {e}")
+        return None
+
 def verify_supabase_token(token: str) -> Dict[str, Any]:
     """
     Verifies and decodes an Auth JWT access token.
