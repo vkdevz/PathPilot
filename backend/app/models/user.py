@@ -11,6 +11,7 @@ class User(Base, TimestampMixin):
     password_hash = Column(String(255), nullable=True)
     display_name = Column(String(255), nullable=True, default="Learner")
     avatar_url = Column(String(512), nullable=True)
+    role = Column(String(50), default="learner", nullable=False)
 
     # Relationships
     profile = relationship("LearnerProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")

@@ -36,6 +36,8 @@ import type {
   StudySession,
   StudyTimeSummary,
   CompleteResourceResult,
+  AdminUserRecord,
+  AdminOverviewStats,
 } from '../types';
 
 
@@ -549,6 +551,35 @@ class ApiClient {
 
   async getAdaptiveBenchmark(): Promise<AdaptiveBenchmarkReport> {
     return this.request<AdaptiveBenchmarkReport>('/learners/me/adaptation/benchmark');
+  }
+
+  // ---------------------------------------------------------------------------
+  // Admin & Client Management
+  // ---------------------------------------------------------------------------
+  async getAdminUsers(params?: {
+    search?: string;
+    role?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<AdminUserRecord[]> {
+    const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
+    if (params?.role) query.append('role', params.role);
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.offset) query.append('offset', params.offset.toString());
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return this.request<AdminUserRecord[]>(`/admin/users${qs}`);
+  }
+
+  async getAdminOverview(): Promise<AdminOverviewStats> {
+    return this.request<AdminOverviewStats>('/admin/overview');
+  }
+
+  async updateUserRole(userId: string, role: string): Promise<AdminUserRecord> {
+    return this.request<AdminUserRecord>(`/admin/users/${userId}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
   }
 }
 

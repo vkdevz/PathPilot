@@ -15,6 +15,16 @@ async def lifespan(app: FastAPI):
     logger.info(f"Initializing {settings.PROJECT_NAME} v{settings.VERSION} [{settings.ENVIRONMENT}]")
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        from sqlalchemy import text
+        for col_stmt in [
+            "ALTER TABLE resources ADD COLUMN content TEXT;",
+            "ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'learner';",
+            "ALTER TABLE users ADD COLUMN password_hash VARCHAR(255);"
+        ]:
+            try:
+                await conn.execute(text(col_stmt))
+            except Exception:
+                pass
     
     # Run seed
     try:

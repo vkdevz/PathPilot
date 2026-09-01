@@ -23,6 +23,7 @@ export interface User {
   email: string;
   display_name: string;
   avatar_url?: string | null;
+  role?: 'learner' | 'admin' | string;
   profile?: LearnerProfile | null;
   created_at: string;
   updated_at: string;
@@ -697,5 +698,39 @@ export interface AdaptiveBenchmarkReport {
     actual: string;
   }>;
   timestamp: string;
+}
+
+export interface AdminUserRecord {
+  id: string;
+  email: string;
+  display_name: string;
+  role: 'learner' | 'admin' | string;
+  target_career_name?: string | null;
+  target_career_slug?: string | null;
+  experience_level: string;
+  learning_pace: string;
+  weekly_hours_goal: number;
+  xp: number;
+  streak_days: number;
+  total_study_minutes: number;
+  total_study_sessions: number;
+  total_completed_learning: number;
+  created_at: string;
+  updated_at?: string | null;
+}
+
+export interface AdminOverviewStats {
+  total_registered_users: number;
+  total_learners: number;
+  total_admins: number;
+  total_xp_awarded: number;
+  total_study_minutes_logged: number;
+  total_study_sessions_logged: number;
+  total_verified_completions: number;
+  career_distribution: Array<{
+    career_name: string;
+    learner_count: number;
+  }>;
+  recent_registrations: AdminUserRecord[];
 }
 

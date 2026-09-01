@@ -30,7 +30,10 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
     EMBEDDING_MODEL: str = "text-embedding-3-small"
 
-    
+    # Admin Credentials (Overridable via Render / Environment variables)
+    ADMIN_EMAIL: str = Field(default="admin@pathpilot.ai")
+    ADMIN_PASSWORD: str = Field(default="Admin123!")
+
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

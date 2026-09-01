@@ -221,14 +221,60 @@ async def seed_database(session: AsyncSession) -> None:
     except Exception as e:
         logger.warning(f"Vector embedding generation during seeding encountered note: {e}")
 
+    # 7. Seed / Update Admin Account
+    try:
+        from app.models.user import User, LearnerProfile
+        from app.core.security import hash_password
+        from app.core.config import settings
+
+        admin_email = settings.ADMIN_EMAIL.strip().lower()
+        stmt_admin = select(User).where(User.email == admin_email)
+        res_admin = await session.execute(stmt_admin)
+        admin_user = res_admin.scalar_one_or_none()
+
+        if not admin_user:
+            admin_user = User(
+                email=admin_email,
+                password_hash=hash_password(settings.ADMIN_PASSWORD),
+                display_name="PathPilot Admin",
+                role="admin"
+            )
+            session.add(admin_user)
+            await session.flush()
+
+            admin_profile = LearnerProfile(
+                user_id=admin_user.id,
+                xp=500,
+                streak_days=5,
+                experience_level="advanced",
+                learning_pace="intensive",
+                preferred_format="interactive",
+                weekly_hours_goal=10
+            )
+            session.add(admin_profile)
+            logger.info(f"Admin account created: {admin_email}")
+        else:
+            admin_user.role = "admin"
+            if not admin_user.password_hash:
+                admin_user.password_hash = hash_password(settings.ADMIN_PASSWORD)
+
+        await session.commit()
+    except Exception as e:
+        logger.warning(f"Admin user seeding note: {e}")
+
 async def run_seeder():
     from sqlalchemy import text
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        try:
-            await conn.execute(text("ALTER TABLE resources ADD COLUMN content TEXT;"))
-        except Exception:
-            pass
+        for col_stmt in [
+            "ALTER TABLE resources ADD COLUMN content TEXT;",
+            "ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'learner';",
+            "ALTER TABLE users ADD COLUMN password_hash VARCHAR(255);"
+        ]:
+            try:
+                await conn.execute(text(col_stmt))
+            except Exception:
+                pass
     async with AsyncSessionLocal() as session:
         await seed_database(session)
 

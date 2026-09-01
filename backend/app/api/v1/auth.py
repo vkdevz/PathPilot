@@ -169,7 +169,7 @@ async def sync_user(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Syncs display name and metadata into PostgreSQL.
+    Syncs display name, metadata, and target career into PostgreSQL.
     """
     if req.display_name:
         current_user.display_name = req.display_name
@@ -177,4 +177,9 @@ async def sync_user(
         current_user.avatar_url = req.avatar_url
     await db.flush()
     learner_service = LearnerService(db)
+    if req.target_career_slug:
+        await learner_service.set_target_career(current_user.id, req.target_career_slug)
+    elif req.target_career_id:
+        await learner_service.update_profile(current_user.id, {"target_career_id": req.target_career_id})
+
     return await learner_service.get_user_profile(current_user.id)

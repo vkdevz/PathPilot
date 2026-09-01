@@ -194,8 +194,13 @@ class LLMClient:
         lower_msg = user_msg.lower()
         intent = self.classify_intent(user_msg)
 
+        p = context.get("profile", {})
+        has_target_career = p.get("has_target_career", True)
+        career = p.get("target_career") or "Data Scientist"
+        is_career_missing = not has_target_career or career in ("None Selected", "Not Set (Exploring)", "Not Set", "None", "")
+
         # Execute appropriate DB tools if necessary
-        if self.tool_router:
+        if self.tool_router and not is_career_missing:
             if intent == "STUDY_LOGGING":
                 mins_match = re.search(r"(\d+)\s*(?:min|minute|m\b|hr|hour)", lower_msg)
                 mins = int(mins_match.group(1)) if mins_match else 30
@@ -271,7 +276,20 @@ class LLMClient:
         s = context.get("skills", {})
         act = context.get("activity", {})
 
+        has_target_career = p.get("has_target_career", True)
         career = p.get("target_career") or "Data Scientist"
+
+        # ── 0. NO CAREER ROLE SELECTED GATING ──
+        if not has_target_career or career in ("None Selected", "Not Set (Exploring)", "Not Set", "None", ""):
+            return (
+                "⚠️ **Target Career Role Required**\n\n"
+                "You haven't selected a target career track yet. To provide grounded skill gap analysis, "
+                "personalized milestone roadmaps, and verified learning recommendations, PathPilot needs to know your target career role.\n\n"
+                "👉 **Next Step**: Please visit the **[Career Tracks](/careers)** page to select your goal "
+                "(e.g., *Data Scientist*, *AI Engineer*, *Full Stack Developer*, *Cloud & DevOps Engineer*, or *Cybersecurity Analyst*).\n\n"
+                "Once selected, I will immediately calibrate your personalized learning navigation!"
+            )
+
         active_step = r.get("current_active_milestone") or s.get("next_best_skill") or "Python Foundations"
         readiness = s.get("career_readiness_pct", 65.0)
         bottlenecks = s.get("bottlenecks", [])

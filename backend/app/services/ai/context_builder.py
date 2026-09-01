@@ -113,12 +113,15 @@ class ContextBuilder:
         activity_logs = await self.progress_repo.get_user_progress(user_id, limit=14)
         total_recent_minutes = sum(p.time_spent_minutes for p in activity_logs)
 
+        has_target_career = bool(profile and (profile.target_career_id or profile.target_career))
+
         context_data = {
             "user_id": user_id,
             "display_name": user.display_name if user else "Learner",
             "email": user.email if user else "",
             "profile": {
-                "target_career": target_career_name,
+                "has_target_career": has_target_career,
+                "target_career": target_career_name if has_target_career else "None Selected",
                 "target_career_slug": target_career_slug,
                 "salary_range": target_career_salary,
                 "experience_level": profile.experience_level if profile else "beginner",

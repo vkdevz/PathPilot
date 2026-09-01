@@ -23,6 +23,7 @@ import {
   Sun,
   Moon,
   Laptop,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -45,6 +46,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   const { user, supabaseUser, loading, signOut } = useAuth();
   const { theme, resolvedTheme, setTheme } = useTheme();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const isAdmin = user?.role === 'admin';
 
   // Authentication Route Guard
   React.useEffect(() => {
@@ -77,6 +80,10 @@ export const AppShell: React.FC<AppShellProps> = ({
     { href: '/progress', label: 'Progress & Activity', icon: Activity },
     { href: '/feedback', label: 'Adaptation Hub', icon: MessageSquareHeart },
     { href: '/settings', label: 'Settings', icon: Settings },
+  ];
+
+  const adminNav = [
+    { href: '/admin', label: 'Admin Dashboard', icon: ShieldCheck },
   ];
 
   if (loading) {
@@ -239,6 +246,34 @@ export const AppShell: React.FC<AppShellProps> = ({
               );
             })}
           </div>
+
+          {/* Admin Navigation (Admin Role Only) */}
+          {isAdmin && (
+            <div className="space-y-1 pt-4 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
+              <div className="px-3 flex items-center justify-between text-[10px] uppercase font-bold tracking-wider text-[#FF9F0A] mb-2">
+                <span>Management</span>
+                <span className="px-1.5 py-0.2 rounded bg-[#FFF4E0] dark:bg-[#FF9F0A]/20 text-[#FF9F0A] font-mono text-[9px] font-bold">Admin</span>
+              </div>
+              {adminNav.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? 'bg-[#FFF4E0] dark:bg-[#FF9F0A]/20 text-[#FF9F0A] border border-[#FF9F0A]/30 font-semibold'
+                        : 'text-[#6E6E73] dark:text-[#AEAEB2] hover:text-[#FF9F0A] hover:bg-white dark:hover:bg-[#1C1C1E]'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 text-[#FF9F0A]" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </aside>
 
         {/* Mobile Navigation Drawer */}
@@ -259,7 +294,7 @@ export const AppShell: React.FC<AppShellProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  {[...primaryNav, ...secondaryNav].map((item) => {
+                  {[...primaryNav, ...secondaryNav, ...(isAdmin ? adminNav : [])].map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
                     return (

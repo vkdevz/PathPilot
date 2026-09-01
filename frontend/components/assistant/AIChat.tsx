@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useChat } from 'ai/react';
 import {
   Bot,
@@ -15,6 +16,7 @@ import {
   Layers,
   HelpCircle,
   Zap,
+  ArrowRight,
 } from 'lucide-react';
 
 interface AIChatProps {
@@ -82,6 +84,15 @@ export const AIChat: React.FC<AIChatProps> = ({
 }) => {
   const [conversationId, setConversationId] = useState<string | null>(null);
 
+  const isCareerSelected = Boolean(
+    careerTrack &&
+    !['Not Set', 'None Selected', 'Not Set (Exploring)', 'None', '', 'Select Career Track'].includes(careerTrack)
+  );
+
+  const initialWelcome = isCareerSelected
+    ? `👋 Hello! I am your **PathPilot Learning Navigator**.\n\nI am calibrated directly to your **${careerTrack}** roadmap and active focus area (**${activeSkill}**).\n\nSelect a quick action below or ask about your skill gaps, recommendations, and study steps.`
+    : `👋 Welcome to **PathPilot Learning Navigator**!\n\n⚠️ **You have not selected a target career track yet.**\n\nTo unlock personalized skill gap diagnosis, milestone roadmaps, and verified learning recommendations, please select a target career track on the **[Career Tracks](/careers)** page.`;
+
   const {
     messages,
     input,
@@ -104,7 +115,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       {
         id: 'welcome-msg',
         role: 'assistant',
-        content: `👋 Hello! I am your **PathPilot Learning Navigator**.\n\nI am calibrated directly to your **${careerTrack}** roadmap and active focus area (**${activeSkill}**).\n\nSelect a quick action below or ask about your skill gaps, recommendations, and study steps.`,
+        content: initialWelcome,
       },
     ],
   });
@@ -121,7 +132,9 @@ export const AIChat: React.FC<AIChatProps> = ({
       {
         id: `welcome-${Date.now()}`,
         role: 'assistant',
-        content: `👋 Started a fresh session calibrated for **${careerTrack}** (**${activeSkill}**). What would you like to explore?`,
+        content: isCareerSelected
+          ? `👋 Started a fresh session calibrated for **${careerTrack}** (**${activeSkill}**). What would you like to explore?`
+          : `👋 Fresh session started.\n\n⚠️ Please select a target career track on the **[Career Tracks](/careers)** page to calibrate personalized recommendations.`,
       },
     ]);
   };
@@ -177,7 +190,10 @@ export const AIChat: React.FC<AIChatProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-[#6E6E73] dark:text-[#AEAEB2]">
-              Calibrated Goal: <span className="text-[#007AFF] font-medium">{careerTrack}</span>
+              Calibrated Goal:{' '}
+              <span className={`font-medium ${isCareerSelected ? 'text-[#007AFF]' : 'text-[#FF9F0A]'}`}>
+                {isCareerSelected ? careerTrack : 'No Role Selected (Action Required)'}
+              </span>
             </p>
           </div>
         </div>
@@ -193,6 +209,23 @@ export const AIChat: React.FC<AIChatProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Unselected Role Warning Banner */}
+      {!isCareerSelected && (
+        <div className="mt-3 p-3 rounded-xl bg-[#FFF4E0] dark:bg-[#FF9F0A]/15 border border-[#FF9F0A]/30 flex items-center justify-between gap-3 shrink-0 animate-in fade-in">
+          <div className="flex items-center gap-2 text-xs text-[#1D1D1F] dark:text-[#F5F5F7]">
+            <AlertCircle className="w-4 h-4 text-[#FF9F0A] shrink-0" />
+            <span>Target career role required for personalized roadmap calibration.</span>
+          </div>
+          <Link
+            href="/careers"
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#007AFF] hover:bg-[#006EDB] text-white text-[11px] font-semibold shrink-0 transition-colors shadow-sm"
+          >
+            <span>Choose Career Track</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      )}
 
       {/* Messages Scroll Area */}
       <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
@@ -280,7 +313,11 @@ export const AIChat: React.FC<AIChatProps> = ({
           type="text"
           value={input}
           onChange={handleInputChange}
-          placeholder="Ask AI Navigator about skills, gaps, or roadmap logic..."
+          placeholder={
+            isCareerSelected
+              ? "Ask AI Navigator about skills, gaps, or roadmap logic..."
+              : "Select a career track on Careers page to calibrate navigation..."
+          }
           className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#FBFBFD] dark:bg-[#2C2C2E] border border-[#E5E5EA] dark:border-[#38383A] text-xs text-[#1D1D1F] dark:text-[#F5F5F7] placeholder-[#86868B] focus:outline-none focus:border-[#007AFF] transition-colors"
         />
         <button

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import {
   Bot,
   Sparkles,
@@ -42,8 +43,8 @@ export default function AssistantPage() {
         {/* Chat UI Main Area (3 Cols) */}
         <div className="lg:col-span-3">
           <AIChat
-            careerTrack={roadmap?.career_name || 'Data Scientist'}
-            activeSkill={activeMilestone?.skill_name || 'Python Foundations'}
+            careerTrack={roadmap?.career_name || 'Not Set'}
+            activeSkill={activeMilestone?.skill_name || 'Foundations'}
           />
         </div>
 
@@ -57,11 +58,11 @@ export default function AssistantPage() {
             <div>
               <span className="text-xs text-[#6E6E73] dark:text-[#AEAEB2]">Target Track:</span>
               <h4 className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7]">
-                {roadmap?.career_name || 'Data Scientist'}
+                {roadmap?.career_name || 'No Track Selected'}
               </h4>
             </div>
 
-            {activeMilestone && (
+            {activeMilestone ? (
               <div className="pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
                 <span className="text-xs text-[#6E6E73] dark:text-[#AEAEB2]">Active Milestone:</span>
                 <div className="flex items-center gap-1.5 mt-1">
@@ -70,6 +71,16 @@ export default function AssistantPage() {
                     {activeMilestone.skill_name}
                   </h4>
                 </div>
+              </div>
+            ) : (
+              <div className="pt-2 border-t border-[#E5E5EA] dark:border-[#2C2C2E]">
+                <span className="text-[11px] text-[#FF9F0A] block mb-1.5">No active roadmap milestone</span>
+                <Link
+                  href="/careers"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#007AFF] hover:underline"
+                >
+                  <span>Select Track on Careers page →</span>
+                </Link>
               </div>
             )}
           </div>

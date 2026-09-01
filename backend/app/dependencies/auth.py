@@ -93,8 +93,21 @@ def verify_user_ownership(current_user: User, resource_user_id: str) -> None:
     """
     Ensures that an authenticated user can only access their own private resources.
     """
-    if current_user.id != resource_user_id:
+    if current_user.id != resource_user_id and current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access forbidden: you do not have permission to access or modify this resource.",
         )
+
+async def get_current_admin_user(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """
+    Ensures the authenticated user has administrative privileges.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Administrative privileges required."
+        )
+    return current_user

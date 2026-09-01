@@ -33,6 +33,7 @@ class UserBase(BaseModel):
     email: str
     display_name: Optional[str] = "Learner"
     avatar_url: Optional[str] = None
+    role: str = "learner"
 
 class UserRegisterRequest(BaseModel):
     email: str
@@ -48,6 +49,8 @@ class UserSyncRequest(BaseModel):
     email: Optional[str] = None
     display_name: Optional[str] = None
     avatar_url: Optional[str] = None
+    target_career_slug: Optional[str] = None
+    target_career_id: Optional[str] = None
 
 class ForgotPasswordRequest(BaseModel):
     email: str
