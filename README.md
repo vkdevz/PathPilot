@@ -1,6 +1,4 @@
-# 🧭 PathPilot AI
-
-**Adaptive AI-Powered Career Learning Platform**
+# 🧭 PathPilot AI  -  Adaptive AI-Powered Career Learning Platform
 
 PathPilot transforms career development from static course catalogs into a continuously adaptive, AI-driven learning experience. It combines diagnostic skill assessments, intelligent prerequisite graph analysis, hybrid recommendation engines, and a closed-loop adaptive learning system to deliver truly personalized education pathways.
 
