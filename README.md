@@ -102,7 +102,7 @@ cp .env.example .env
 uvicorn app.main:app --reload --port 8000
 
 
-Frontend Setup
+### 3. Frontend Setup
 Bash
 cd frontend
 
@@ -117,7 +117,7 @@ npm run dev
 
 
 
-🧪 Test Suite & Validation
+### 🧪 Test Suite & Validation
 The codebase includes end-to-end integration and unit tests covering DAG traversals, recommendation heuristics, and API endpoints:
 
 Bash
@@ -130,5 +130,5 @@ cd frontend && npm test
 
 )
 
-📜 License
+### 📜 License
 Distributed under the MIT License. See LICENSE for more information.
