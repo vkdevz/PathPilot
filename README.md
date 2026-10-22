@@ -86,6 +86,7 @@ Online learning portals drown students in thousands of uncurated modules without
 - Node.js 18+
 - PostgreSQL 16 with `pgvector` enabled (or Supabase instance)
 
+```bash
 ### 2. Backend Setup
 ```bash
 cd backend
