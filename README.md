@@ -61,9 +61,9 @@ Online learning portals drown students in thousands of uncurated modules without
 
 | Component | Technical Implementation & Rationale |
 | :--- | :--- |
-| **Prerequisite DAG** | Built as an in-memory directed acyclic graph with cycle detection, transitive reduction, and downstream impact scoring. Prevents prerequisite violation errors completely ($0\%$ violation rate). |
+| **Prerequisite DAG** | Built as an in-memory directed acyclic graph with cycle detection, transitive reduction, and downstream impact scoring. Prevents prerequisite violation errors completely (0% violation rate). |
 | **Hybrid Ranking** | Multi-objective scoring combining 8 weighted features (`skill_gap`, `career_alignment`, `difficulty_fit`, `pacing`, `semantic_similarity`, etc.) followed by **MMR re-ranking** to ensure curriculum diversity. |
-| **Adaptive Proficiency** | Bayesian-inspired state updates with evidence weight decay ($30$-day half-life). Includes SHA-256 evidence hashing to prevent duplicate submission distortions. |
+| **Adaptive Proficiency** | Bayesian-inspired state updates with evidence weight decay (30-day half-life). Includes SHA-256 evidence hashing to prevent duplicate submission distortions. |
 | **Vector Search** | pgvector cosine distance queries over 1536-dimension embeddings, enabling unified cross-entity discovery across skills, careers, and learning resources. |
 | **Deterministic AI Mentor** | LLM assistant constrained via controlled function calling. Queries live database state directly rather than hallucinating progression metrics. |
 
@@ -75,7 +75,6 @@ Online learning portals drown students in thousands of uncurated modules without
 - **Server:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (Async Engine), Uvicorn
 - **Persistence & Vector Store:** PostgreSQL 16, pgvector, Supabase Auth
 - **AI/LLM Layer:** OpenAI / Google Gemini API, Deterministic Embedding Fallback Pipeline
-- **Quality Assurance & Testing:** Pytest, Jest, Alembic Migrations
 
 ---
 
@@ -86,8 +85,8 @@ Online learning portals drown students in thousands of uncurated modules without
 - Node.js 18+
 - PostgreSQL 16 with `pgvector` enabled (or Supabase instance)
 
-```bash
 ### 2. Backend Setup
+
 ```bash
 cd backend
 
@@ -103,8 +102,8 @@ cp .env.example .env
 uvicorn app.main:app --reload --port 8000
 
 
-### **3. Frontend Setup** 
-Bash
+### 3. Frontend Setup
+
 cd frontend
 
 # Install packages
@@ -116,20 +115,13 @@ cp .env.example .env.local
 # Start Next.js server
 npm run dev
 
+### 🧪Test Suite & Validation
 
-
-### 🧪 **Test Suite & Validation**
-The codebase includes end-to-end integration and unit tests covering DAG traversals, recommendation heuristics, and API endpoints:
-
-Bash
 # Run backend test suite (84 tests)
 cd backend && pytest tests -v
 
 # Run frontend unit tests (19 tests)
 cd frontend && npm test
 
-
-)
-
-### 📜 **License**
-Distributed under the MIT License. See LICENSE for more information.
+### License
+Distributed under the MIT License. See LICENSE for more information
