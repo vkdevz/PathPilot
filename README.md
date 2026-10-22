@@ -28,6 +28,8 @@ Online learning portals drown students in thousands of uncurated modules without
 ---
 
 ## 🏗️ System Architecture
+
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                 Next.js 14 Web Frontend                     │
 │    (TypeScript, Tailwind CSS, Lucide React, Recharts)       │
@@ -100,10 +102,10 @@ cp .env.example .env
 
 # Run local development server (includes auto-migration & seeder)
 uvicorn app.main:app --reload --port 8000
-
+````
 
 ### 3. Frontend Setup
-
+````bash
 cd frontend
 
 # Install packages
@@ -114,14 +116,14 @@ cp .env.example .env.local
 
 # Start Next.js server
 npm run dev
-
+````
 ### 🧪Test Suite & Validation
-
+```bash
 # Run backend test suite (84 tests)
 cd backend && pytest tests -v
 
 # Run frontend unit tests (19 tests)
 cd frontend && npm test
-
+````
 ### License
 Distributed under the MIT License. See LICENSE for more information
