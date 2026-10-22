@@ -73,12 +73,27 @@ Online learning portals drown students in thousands of uncurated modules without
 
 ## 🛠️ Tech Stack
 
-- **Client:** Next.js 14 (App Router), TypeScript, Tailwind CSS, Recharts
-- **Server:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (Async Engine), Uvicorn
-- **Persistence & Vector Store:** PostgreSQL 16, pgvector, Supabase Auth
-- **AI/LLM Layer:** OpenAI / Google Gemini API, Deterministic Embedding Fallback Pipeline
+**Client**  
+![Next.js 14](https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Recharts](https://img.shields.io/badge/Recharts-22B573?style=for-the-badge)
 
----
+**Server**  
+![Python 3.12](https://img.shields.io/badge/Python_3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Pydantic v2](https://img.shields.io/badge/Pydantic_v2-E92063?style=for-the-badge&logo=pydantic&logoColor=white)
+![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy_2.0-D71F00?style=for-the-badge)
+![Uvicorn](https://img.shields.io/badge/Uvicorn-499848?style=for-the-badge)
+
+**Persistence & Vector Store**  
+![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![pgvector](https://img.shields.io/badge/pgvector-336791?style=for-the-badge)
+![Supabase Auth](https://img.shields.io/badge/Supabase_Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+
+**AI / LLM Layer**  
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
+![Google Gemini API](https://img.shields.io/badge/Google_Gemini_API-8E75B2?style=for-the-badge&logo=google-gemini&logoColor=white)
 
 ## 🚀 Quickstart Guide
 
