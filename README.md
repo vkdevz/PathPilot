@@ -132,7 +132,7 @@ cp .env.example .env.local
 # Start Next.js server
 npm run dev
 ````
-### 🧪Test Suite & Validation
+### 🧪 Test Suite & Validation
 ```bash
 # Run backend test suite (84 tests)
 cd backend && pytest tests -v
